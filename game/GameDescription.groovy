@@ -1,3 +1,5 @@
+import gdl.GDLDescription
+
 /**
  * @author Lawrence Thatcher
  */
@@ -6,9 +8,9 @@ class GameDescription implements GDLConvertable
 
 
 	@Override
-	String convertToGDL()
+	GDLDescription convertToGDL()
 	{
 		//TODO: implement
-		return ""
+		return null
 	}
 }
