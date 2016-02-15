@@ -1,4 +1,4 @@
-# game_generator
+# Board Game Generator
 Our board-game generator for our CS 673 Project.
 
 ## Requirements:
