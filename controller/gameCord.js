@@ -124,7 +124,7 @@ define( function() {
         if (m.played.false) {
         
             m.played=true;
-            ...run iterations on all combinations of player positions
+            //...run iterations on all combinations of player positions
         }
         else
             console.log("ERROR? trying to beginMatch() for match being played?");
