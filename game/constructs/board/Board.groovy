@@ -1,4 +1,4 @@
-package constructs
+package constructs.board
 
 /**
  * @author Lawrence Thatcher
