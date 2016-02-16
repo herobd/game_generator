@@ -18,6 +18,12 @@ abstract class AbstractClause implements GDLClause
 		}
 	}
 
+	AbstractClause(ClauseType type, List<GDLStatement> statements)
+	{
+		this.type = type
+		this.statementList = statements
+	}
+
 	@Override
 	List<GDLStatement> getStatements()
 	{

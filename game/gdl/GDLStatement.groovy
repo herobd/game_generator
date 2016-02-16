@@ -9,6 +9,7 @@ package gdl
 class GDLStatement
 {
 	private String statement
+	//TODO: add support for generic/dynamic statements (ex: for player loop, etc...)
 
 	GDLStatement(String statement)
 	{
