@@ -3,7 +3,7 @@ package gdl
 /**
  * @author Lawrence Thatcher
  *
- * A clause represents a section in the GDL code, which can have multiple statements in it
+ * A clause is a group of related statements, which are divided into groups of type for readability
  * TODO: add notion of sub-clause later?
  */
 interface GDLClause
