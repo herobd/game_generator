@@ -7,7 +7,8 @@ var bodyParser = require('body-parser');
 var multer = require('multer'); // v1.0.5
 var upload = multer();
 
-var gameCord = require('./gameCord')();
+
+var gameCord = require('./gameCord.js');
 var database = require('database');
 
 /**
