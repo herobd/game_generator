@@ -1,14 +1,17 @@
 package constructs
 
+import gdl.GDLStatement
 import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
+import gdl.clauses.role.HasRolesClause
+import gdl.clauses.role.RolesClause
 
 /**
  * @author Lawrence Thatcher
  *
  * Stores information concerning the Players construct, including number of players and the player names.
  */
-class Players implements HasClauses
+class Players implements HasClauses, HasRolesClause
 {
 	private List<String> players = []
 
@@ -52,6 +55,19 @@ class Players implements HasClauses
 	@Override
 	Collection<GDLClause> getGDLClauses()
 	{
-		return []
+		return [this.rolesClause]
+	}
+
+	@Override
+	RolesClause getRolesClause()
+	{
+		//TODO: Replace with GDL-statement generator
+		List<GDLStatement> playerDefs = []
+		for (String name : this.playerNames)
+		{
+			def statement = new GDLStatement("(role " + name + ")")
+			playerDefs.add(statement)
+		}
+		return new RolesClause(playerDefs)
 	}
 }

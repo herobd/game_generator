@@ -39,4 +39,19 @@ abstract class AbstractClause implements GDLClause
 		}
 		return result
 	}
+
+	boolean contains(GDLStatement statement)
+	{
+		for (def s : this.statements)
+		{
+			if (s == statement)
+				return true
+		}
+		return false
+	}
+
+	boolean contains(String statement)
+	{
+		return this.contains(new GDLStatement(statement))
+	}
 }

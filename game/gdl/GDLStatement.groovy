@@ -26,4 +26,24 @@ class GDLStatement
 	{
 		return this.statement
 	}
+
+	boolean equals(o)
+	{
+		if (this.is(o))
+			return true
+		if (getClass() != o.class)
+			return false
+
+		GDLStatement that = (GDLStatement) o
+
+		if (statement != that.statement)
+			return false
+
+		return true
+	}
+
+	int hashCode()
+	{
+		return statement.hashCode()
+	}
 }

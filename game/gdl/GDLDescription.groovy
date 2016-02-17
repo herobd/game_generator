@@ -107,4 +107,10 @@ class GDLDescription
 			result += t.toGDLString() + "\n"
 		return result
 	}
+
+	//TODO: replace with more general version (that supports statement generators, etc..) such as 'containsRole()'
+	def getRolesClauses()
+	{
+		return this.roles
+	}
 }
