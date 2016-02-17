@@ -63,7 +63,7 @@ enum TurnOrder implements HasClauses, HasLegalClause, HasDynCompClause, HasBaseC
 	@Override
 	Collection<GDLClause> getGDLClauses()
 	{
-		return [legal, dynComp]
+		return [legal, dynComp, base, initState]
 	}
 
 	@Override

@@ -24,6 +24,6 @@ class GDLStatement
 	@Override
 	String toString()
 	{
-		return this.text
+		return this.statement
 	}
 }

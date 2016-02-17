@@ -1,11 +1,14 @@
 package constructs
 
+import gdl.GDLClause
+import gdl.HasClauses
+
 /**
  * @author Lawrence Thatcher
  *
  * Stores information concerning the Players construct, including number of players and the player names.
  */
-class Players
+class Players implements HasClauses
 {
 	private List<String> players = []
 
@@ -46,5 +49,9 @@ class Players
 		return false
 	}
 
-	//TODO: add export GDL function
+	@Override
+	Collection<GDLClause> getGDLClauses()
+	{
+		return []
+	}
 }
