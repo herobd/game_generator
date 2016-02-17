@@ -26,27 +26,48 @@ enum TurnOrder implements HasClauses, HasLegalClause, HasDynCompClause, HasBaseC
 
 
 	//TODO: Replace these with generic form
-	private static final GDLStatement white_noop = new GDLStatement(
-			"(<= (legal White noop)\n" +
-			"(true (control Black)))")
+	private static final GDLStatement getWhite_noop()
+	{
+		return new GDLStatement(
+				"(<= (legal White noop)\n" +
+				"(true (control Black)))")
+	}
 
-	private static final GDLStatement black_noop = new GDLStatement(
-			"(<= (legal Black noop)\n" +
-			"(true (control White)))")
+	private static final GDLStatement getBlack_noop()
+	{
+		return new GDLStatement(
+				"(<= (legal Black noop)\n" +
+				"(true (control White)))")
+	}
 
-	private static final GDLStatement white_next = new GDLStatement(
-			"(<= (next (control White))\n" +
-			"(true (control Black)))")
+	private static final GDLStatement getWhite_next()
+	{
+		return new GDLStatement(
+				"(<= (next (control White))\n" +
+				"(true (control Black)))")
+	}
 
-	private static final GDLStatement black_next = new GDLStatement(
-			"(<= (next (control Black))\n" +
-			"(true (control White)))")
+	private static final GDLStatement getBlack_next()
+	{
+		return new GDLStatement(
+				"(<= (next (control Black))\n" +
+				"(true (control White)))")
+	}
 
-	private static final GDLStatement input_noop = new GDLStatement("(<= (input ?p noop) (role ?p))")
+	private static final GDLStatement getInput_noop()
+	{
+		return new GDLStatement("(<= (input ?p noop) (role ?p))")
+	}
 
-	private static final GDLStatement control_base = new GDLStatement("(<= (base (control ?p)) (role ?p))")
+	private static final GDLStatement getControl_base()
+	{
+		return new GDLStatement("(<= (base (control ?p)) (role ?p))")
+	}
 
-	private static final GDLStatement control_init = new GDLStatement("(init (control White))")
+	private static final GDLStatement getControl_init()
+	{
+		return new GDLStatement("(init (control White))")
+	}
 
 	private LegalClause legal
 	private DynamicComponentsClause dynComp
