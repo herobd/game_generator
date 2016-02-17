@@ -1,7 +1,4 @@
-package gdl.base
-
-import gdl.dynamic.DynamicComponentsClause
-
+package gdl.clauses.base
 /**
  * @author Lawrence Thatcher
  *

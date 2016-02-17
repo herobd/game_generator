@@ -3,7 +3,8 @@ import constructs.TurnOrder
 import constructs.board.Board
 import constructs.end.EndGameConditions
 import constructs.pieces.Piece
-import gdl.GDLClause
+import gdl.clauses.GDLClause
+import gdl.GDLConvertable
 import gdl.GDLDescription
 
 /**

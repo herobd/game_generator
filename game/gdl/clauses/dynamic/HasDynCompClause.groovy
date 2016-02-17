@@ -1,7 +1,4 @@
-package gdl.dynamic
-
-import gdl.legal.LegalClause
-
+package gdl.clauses.dynamic
 /**
  * @author Lawrence Thatcher
  *

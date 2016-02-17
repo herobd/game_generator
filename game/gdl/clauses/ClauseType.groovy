@@ -1,4 +1,4 @@
-package gdl
+package gdl.clauses
 
 /**
  * @author Lawrence Thatcher

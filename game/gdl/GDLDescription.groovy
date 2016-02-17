@@ -1,5 +1,8 @@
 package gdl
 
+import gdl.clauses.ClauseType
+import gdl.clauses.GDLClause
+
 /**
  * @author Lawrence Thatcher
  *

@@ -1,16 +1,16 @@
 package constructs
 
-import gdl.GDLClause
+import gdl.clauses.GDLClause
 import gdl.GDLStatement
-import gdl.HasClauses
-import gdl.base.BaseClause
-import gdl.base.HasBaseClause
-import gdl.dynamic.DynamicComponentsClause
-import gdl.dynamic.HasDynCompClause
-import gdl.init.HasInitClause
-import gdl.init.InitClause
-import gdl.legal.HasLegalClause
-import gdl.legal.LegalClause
+import gdl.clauses.HasClauses
+import gdl.clauses.base.BaseClause
+import gdl.clauses.base.HasBaseClause
+import gdl.clauses.dynamic.DynamicComponentsClause
+import gdl.clauses.dynamic.HasDynCompClause
+import gdl.clauses.init.HasInitClause
+import gdl.clauses.init.InitClause
+import gdl.clauses.legal.HasLegalClause
+import gdl.clauses.legal.LegalClause
 
 /**
  * @author Lawrence Thatcher

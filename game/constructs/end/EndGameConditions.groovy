@@ -1,7 +1,7 @@
 package constructs.end
 
-import gdl.GDLClause
-import gdl.HasClauses
+import gdl.clauses.GDLClause
+import gdl.clauses.HasClauses
 
 /**
  * @author Lawrence Thatcher

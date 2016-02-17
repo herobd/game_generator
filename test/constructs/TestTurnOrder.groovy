@@ -1,6 +1,6 @@
 package constructs
 
-import gdl.ClauseType
+import gdl.clauses.ClauseType
 import org.junit.Test
 
 /**

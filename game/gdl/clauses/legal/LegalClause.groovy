@@ -1,7 +1,7 @@
-package gdl.legal
+package gdl.clauses.legal
 
-import gdl.AbstractClause
-import gdl.ClauseType
+import gdl.clauses.AbstractClause
+import gdl.clauses.ClauseType
 import gdl.GDLStatement
 
 /**
