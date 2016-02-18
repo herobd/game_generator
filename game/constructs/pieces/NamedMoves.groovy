@@ -7,7 +7,7 @@ import gdl.GDLStatement
  *
  * A reference class that contains pre-defined moves for a piece.
  */
-final class LegalMoves
+final class NamedMoves
 {
 	public static Move getMark()
 	{

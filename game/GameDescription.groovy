@@ -2,7 +2,7 @@ import constructs.Players
 import constructs.TurnOrder
 import constructs.board.Board
 import constructs.end.EndGameConditions
-import constructs.pieces.LegalPieces
+import constructs.pieces.NamedPieces
 import constructs.pieces.Piece
 import gdl.clauses.GDLClause
 import gdl.GDLConvertable
@@ -25,7 +25,7 @@ class GameDescription implements GDLConvertable
 		this.board = board
 		this.turnOrder = turnOrder
 		if (pieces == null || pieces == [])
-			this.pieces = [LegalPieces.DEFAULT_PIECE]
+			this.pieces = [NamedPieces.DEFAULT_PIECE]
 		else
 			this.pieces = pieces
 		this.end = end
