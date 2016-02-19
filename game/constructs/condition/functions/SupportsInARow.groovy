@@ -1,4 +1,4 @@
-package constructs.functions
+package constructs.condition.functions
 
 import gdl.clauses.GDLClause
 

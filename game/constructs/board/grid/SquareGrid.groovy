@@ -1,8 +1,8 @@
 package constructs.board.grid
 
-import constructs.functions.Function
-import constructs.functions.SupportsInARow
-import constructs.functions.SupportsOpen
+import constructs.condition.functions.Function
+import constructs.condition.functions.SupportsInARow
+import constructs.condition.functions.SupportsOpen
 import gdl.GDLStatement
 import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
