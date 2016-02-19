@@ -8,8 +8,8 @@ var multer = require('multer'); // v1.0.5
 var upload = multer();
 
 
-var gameCord = require('./gameCord.js');
-var database = require('database');
+var gameCord = require('./gameCord');
+var database = require('./database');
 
 /**
  *  Define the sample application.
@@ -121,13 +121,14 @@ var ControllerApp = function(port) {
         for (var r in self.routes) {
             self.app.get(r, self.routes[r]);
         }
+        
         self.app.post('/submit_game', upload.array(), function (req, res, next) {
             console.log(req.body);
             meta = JSON.parse(req.body.meta);//meta has id and score atleast
             if (meta.id && meta.score && req.body.gdl)
             {
                 playCord.enqueue(meta);
-                database.storeGame(meta,req.body.gdl);
+                database.storeGame(meta,req.body.gdl,req.body.hlgdl);
                 res.json({status:'recieved'});
             }
             else
