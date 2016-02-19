@@ -2,6 +2,7 @@ package constructs.board.grid
 
 import constructs.functions.Function
 import constructs.functions.SupportsInARow
+import constructs.functions.SupportsOpen
 import gdl.GDLStatement
 import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
@@ -21,7 +22,8 @@ class SquareGrid extends Grid implements
 		HasClauses,
 		HasBaseClause,
 		HasInitClause,
-		SupportsInARow
+		SupportsInARow,
+		SupportsOpen
 {
 	private int size
 	private boolean i_nbors = false
@@ -52,7 +54,8 @@ class SquareGrid extends Grid implements
 		clauses.add(generateSuccessorClause())
 		clauses.add(generateInitClause())
 		//TODO: should not be added here, but later on in description factory
-		clauses.add(this.in_a_row(3))
+			clauses.add(this.in_a_row(3))
+			clauses.add(this.open())
 		return clauses
 	}
 
@@ -73,6 +76,8 @@ class SquareGrid extends Grid implements
 	@Override
 	GDLClause in_a_row(int n)
 	{
+		String name = Integer.toString(n) + "inARow"
+
 		def s = []
 		s.add(line_row(n))
 		s.add(line_column(n))
@@ -81,12 +86,19 @@ class SquareGrid extends Grid implements
 			s.add(line_diag_desc(n))
 			s.add(line_diag_asc(n))
 		}
-		s.add(new GDLStatement("(<= (line ?w) (row ?x ?y ?w)"))
-		s.add(new GDLStatement("(<= (line ?w) (column ?x ?y ?w)"))
+		s.add(new GDLStatement("(<= (" + name + " ?w) (row ?x ?y ?w)"))
+		s.add(new GDLStatement("(<= (" + name + " ?w) (column ?x ?y ?w)"))
 		if (this.i_nbors)
-			s.add(new GDLStatement("(<= (line ?w) (diagonal ?x ?y ?w)"))
+			s.add(new GDLStatement("(<= (" + name + " ?w) (diagonal ?x ?y ?w)"))
 
 		return new DynamicComponentsClause(s)
+	}
+
+	@Override
+	GDLClause open()
+	{
+		GDLStatement s = new GDLStatement("(<= open\n(true (cell ?x ?y b)))")
+		return new DynamicComponentsClause([s])
 	}
 
 	protected GDLClause generateIndexClause()
