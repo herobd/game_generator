@@ -1,6 +1,7 @@
 import constructs.Players
 import constructs.TurnOrder
 import constructs.board.Board
+import constructs.board.grid.SquareGrid
 import constructs.end.EndGameConditions
 import gdl.GDLDescription
 import gdl.clauses.AbstractClause
@@ -14,7 +15,7 @@ class TestGameDescription
 	@Test
 	void testConvertToGDL()
 	{
-		GameDescription ticTacToe = new GameDescription(new Players(["White", "Black"]), new Board(), TurnOrder.Alternating, [], new EndGameConditions())
+		GameDescription ticTacToe = new GameDescription(new Players(["White", "Black"]), new SquareGrid(3), TurnOrder.Alternating, [], new EndGameConditions())
 		GDLDescription gdl = ticTacToe.convertToGDL()
 		//Roles
 		def roles = (AbstractClause)gdl.rolesClauses[0]
