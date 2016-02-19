@@ -1,6 +1,5 @@
 import constructs.Players
 import constructs.TurnOrder
-import constructs.board.Board
 import constructs.board.grid.SquareGrid
 import constructs.end.EndGameConditions
 import gdl.GDLDescription
