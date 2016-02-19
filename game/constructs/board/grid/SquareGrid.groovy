@@ -1,10 +1,13 @@
 package constructs.board.grid
 
+import constructs.functions.Function
+import constructs.functions.SupportsInARow
 import gdl.GDLStatement
 import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
 import gdl.clauses.base.BaseClause
 import gdl.clauses.base.HasBaseClause
+import gdl.clauses.dynamic.DynamicComponentsClause
 import gdl.clauses.init.HasInitClause
 import gdl.clauses.init.InitClause
 
@@ -14,13 +17,76 @@ import gdl.clauses.init.InitClause
  * A square grid with square tiles.
  * TODO: support different x,y sizes
  */
-class SquareGrid extends Grid implements HasClauses, HasBaseClause, HasInitClause
+class SquareGrid extends Grid implements
+		HasClauses,
+		HasBaseClause,
+		HasInitClause,
+		SupportsInARow
 {
 	private int size
+	private boolean i_nbors = false
 
 	public SquareGrid(int size)
 	{
 		this.size = size
+	}
+
+	public SquareGrid(int size, boolean i_nbors)
+	{
+		this.size = size
+		this.i_nbors = i_nbors
+	}
+
+	@Override
+	List<Function> getSupportedFunctions()
+	{
+		return [Function.In_A_Row, Function.Open]
+	}
+
+	@Override
+	Collection<GDLClause> getGDLClauses()
+	{
+		def clauses = []
+		clauses.add(hasCellsClause)
+		clauses.add(generateIndexClause())
+		clauses.add(generateSuccessorClause())
+		clauses.add(generateInitClause())
+		//TODO: should not be added here, but later on in description factory
+		clauses.add(this.in_a_row(3))
+		return clauses
+	}
+
+	@Override
+	BaseClause getBaseAndInputClause()
+	{
+		def result = (BaseClause)generateIndexClause()
+		result.join(generateSuccessorClause())
+		return result
+	}
+
+	@Override
+	InitClause getInitialStateClause()
+	{
+		return (InitClause)generateInitClause()
+	}
+
+	@Override
+	GDLClause in_a_row(int n)
+	{
+		def s = []
+		s.add(line_row(n))
+		s.add(line_column(n))
+		if (this.i_nbors)
+		{
+			s.add(line_diag_desc(n))
+			s.add(line_diag_asc(n))
+		}
+		s.add(new GDLStatement("(<= (line ?w) (row ?x ?y ?w)"))
+		s.add(new GDLStatement("(<= (line ?w) (column ?x ?y ?w)"))
+		if (this.i_nbors)
+			s.add(new GDLStatement("(<= (line ?w) (diagonal ?x ?y ?w)"))
+
+		return new DynamicComponentsClause(s)
 	}
 
 	protected GDLClause generateIndexClause()
@@ -33,6 +99,18 @@ class SquareGrid extends Grid implements HasClauses, HasBaseClause, HasInitClaus
 			indices.add(s)
 		}
 		return new BaseClause(indices)
+	}
+
+	protected GDLClause generateSuccessorClause()
+	{
+		//TODO: use statement generator
+		def succs = []
+		for (int i = 1; i < this.size; i++)
+		{
+			GDLStatement s = new GDLStatement("(succ " + Integer.toString(i) + " " + Integer.toString(i+1) +  ")")
+			succs.add(s)
+		}
+		return new BaseClause(succs)
 	}
 
 	protected GDLClause generateInitClause()
@@ -51,25 +129,70 @@ class SquareGrid extends Grid implements HasClauses, HasBaseClause, HasInitClaus
 		return new InitClause(cells)
 	}
 
-	@Override
-	Collection<GDLClause> getGDLClauses()
+	//TODO: remove code duplication in these somehow?
+	private static GDLStatement line_row(int n)
 	{
-		def clauses = []
-		clauses.add(hasCellsClause)
-		clauses.add(generateIndexClause())
-		clauses.add(generateInitClause())
-		return clauses
+		String result = ""
+		result += "(<= (row ?x ?y ?w)\n"
+		for (int i = 1; i <= n; i++)
+		{
+			result += "(true (cell " + addSuccessors("?x", i) + " ?y ?w))"
+			if (i < n)
+				result += "\n"
+		}
+		result += ")"
+		return new GDLStatement(result)
 	}
 
-	@Override
-	BaseClause getBaseAndInputClause()
+	private static GDLStatement line_column(int n)
 	{
-		return (BaseClause)generateIndexClause()
+		String result = ""
+		result += "(<= (column ?x ?y ?w)\n"
+		for (int i = 1; i <= n; i++)
+		{
+			result += "(true (cell ?x " + addSuccessors("?y", i) + " ?w))"
+			if (i < n)
+				result += "\n"
+		}
+		result += ")"
+		return new GDLStatement(result)
 	}
 
-	@Override
-	InitClause getInitialStateClause()
+	private static GDLStatement line_diag_desc(int n)
 	{
-		return (InitClause)generateInitClause()
+		String result = ""
+		result += "(<= (diagonal ?x ?y ?w)\n"
+		for (int i = 1; i <= n; i++)
+		{
+			result += "(true (cell " + addSuccessors("?x", i) + " " + addSuccessors("?y", i) + " ?w))"
+			if (i < n)
+				result += "\n"
+		}
+		result += ")"
+		return new GDLStatement(result)
+	}
+
+	private static GDLStatement line_diag_asc(int n)
+	{
+		String result = ""
+		result += "(<= (diagonal ?x ?y ?w)\n"
+		for (int i = 1; i <= n; i++)
+		{
+			result += "(true (cell " + addSuccessors("?x", i) + " " + addSuccessors("?y", n-i+1) + " ?w))"
+			if (i < n)
+				result += "\n"
+		}
+		result += ")"
+		return new GDLStatement(result)
+	}
+
+	private static String addSuccessors(String var, int i)
+	{
+		String result = var
+		for (int j = 0; j < i-1; j++)
+		{
+			result = "succ(" + result + ")"
+		}
+		return result
 	}
 }

@@ -54,4 +54,9 @@ abstract class AbstractClause implements GDLClause
 	{
 		return this.contains(new GDLStatement(statement))
 	}
+
+	void join(GDLClause c)
+	{
+		this.statementList += c.statements
+	}
 }
