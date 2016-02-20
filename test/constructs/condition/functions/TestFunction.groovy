@@ -11,8 +11,9 @@ class TestFunction
 	void test3_inARow()
 	{
 		def f = Function.N_inARow(3)
-		assert f == "3inARow"
+		assert f == new ParametrizedFunction("3inARow")
 		assert !(f instanceof Function)
+		assert f instanceof PreCondition
 		println f
 	}
 
@@ -22,6 +23,13 @@ class TestFunction
 		def f = Function.N_inARow
 		assert f instanceof Function
 		println f
-		assert f(3) == "3inARow"
+		assert f(3) == new ParametrizedFunction("3inARow")
+	}
+
+	@Test
+	void testOpen()
+	{
+		def f = Function.Open
+		assert f(3) == new ParametrizedFunction("Open")
 	}
 }

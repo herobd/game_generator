@@ -3,7 +3,7 @@ package constructs.condition.functions
 /**
  * @author Lawrence Thatcher
  */
-enum Function
+enum Function implements PreCondition
 {
 	N_inARow({n -> n.toString() + "inARow"}),
 	Open({"Open"})
@@ -16,6 +16,7 @@ enum Function
 
 	def call(args)
 	{
-		fn(args)
+		String s = fn(args)
+		return new ParametrizedFunction(s)
 	}
 }

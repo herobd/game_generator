@@ -12,8 +12,8 @@ class TestCondition
 	@Test
 	void testToString()
 	{
-		Condition c = new Condition(Function.N_inARow, EndGameResult.Lose)
-		assert c.toString() == "N_inARow -> Lose"
+		Condition c = new Condition(Function.N_inARow(3), EndGameResult.Lose)
+		assert c.toString() == "3inARow -> Lose"
 		println(c.toString())
 	}
 }
