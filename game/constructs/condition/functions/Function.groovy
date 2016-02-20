@@ -18,7 +18,7 @@ enum Function implements PreCondition
 	{
 		if (this.fn == null)
 			return this
-		ParametrizedFunction f = new ParametrizedFunction(this.fn)
+		ParametrizedFunction f = new ParametrizedFunction(this.fn, this)
 		f(args)
 		return f
 	}

@@ -8,15 +8,18 @@ class ParametrizedFunction implements PreCondition
 	private String name = "default"
 	private def args
 	private def func
+	private def parent
 
-	ParametrizedFunction(String name)
+	ParametrizedFunction(String name, Function parent)
 	{
 		this.name = name
+		this.parent = parent
 	}
 
-	ParametrizedFunction(Closure c)
+	ParametrizedFunction(Closure c, Function parent)
 	{
 		this.func = c
+		this.parent = parent
 	}
 
 	def call(args)
@@ -28,23 +31,28 @@ class ParametrizedFunction implements PreCondition
 	@Override
 	String toString()
 	{
+		if (name == "default")
+			return parent.toString()
 		return this.name
 	}
 
-	@Override
 	boolean equals(o)
 	{
 		if (this.is(o))
 			return true
 		if (!(o instanceof ParametrizedFunction))
 			return false
-		ParametrizedFunction aCase = (ParametrizedFunction) o
-		if (name != aCase.name)
+
+		ParametrizedFunction that = (ParametrizedFunction) o
+
+		if (name != that.name)
 			return false
+		if (parent != that.parent)
+			return false
+
 		return true
 	}
 
-	@Override
 	int hashCode()
 	{
 		return name.hashCode()
