@@ -1,6 +1,7 @@
 package constructs.end
 
 import constructs.condition.Condition
+import constructs.condition.functions.PreCondition
 import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
 
@@ -14,6 +15,16 @@ class EndGameConditions implements HasClauses
 	EndGameConditions(List<Condition> conditions)
 	{
 		this.conditions = conditions
+	}
+
+	List<PreCondition> getUsedFunctions()
+	{
+		def F = []
+		for (Condition c : conditions)
+		{
+			F.add(c.antecedent)
+		}
+		return F
 	}
 
 	@Override
