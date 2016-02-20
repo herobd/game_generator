@@ -42,7 +42,7 @@ class SquareGrid extends Grid implements
 	@Override
 	List<Function> getSupportedFunctions()
 	{
-		return [Function.In_A_Row, Function.Open]
+		return [Function.N_inARow, Function.Open]
 	}
 
 	@Override

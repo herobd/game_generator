@@ -5,6 +5,17 @@ package constructs.condition.functions
  */
 enum Function
 {
-	In_A_Row,
-	Open
+	N_inARow({n -> n.toString() + "inARow"}),
+	Open({"Open"})
+
+	private def fn
+	private Function(Closure c)
+	{
+		this.fn = c
+	}
+
+	def call(args)
+	{
+		fn(args)
+	}
 }
