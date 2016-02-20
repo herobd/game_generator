@@ -5,5 +5,7 @@ package constructs.condition.functions
  */
 interface PreCondition
 {
+	Function getType()
 
+	String getFunctionName()
 }

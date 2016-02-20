@@ -8,7 +8,7 @@ class ParametrizedFunction implements PreCondition
 	private String name = "default"
 	private def args
 	private def func
-	private def parent
+	private Function parent
 
 	ParametrizedFunction(String name, Function parent)
 	{
@@ -34,6 +34,18 @@ class ParametrizedFunction implements PreCondition
 		if (name == "default")
 			return parent.toString()
 		return this.name
+	}
+
+	@Override
+	Function getType()
+	{
+		return this.parent
+	}
+
+	@Override
+	String getFunctionName()
+	{
+		return this.parent.functionName
 	}
 
 	boolean equals(o)
