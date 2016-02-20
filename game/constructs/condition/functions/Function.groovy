@@ -6,9 +6,9 @@ package constructs.condition.functions
 enum Function implements PreCondition
 {
 	N_inARow({n -> n.toString() + "inARow"}),
-	Open({"Open"})
+	Open(null)
 
-	private def fn
+	private Closure fn
 	private Function(Closure c)
 	{
 		this.fn = c
@@ -16,7 +16,10 @@ enum Function implements PreCondition
 
 	def call(args)
 	{
-		String s = fn(args)
-		return new ParametrizedFunction(s)
+		if (this.fn == null)
+			return this
+		ParametrizedFunction f = new ParametrizedFunction(this.fn)
+		f(args)
+		return f
 	}
 }

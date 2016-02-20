@@ -5,11 +5,24 @@ package constructs.condition.functions
  */
 class ParametrizedFunction implements PreCondition
 {
-	private String name
+	private String name = "default"
+	private def args
+	private def func
 
-	ParametrizedFunction(String s)
+	ParametrizedFunction(String name)
 	{
-		this.name = s
+		this.name = name
+	}
+
+	ParametrizedFunction(Closure c)
+	{
+		this.func = c
+	}
+
+	def call(args)
+	{
+		this.args = args
+		this.name = func(args)
 	}
 
 	@Override
@@ -18,6 +31,7 @@ class ParametrizedFunction implements PreCondition
 		return this.name
 	}
 
+	@Override
 	boolean equals(o)
 	{
 		if (this.is(o))
@@ -30,6 +44,7 @@ class ParametrizedFunction implements PreCondition
 		return true
 	}
 
+	@Override
 	int hashCode()
 	{
 		return name.hashCode()
