@@ -1,5 +1,7 @@
 package constructs.condition.functions
 
+import gdl.clauses.GDLClause
+
 /**
  * @author Lawrence Thatcher
  */
@@ -46,6 +48,12 @@ class ParametrizedFunction implements GameFunction
 	String getFunctionName()
 	{
 		return this.parent.functionName
+	}
+
+	@Override
+	GDLClause retrieveBoardGDL(def obj)
+	{
+		return (GDLClause){x -> x."$functionName"(args)}.call(obj)
 	}
 
 	boolean equals(o)

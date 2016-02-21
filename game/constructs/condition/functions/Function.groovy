@@ -1,5 +1,7 @@
 package constructs.condition.functions
 
+import gdl.clauses.GDLClause
+
 /**
  * @author Lawrence Thatcher
  */
@@ -39,8 +41,28 @@ enum Function implements GameFunction
 	}
 
 	@Override
+	GDLClause retrieveBoardGDL(def obj)
+	{
+		if (this.numParams == 0)
+			return (GDLClause){x -> x."$functionName"()}.call(obj)
+		else
+			return (GDLClause){x -> x."$functionName"(defaultArgument)}.call(obj)
+	}
+
+	@Override
 	Function getType()
 	{
 		return this
+	}
+
+	private Object getDefaultArgument()
+	{
+		switch (this)
+		{
+			case N_inARow:
+				return 3
+			default:
+				return null
+		}
 	}
 }

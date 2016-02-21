@@ -1,5 +1,8 @@
 package constructs.condition.functions
 
+import gdl.clauses.base.BaseClause
+import gdl.clauses.init.InitClause
+import gdl.clauses.legal.LegalClause
 import org.junit.Test
 
 /**
@@ -56,5 +59,27 @@ class TestFunction
 		assert Function.Open.functionName == "open"
 		assert Function.N_inARow.functionName == "in_a_row"
 		assert Function.N_inARow(3).functionName == "in_a_row"
+	}
+
+	@Test
+	void testRetrieveBoardGDL()
+	{
+		// Non-parametrized
+		def mock1 = new MockOpen()
+		def f = Function.Open
+		def clause = f.retrieveBoardGDL(mock1)
+		assert clause instanceof LegalClause
+
+		// Parametrized function - default
+		def mock2 = new MockInARow()
+		f = Function.N_inARow
+		clause = f.retrieveBoardGDL(mock2)
+		assert clause instanceof BaseClause
+		assert !(clause instanceof InitClause)
+
+		// Parametrized function
+		f = Function.N_inARow(4)
+		clause = f.retrieveBoardGDL(mock2)
+		assert clause instanceof InitClause
 	}
 }
