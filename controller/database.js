@@ -12,6 +12,7 @@ module.exports =  function() {
             console.log("We are connected");
           }
         });*/
+        this.test='ok';
     }
     
     Database.prototype.storeGame = function (meta,gdl,hlgdl)  {
@@ -20,14 +21,21 @@ module.exports =  function() {
         //and write gdl to file
     };
     
-    Database.prototype.gdl = function (gameId) {
+    Database.prototype.gdl = function (gameId,callback) {
         console.log('Database is stubbed. Would be retrieving gdl for '+gameId);
-        return '(role none)';
+        callback('(role none)');
     }
     
-    Database.prototype.gdlFileLocation = function (gameId) {
+    Database.prototype.gdlFileLocation = function (gameId,callback) {
         console.log('Database is stubbed. Would be retrieving gdl file location for '+gameId);
-        return './nowhere.none';
+        //if it doesnt exist, create it
+        callback('./gameController/ticTacToe.kif');
+    }
+    
+    Database.prototype.getMaxMatchId = function (callback) {
+        console.log('Database is stubbed. Would be retrieving max match id');
+        //if it doesnt exist, create it
+        callback(0);
     }
     
     

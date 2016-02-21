@@ -1,24 +1,34 @@
 #!/bin/env node
+
+/*Brian Davis
+ *Controller for CS673 game creator project
+ */
+
+//curl -d 'meta={"id":"0","score":1.0,"testLength":"s","name":"ttt","numPlayers":2}' -d gdl=sssss -d hlgdl=sdfdd localhost:8080/submit_game
+
 var express = require('express');
 var fs      = require('fs');
-//console.log(express);
+var request = require('request');
 
 var bodyParser = require('body-parser');
 var multer = require('multer'); // v1.0.5
 var upload = multer();
 
 
-var gameCord = require('./gameCord');
-var database = require('./database');
+
+var Database = require('./database')();
+var GameCord = require('./gameCord')();
 
 /**
  *  Define the sample application.
  */
-var ControllerApp = function(port) {
+var ControllerApp = function(host,port) {
 
     //  Scope.
     var self = this;
     self.port=port;
+    self.host=host;
+    self.myAddress=host+':'+port;
 
     /*  ================================================================  */
     /*  Helper functions.                                                 */
@@ -33,7 +43,7 @@ var ControllerApp = function(port) {
         }
 
         //  Local cache for static content.
-        //self.zcache['index.html'] = fs.readFileSync('./index.html');
+        self.zcache['index.html'] = fs.readFileSync('./index.html');
         //self.zcache['projects.html'] = fs.readFileSync('./projects.html');
         
         //self.zcache['game/assests/Monster Growl-SoundBible.com-344645592.mp3'] = fs.readFileSync('./public/game/assests/Monster Growl-SoundBible.com-344645592.mp3');
@@ -55,8 +65,10 @@ var ControllerApp = function(port) {
      *  @param {string} sig  Signal to terminate on.
      */
     self.terminator = function(sig){
+        self.sendDisconnect(self.evaluatorAddress);
+        self.sendDisconnect(self.generatorAddress);
         if (typeof sig === "string") {
-           console.log('%s: Received %s - terminating sample app ...',
+           console.log('%s: Received %s - terminating control app ...',
                        Date(Date.now()), sig);
            process.exit(1);
         }
@@ -103,7 +115,55 @@ var ControllerApp = function(port) {
             res.redirect('https://somewhere');
         };
         
+        self.routes['/connect'] = function(req, res) {
+            //console.log(req.query.id + ' is connecting.');
+            
+            res.setHeader('Content-Type', 'application/json');
+            if (req.query.id === 'generator') {
+                self.generatorAddress=req.query.address;
+                res.send('{"id":"controller","status":"ok"}');
+                console.log('Connected to generator, '+self.generatorAddress);
+            } else if (req.query.id === 'evaluator') {
+                self.evaluatorAddress=req.query.address;
+                res.send('{"id":"controller","status":"ok"}');
+                console.log('Connected to evaluator, '+self.evaluatorAddress);
+            } else {
+                res.send('{"id":"controller","status":"id not recognized"}');
+            }
+            
+            
+        };
+        self.routes['/disconnect'] = function(req, res) {
+            //console.log(req.query.id + ' is disconnecting.');
         
+            res.setHeader('Content-Type', 'application/json');
+            if (req.query.id === 'generator') {
+                self.generatorAddress=null;
+                res.send('{"id":"controller","status":"ok"}');
+                console.log('Disconnected from generator, '+self.generatorAddress);
+            } else if (req.query.id === 'evaluator') {
+                self.evaluatorAddress=null;
+                res.send('{"id":"controller","status":"ok"}');
+                console.log('Disconnected from evaluator, '+self.evaluatorAddress);
+            } else {
+                res.send('{"id":"controller","status":"id not recognized"}');
+            }
+        };
+        
+        self.routes['/addPlayer'] = function(req, res) {
+            //console.log(req.query.id + ' is connecting.');
+            
+            res.setHeader('Content-Type', 'application/json');
+            var err = self.gameCord.addPlayer(req.query.method,req.query.host,+req.query.port,req.query.name,+req.query.skillLevel,+req.query.gdlVersion);
+            res.send('{"id":"controller","status":"'+err+'","player":"'+req.query.name+'"}');
+            
+            
+        };
+        
+        self.routes['/testSend'] = function(req, res) {
+            self.sendGameResults({id:0, name:'test'});
+            res.send('ok');
+        }
     };
 
 
@@ -125,11 +185,11 @@ var ControllerApp = function(port) {
         self.app.post('/submit_game', upload.array(), function (req, res, next) {
             console.log(req.body);
             meta = JSON.parse(req.body.meta);//meta has id and score atleast
-            if (meta.id && meta.score && req.body.gdl)
+            if (meta.id && meta.score && req.body.gdl && req.body.hlgdl)
             {
-                playCord.enqueue(meta);
-                database.storeGame(meta,req.body.gdl,req.body.hlgdl);
-                res.json({status:'recieved'});
+                var err=self.gameCord.enqueue(meta);
+                self.database.storeGame(meta,req.body.gdl,req.body.hlgdl);
+                res.json({id:meta.id, status:err});
             }
             else
             {
@@ -152,6 +212,15 @@ var ControllerApp = function(port) {
 
         // Create the express server and routes.
         self.initializeServer();
+        
+        self.database=new Database();
+        if (self.database.test!=='ok')
+            console.log('ERROR: database failed to init');
+        self.gameCord=new GameCord(self,self.database);
+        if (self.gameCord.allPlayerTypes[0]!=='random')
+            console.log('ERROR: gameCord failed to init');
+        self.evaluatorAddress=null;
+        self.generatorAddress=null;
     };
 
 
@@ -165,15 +234,61 @@ var ControllerApp = function(port) {
                         Date(Date.now() ), self.port);
         });
     };
-
-};   /*  Sample Application.  */
+    
+    
+    //////////////////////////////additional functions
+    self.sendGameResults = function(results) {
+        //TODO save in database
+        
+        request.post(
+            'http://'+self.evaluatorAddress+'/gameResults',
+            { json: results },
+            function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    //Do something with body?
+                    if (body.status!=='recieved'&&body.status!=='ok') {
+                        console.log('ERROR: match '+results.id+' didnt stick in evaluator');
+                    }
+                }
+            }
+        );
+    };
+    
+    self.sendConnect = function (address) {
+        if (address !== null) {
+            request.get(address+'/connect?id=controller&address='+self.myAddress, function (error, response, body) {
+              if (!error && response.statusCode == 200) {
+                //console.log(body) // Show the HTML for the Google homepage. 
+                var resj=JSON.parse(body);
+                if (resj.status!=='ok') {
+                    console.log('Failed to connect to: '+address);
+                } else if (resj.id==='generator') {
+                    self.generatorAddress=address;
+                }
+                else if (resj.id==='evaluator') {
+                    self.evaluatorAddress=address;
+                }
+              }
+            });
+        }
+    };
+    self.sendDisconnect = function (address) {
+        if (address !== null) {
+            request.get(address+'/disconnect?id=controller', function (error, response, body) {
+              if (!error && response.statusCode == 200) {
+                //console.log(body) // Show the HTML for the Google homepage. 
+              }
+            });
+        }
+    };
+};   /*  END Controller Application.  */
 
 
 
 /**
  *  main():  Main code.
  */
-var zapp = new ControllerApp(+process.argv[2]);
+var zapp = new ControllerApp(+process.argv[2],+process.argv[3]);
 zapp.initialize();
 zapp.start();
 

@@ -68,7 +68,7 @@ module.exports =  function() {
         },
         
         length: function() {
-            return this.heap[i].length;
+            return this.heap.length;
         },
             
         // returns true if node i is higher priority than j
@@ -79,21 +79,38 @@ module.exports =  function() {
     }
     /////////////////////////////////////////
        
-    function GameCord(database) {
+    function GameCord(owner,database) {
+        //////////////////
+        this.version=0.0;
+        //////////////////
+        
         this.players=[{id:0, type:'random', busy:false, name:'built-in random', gdlVersion:2, skill:0, host:'none', port:-1}];
+        this.allPlayerTypes=['random'];
         this.matchesBeingPlayed=[];
         this.queue=new PriorityQueue();
         this.curGame=null;
         this.playerIdCounter=1;
         this.exec = require('child_process').exec;
+        this.owner=owner;
         this.database=database;
-        this.nextMatchId = this.database.getMaxMatchId();
+        var self = this;
+        this.nextMatchId = null;
+        this.database.getMaxMatchId(function(matchId){self.nextMatchId=matchId;});
     }
     
-    GameCord.prototype.addPlayer = function (method,host,port,gdlVersion,name,skillLevel,readjust)  {//level 0 is random
+    GameCord.prototype.addPlayer = function (method,host,port,name,skillLevel,gdlVersion,readjust)  {//level 0 is random
         if (method===undefined){
             console.log('ERROR: method must be defined for player.');
-            return;
+            return 'ERROR: method must be defined for player.';
+        }
+        method=method.toLowerCase();
+        if (host===undefined){
+            console.log('ERROR: host must be defined for player.');
+            return 'ERROR: host must be defined for player.';
+        }
+        if (port===undefined){
+            console.log('ERROR: port must be defined for player.');
+            return 'ERROR: port must be defined for player.';
         }
         if (readjust===undefined)
             readjust=true;
@@ -101,43 +118,85 @@ module.exports =  function() {
             name='unnamed';
         if (skillLevel===undefined)
             skillLevel=1;
-        players.push({id:this.playerIdCounter++,type:method,host:host, port:port, gdlVerison:gdlVersion, name:name, skill:skillLevel, busy:false});
+        if (gdlVersion===undefined)
+            gdlVersion=1;
+        this.players.push({
+                            id:this.playerIdCounter++,
+                            type:method,
+                            host:host, 
+                            port:port, 
+                            gdlVersion:gdlVersion, 
+                            name:name, 
+                            skill:skillLevel, 
+                            busy:false
+                          });
+        if (this.allPlayerTypes.indexOf(method)==-1) {
+            this.allPlayerTypes.push(method);
+        }
         if (readjust) {
             this.createPlaySchedule();
         }
+        console.log('Added player '+name+' ('+host+':'+port+') of type '+method);
+        return 'ok';
     }
     
     GameCord.prototype.createPlaySchedule = function () {
         
         
         var self = this;
-        function allCombinationsOfPlayerTypes(count,startclock,playclock,ret,depth,allPlayerTypes,soFar) {
+        function allCombinationsOfPlayerTypes(count,startclock,playclock,gameId,ret,depth,allPlayerTypes,soFar) {
             if (soFar === undefined)
                 soFar=[];
             for (var pn=0; pn<allPlayerTypes.length; pn++) {
                 var pType=allPlayerTypes[pn];
                 //if (soFar.indexOf(pid)==-1) {
                     if (depth>1) {
-                        allCombinationsOfPlayerTypes(ret,depth-1,allPlayerTypes.splice(pn+1),soFar.concat([pType]));
+                        allCombinationsOfPlayerTypes(count,startclock,playclock,gameId,ret,depth-1,allPlayerTypes.splice(pn+1),soFar.concat([pType]));
                     } else {
                         ret.push({
                                     id:(self.nextMatchId++), 
                                     numToPlay:count, 
-                                    playerTypes:soFar.concat([pType])
+                                    playerTypes:soFar.concat([pType]),
                                     startclock:startclock,
-                                    playclock:playclock
+                                    playclock:playclock,
+                                    gameId:gameId,
+                                    beingPlayed:false
                                 });
                     }
                 //}
             }
         }
         
-        this.Schedule = function(numOfRuns,startclock,playclock,numPlayers) {
+        self.Schedule = function(gameMeta) {
             this.matches=[];
-            if (numPlayers > self.players){
-                console.log('ERROR: game requires more players than are connected');
+            if (gameMeta.numPlayers > self.allPlayerTypes.length){
+                console.log('ERROR: game requires more player types ('+gameMeta.numPlayers+') than are connected ('+self.allPlayerTypes.length+')');
             } else {
-                allCombinationsOfPlayerTypes(numOfRuns,startclock,playclock,this.matches,numPlayers,self.allPlayerTypes);///match has a boolean played and a list playerTypes
+                var numOfRuns;//how many repitions of each scenario
+                var startclock;//how long to the players have to analyze the game before playing 
+                var playclock;//how long players have to make their move
+                if ( gameMeta.testLength==='short' || 
+                     gameMeta.testLength==='s' ||
+                     gameMeta.testLength==='quick') {
+                    numOfRuns=1;
+                    startclock=60;
+                    playclock=20;
+                } else if (gameMeta.testLength==='med' || 
+                           gameMeta.testLength==='medium' || 
+                           gameMeta.testLength==='m') {
+                    numOfRuns=5;
+                    startclock=75;
+                    playclock=25;
+                } else if (gameMeta.testLength==='long' || 
+                           gameMeta.testLength==='l' || 
+                           gameMeta.testLength==='full') {
+                    numOfRuns=10;
+                    startclock=100;
+                    playclock=30;
+                } else {
+                    console.log('ERROR: game '+gameMeta.id+' '+gameMeta.name+' has an invalid testLength: '+gameMeta.testLength);
+                }
+                allCombinationsOfPlayerTypes(numOfRuns,startclock,playclock,gameMeta.id,this.matches,gameMeta.numPlayers,self.allPlayerTypes);///match has a boolean played and a list playerTypes
                 
             }
             this.matchesByPlayerTypes = {};
@@ -156,26 +215,50 @@ module.exports =  function() {
             }
             return ret;
         }
+        
     }
     
     GameCord.prototype.enqueue = function(meta) {
-        if (meta.id && meta.score) {
-            //meta.schedule = new this.Schedule();
-            if (this.curGame == null)
-                this.curGame = meta;
-            else
-                this.queue.push(meta, meta.score);
-            console.log('Enqueued game '+meta.id+': '+meta.name);
-            if (this.queue.length() < 2) {
-                this.findNextMatch();
-            }
+        var err='ok';
+        if (meta.testLength===undefined)
+            meta.testLength='long';
+        else
+            meta.testLength=meta.testLength.toLowerCase();
+        if (meta.numPlayers===undefined) {
+            err = 'ERROR: numPlayers not included in game '+meta.id+' '+meta.name;
+            console.log(err);
+            return err;
         }
+        if (meta.id===undefined) {
+            err = 'ERROR: id not included in game '+meta.name;
+            console.log(err);
+            return err;
+        }
+        if (meta.score===undefined) {
+            err = 'ERROR: score not included in game '+meta.id+' '+meta.name;
+            console.log(err);
+            return err;
+        }
+        if (meta.gdlVersion===undefined) {
+            console.log('WARNING: gdlVersion not included in game '+meta.id+' '+meta.name+', assuming 1');
+            meta.gdlVersion=1;
+        }
+        
+        if (this.curGame == null)
+            this.curGame = meta;
+        else
+            this.queue.push(meta, meta.score);
+        console.log('Enqueued game '+meta.id+': '+meta.name);
+        if (this.queue.length() < 2) {
+            this.kickMatches();
+        }
+        return err;
         
     };
     
     GameCord.prototype.beginMatch = function (m,gameMeta) {
-        if (m.toPlay>0) {
-        
+        if (m.beingPlayed==false && m.numToPlay>0) {
+            var self=this;
             m.played=true;
             for (p of this.players) {
                 if (p.id!==0 && m.playerIds.indexOf(p.id)!=-1) {
@@ -203,9 +286,13 @@ module.exports =  function() {
               }
               return permArr
             };
+            ///////////////////////////
             var allOrders=permute(m.playerIds);
             
-            this.playMatch(m,allOrders,database.gdlFileLocation(gameMeta.id));
+            self.database.gdlFileLocation(gameMeta.id, function(gameFileLocation) {
+                self.playMatch(m,allOrders,gameFileLocation);
+            });
+            
             
         }
         else
@@ -222,12 +309,13 @@ module.exports =  function() {
             thisGamePlayers = allOrders.pop();
             leftToPlayWith = m.numToPlay;
         }
-        var matchId = (m.id)+'_'+(m.numToPlay-leftToPlayWith);
-        var startGameControllerCommand = 'java -jar ./gamecontroller.jar '+matchId+' '+gameLoc+' '+m.startclock+' '+m.playclock;
+        var rep=(m.numToPlay-leftToPlayWith);
+        var matchId = (m.id)+'_'+allOrders.length+'_'+rep;
+        var startGameControllerCommand = 'java -jar ./gamecontroller/gamecontroller-cli.jar '+matchId+' '+gameLoc+' '+m.startclock+' '+m.playclock;
         //startGameControllerCommand += ' -printxml '+OUTPUTDIR+' '+XSLT;//TODO possibly
         for (var roleIndex=1; roleIndex<=thisGamePlayers.length; roleIndex++) {
             if (self.players[thisGamePlayers[roleIndex-1]].method='random')
-                startGameControllerCommand += ' -random';
+                startGameControllerCommand += ' -random '+roleIndex;
             else {
                 var name = self.players[thisGamePlayers[roleIndex-1]].name;
                 var host = self.players[thisGamePlayers[roleIndex-1]].host;
@@ -236,14 +324,19 @@ module.exports =  function() {
                 startGameControllerCommand += ' -remote '+roleIndex+' '+name+' '+host+' '+port+' '+gdlVersion;
             }
         }
-        
+        console.log('Starting game:\n  '+startGameControllerCommand);
         self.exec(startGameControllerCommand, function (error, stdout, stderr) {
             if (error !== null) {
-                console.log('exec error: ' + error);
+                console.log('exec ERROR: ' + error);
+            } else {
+                //record from stdout
+                var thisGamePlayersSkill=[]
+                for (playerId of thisGamePlayers) {
+                    thisGamePlayersSkill.push(self.players[playerId].skill);
+                }
+                owner.sendGameResults({matchId:m.id, playerSkills:thisGamePlayersSkill, gameId:m.gameId,printout:stdout});
             }
-            //TODO record from stdout
-            
-            if (allOrders.length>0 || toPlayWith>0)
+            if (allOrders.length>0 || leftToPlayWith>0)
                 self.playMatch(m,allOrders,gameLoc,leftToPlayWith,thisGamePlayers);
             else {//release the players
                 self.wrapUpMatch(m);
@@ -257,33 +350,49 @@ module.exports =  function() {
                 p.busy=false;
             }
         }
-        this.findNextMatch(m.playerTypes);
+        if (this.findNextMatch(m.playerTypes))
+            this.kickMatches();
         
         //TODO inform evaluator
+    }
+    
+    GameCord.prototype.kickMatches = function () {
+        while (this.findNextMatch()) {}
     }
     
     GameCord.prototype.findNextMatch = function (playerTypes) {
         if (this.curGame.schedule == undefined) {
             if (this.curGame.numPlayers == undefined) {
-                this.curGame.numPlayers = GDLReader.findNumPlayers(database.gdl(this.curGame.id));
+                console.log('ERROR: numPlayers is undefined');
+                return null;
+                //this.curGame.numPlayers = this.curGame.numPlayers;//GDLReader.findNumPlayers(database.gdl(this.curGame.id));
             }
-            this.curGame.schedule = new this.Schedule(this.curGame.numPlayers);
+            this.curGame.schedule = new this.Schedule(this.curGame);
         }
         var m = this.getNextMatch(this.curGame.schedule,playerTypes);
         if (m == null) {
-            if (this.queue.top.schedule == undefined) {
-                if (this.queue.top.numPlayers == undefined) {
-                    this.queue.top.numPlayers = GDLReader.findNumPlayers(database.gdl(this.queue.top.id));
+            if (this.queue.length>0) {
+                if (this.queue.top.schedule == undefined) {
+                    if (this.queue.top.numPlayers == undefined) {
+                        console.log('ERROR: numPlayers is undefined');
+                        return null;
+                        //this.queue.top.numPlayers = this.curGame.numPlayers;//GDLReader.findNumPlayers(database.gdl(this.queue.top.id));
+                    }
+                    this.queue.top.schedule = new this.Schedule(this.queue.top);
                 }
-                this.queue.top.schedule = new this.Schedule(this.queue.top.numPlayers);
-            }
-            m = this.getNextMatch(this.queue.top.schedule,playerTypes);
-            if (m != null) {
-                this.beginMatch(m,this.queue.top);
+                m = this.getNextMatch(this.queue.top.schedule,playerTypes);
+                if (m != null) {
+                    this.beginMatch(m,this.queue.top);
+                    return true;
+                }
+            } else {
+                console.log('no match found for game '+this.curGame.id);
+                return false;
             }
         }
         else {
             this.beginMatch(m,this.curGame);
+            return true;
         }
         
         
@@ -298,9 +407,9 @@ module.exports =  function() {
             searchSpace = schedule.matches;
         }
         for (var m of searchSpace) {
-            if (m.played=false) {
+            if (m.beingPlayed==false) {
                 var allFree=true;
-                var freePlayerIds;
+                var freePlayerIds=[];
                 for (var playerType of m.playerTypes) {
                     var aFree=null;
                     if (playerType==='random') {
@@ -331,5 +440,5 @@ module.exports =  function() {
         return null;
     };
     
-    return GameCord
+    return GameCord;
 };

@@ -5,6 +5,7 @@ Our board-game generator for our CS 673 Project.
 Controller
 - Node.js  (incldues packages)
   - express
+  - request
   - fs
   - body-parser
   - multer
