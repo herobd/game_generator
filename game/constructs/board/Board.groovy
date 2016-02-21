@@ -13,9 +13,22 @@ import gdl.clauses.HasClauses
  */
 class Board implements HasClauses, Supports
 {
-	GDLClause getImplementation(GameFunction p)
+	List<GDLClause> getImplementations(List<GameFunction> funcs)
 	{
-		return null
+		def result = []
+		for (GameFunction f : funcs)
+		{
+			try
+			{
+				def clause = f.retrieveBoardGDL(this)
+				result.add(clause)
+			}
+			catch (MissingMethodException ex)
+			{
+				throw new FunctionNotSupportedException(f, ex)
+			}
+		}
+		return result
 	}
 
 	@Override
