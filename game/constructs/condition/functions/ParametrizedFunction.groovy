@@ -3,7 +3,7 @@ package constructs.condition.functions
 /**
  * @author Lawrence Thatcher
  */
-class ParametrizedFunction implements PreCondition
+class ParametrizedFunction implements GameFunction
 {
 	private String name = "default"
 	private def args

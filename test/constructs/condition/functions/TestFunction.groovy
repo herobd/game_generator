@@ -1,7 +1,6 @@
 package constructs.condition.functions
 
 import org.junit.Test
-import org.junit.Assert
 
 /**
  * @author Lawrence Thatcher
@@ -14,7 +13,7 @@ class TestFunction
 		def f = Function.N_inARow(3)
 		assert f == new ParametrizedFunction("3inARow", Function.N_inARow)
 		assert !(f instanceof Function)
-		assert f instanceof PreCondition
+		assert f instanceof GameFunction
 		println f
 	}
 
@@ -31,7 +30,7 @@ class TestFunction
 	void testOpen()
 	{
 		def f = Function.Open
-		assert f instanceof PreCondition
+		assert f instanceof GameFunction
 		assert f(5) == f
 		assert f(6).toString() == "Open"
 	}

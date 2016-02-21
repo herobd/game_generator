@@ -3,7 +3,7 @@ package constructs.condition.functions
 /**
  * @author Lawrence Thatcher
  */
-interface PreCondition
+interface GameFunction
 {
 	Function getType()
 

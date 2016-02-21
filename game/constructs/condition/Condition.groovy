@@ -1,7 +1,6 @@
 package constructs.condition
 
-import constructs.condition.functions.Function
-import constructs.condition.functions.PreCondition
+import constructs.condition.functions.GameFunction
 import constructs.condition.result.Result
 
 /**
@@ -9,16 +8,16 @@ import constructs.condition.result.Result
  */
 class Condition
 {
-	private PreCondition antecedent
+	private GameFunction antecedent
 	private Result consequent
 
-	Condition(PreCondition function, Result result)
+	Condition(GameFunction function, Result result)
 	{
 		this.antecedent = function
 		this.consequent = result
 	}
 
-	PreCondition getAntecedent()
+	GameFunction getAntecedent()
 	{
 		return antecedent
 	}

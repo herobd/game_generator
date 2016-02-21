@@ -3,7 +3,7 @@ package constructs.condition.functions
 /**
  * @author Lawrence Thatcher
  */
-enum Function implements PreCondition
+enum Function implements GameFunction
 {
 	N_inARow("in_a_row", {n -> n.toString() + "inARow"}),
 	Open("open", null);
