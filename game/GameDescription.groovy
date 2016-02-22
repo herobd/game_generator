@@ -1,7 +1,7 @@
 import constructs.Players
 import constructs.TurnOrder
 import constructs.board.Board
-import constructs.condition.TerminalCondition
+import constructs.condition.TerminalConditional
 import constructs.end.EndGameConditions
 import constructs.pieces.NamedPieces
 import constructs.pieces.Piece
@@ -32,7 +32,7 @@ class GameDescription implements GDLConvertable
 	 * @param end a list of TerminalConditions that will be used to set when the game will end,
 	 * as well as who the winner will be (if any).
 	 */
-	GameDescription(Players players, Board board, TurnOrder turnOrder, List<Piece> pieces, List<TerminalCondition> end)
+	GameDescription(Players players, Board board, TurnOrder turnOrder, List<Piece> pieces, List<TerminalConditional> end)
 	{
 		this.players = players
 		this.board = board

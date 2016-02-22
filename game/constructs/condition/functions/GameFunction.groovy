@@ -1,11 +1,12 @@
 package constructs.condition.functions
 
+import constructs.condition.Condition
 import gdl.clauses.GDLClause
 
 /**
  * @author Lawrence Thatcher
  */
-enum GameFunction implements Function
+enum GameFunction implements Function, Condition
 {
 	N_inARow("in_a_row", {n -> n.toString() + "inARow"}),
 	Open("open", null);

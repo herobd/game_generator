@@ -10,9 +10,9 @@ import constructs.end.EndGameConditions
  *
  * A special case of the Condtional class where the result is restricted to be an EndGameResult
  */
-class TerminalCondition extends Conditional
+class TerminalConditional extends Conditional
 {
-	TerminalCondition(Function function, EndGameResult result)
+	TerminalConditional(Function function, EndGameResult result)
 	{
 		super(function, result)
 	}

@@ -2,7 +2,7 @@ package constructs.end
 
 import constructs.board.Board
 import constructs.condition.Conditional
-import constructs.condition.TerminalCondition
+import constructs.condition.TerminalConditional
 import constructs.condition.functions.Function
 import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
@@ -14,9 +14,9 @@ import gdl.clauses.HasClauses
  */
 class EndGameConditions implements HasClauses
 {
-	private List<TerminalCondition> conditions
+	private List<TerminalConditional> conditions
 	private Board board
-	EndGameConditions(List<TerminalCondition> conditions, Board board)
+	EndGameConditions(List<TerminalConditional> conditions, Board board)
 	{
 		this.conditions = conditions
 		this.board = board
@@ -62,7 +62,7 @@ class EndGameConditions implements HasClauses
 	}
 
 	/**
-	 * Retrieves all of the GDL clauses from the board that correspond to t
+	 * Retrieves all of the GDL clauses from the board that correspond to supported functions
 	 * @return
 	 */
 	Collection<GDLClause> getSupportedBoardGDLClauses()

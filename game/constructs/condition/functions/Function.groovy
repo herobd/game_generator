@@ -1,15 +1,21 @@
 package constructs.condition.functions
 
+import constructs.condition.Condition
 import gdl.clauses.GDLClause
 
 /**
  * @author Lawrence Thatcher
  */
-interface Function
+trait Function implements Condition
 {
-	GameFunction getType()
+	abstract GameFunction getType()
 
-	String getFunctionName()
+	abstract String getFunctionName()
 
-	GDLClause retrieveBoardGDL(Object)
+	abstract GDLClause retrieveBoardGDL(Object)
+
+	Collection<Function> getFunctions()
+	{
+		return [this]
+	}
 }

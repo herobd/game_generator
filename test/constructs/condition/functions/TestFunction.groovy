@@ -11,7 +11,7 @@ import org.junit.Test
 class TestFunction
 {
 	@Test
-	void test3_inARow()
+	void test_3inARow()
 	{
 		def f = GameFunction.N_inARow(3)
 		assert f == new ParametrizedFunction("3inARow", GameFunction.N_inARow)
@@ -21,7 +21,7 @@ class TestFunction
 	}
 
 	@Test
-	void testN_inARow__plain()
+	void test_NinARow__plain()
 	{
 		def f = GameFunction.N_inARow
 		assert f instanceof GameFunction
@@ -30,7 +30,7 @@ class TestFunction
 	}
 
 	@Test
-	void testOpen()
+	void test_open()
 	{
 		def f = GameFunction.Open
 		assert f instanceof Function
@@ -39,7 +39,7 @@ class TestFunction
 	}
 
 	@Test
-	void testType()
+	void test_type()
 	{
 		assert GameFunction.Open.type == GameFunction.Open
 		assert GameFunction.N_inARow.type == GameFunction.N_inARow
@@ -47,14 +47,14 @@ class TestFunction
 	}
 
 	@Test
-	void testNumParams()
+	void test_numParams()
 	{
 		assert GameFunction.Open.numParams == 0
 		assert GameFunction.N_inARow.numParams == 1
 	}
 
 	@Test
-	void testGetFunctionName()
+	void test_getFunctionName()
 	{
 		assert GameFunction.Open.functionName == "open"
 		assert GameFunction.N_inARow.functionName == "in_a_row"
@@ -62,7 +62,7 @@ class TestFunction
 	}
 
 	@Test
-	void testRetrieveBoardGDL()
+	void test_retrieveBoardGDL()
 	{
 		// Non-parametrized
 		def mock1 = new MockOpen()
@@ -81,5 +81,16 @@ class TestFunction
 		f = GameFunction.N_inARow(4)
 		clause = f.retrieveBoardGDL(mock2)
 		assert clause instanceof InitClause
+	}
+
+	@Test
+	void test_getFunctions()
+	{
+		def f = GameFunction.Open
+		assert f.functions == [GameFunction.Open]
+
+		f = GameFunction.N_inARow(4)
+		assert f.functions == [GameFunction.N_inARow(4)]
+		assert f.functions != [GameFunction.N_inARow(3)]
 	}
 }
