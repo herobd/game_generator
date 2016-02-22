@@ -5,23 +5,33 @@ import constructs.condition.result.Result
 
 /**
  * @author Lawrence Thatcher
+ *
+ * A class for representing game state conditionals, that consist of a condition (antecedent), and a result (consequent)
  */
-class Condition
+class Conditional
 {
 	private Function antecedent
 	private Result consequent
 
-	Condition(Function function, Result result)
+	Conditional(Function function, Result result)
 	{
 		this.antecedent = function
 		this.consequent = result
 	}
 
+	/**
+	 * Retrieves the game state condition that this conditional rests upon
+	 * @return a Function type
+	 */
 	Function getAntecedent()
 	{
 		return antecedent
 	}
 
+	/**
+	 * Retrieves the action or result that happens when the game state condition is met
+	 * @return a Result type
+	 */
 	Result getConsequent()
 	{
 		return consequent

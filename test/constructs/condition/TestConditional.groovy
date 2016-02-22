@@ -7,12 +7,12 @@ import org.junit.Test
 /**
  * @author Lawrence Thatcher
  */
-class TestCondition
+class TestConditional
 {
 	@Test
 	void testToString()
 	{
-		Condition c = new Condition(GameFunction.N_inARow(3), EndGameResult.Lose)
+		Conditional c = new Conditional(GameFunction.N_inARow(3), EndGameResult.Lose)
 		assert c.toString() == "3inARow -> Lose"
 		println(c.toString())
 	}

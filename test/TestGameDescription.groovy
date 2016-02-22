@@ -15,7 +15,7 @@ class TestGameDescription
 	void testConvertToGDL()
 	{
 		def board = new SquareGrid(3, true)
-		def end = new EndGameConditions([])
+		def end = []
 		GameDescription ticTacToe = new GameDescription(new Players(["White", "Black"]), board, TurnOrder.Alternating, [], end)
 		GDLDescription gdl = ticTacToe.convertToGDL()
 		//Roles
