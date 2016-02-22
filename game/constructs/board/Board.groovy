@@ -41,8 +41,16 @@ class Board implements HasClauses, Supports
 	}
 
 	@Override
-	List<GameFunction> getSupportedFunctions()
+	boolean supports(Function function)
 	{
-		return []
+		try
+		{
+			function.retrieveBoardGDL(this)
+			return true
+		}
+		catch (MissingMethodException ignore)
+		{
+			return false
+		}
 	}
 }

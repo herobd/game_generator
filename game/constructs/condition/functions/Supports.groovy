@@ -5,5 +5,5 @@ package constructs.condition.functions
  */
 interface Supports
 {
-	List<GameFunction> getSupportedFunctions()
+	boolean supports(Function function)
 }

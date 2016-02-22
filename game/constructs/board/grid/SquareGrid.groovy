@@ -40,12 +40,6 @@ class SquareGrid extends Grid implements
 	}
 
 	@Override
-	List<GameFunction> getSupportedFunctions()
-	{
-		return [GameFunction.N_inARow, GameFunction.Open]
-	}
-
-	@Override
 	Collection<GDLClause> getGDLClauses()
 	{
 		def clauses = []
