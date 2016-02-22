@@ -17,7 +17,7 @@ class TestCondition
 		// non-parametrized
 		def f = GameFunction.Open
 		NegatedCondition c = new NegatedCondition(f)
-		assert c.toString() == "not Open"
+		assert c.toString() == "not open"
 
 		// parametrized
 		f = GameFunction.N_inARow(3)
@@ -37,6 +37,9 @@ class TestCondition
 		assert c.functions == [GameFunction.Open]
 
 		//recursive
+		c = new NegatedCondition(c)
+		c = new NegatedCondition(c)
+		c = new NegatedCondition(c)
 		c = new NegatedCondition(c)
 		assert c.functions == [GameFunction.Open]
 	}

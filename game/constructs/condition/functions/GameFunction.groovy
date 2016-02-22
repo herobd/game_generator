@@ -56,6 +56,12 @@ enum GameFunction implements Function, Condition
 		return this
 	}
 
+	@Override
+	String toString()
+	{
+		return this.funcName
+	}
+
 	private Object getDefaultArgument()
 	{
 		switch (this)
