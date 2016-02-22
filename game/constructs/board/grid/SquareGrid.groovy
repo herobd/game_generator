@@ -47,9 +47,6 @@ class SquareGrid extends Grid implements
 		clauses.add(generateIndexClause())
 		clauses.add(generateSuccessorClause())
 		clauses.add(generateInitClause())
-		//TODO: should not be added here, but later on in description factory
-			clauses.add(this.in_a_row(3))
-			clauses.add(this.open())
 		return clauses
 	}
 

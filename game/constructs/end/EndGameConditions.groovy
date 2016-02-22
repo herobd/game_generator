@@ -2,6 +2,7 @@ package constructs.end
 
 import constructs.board.Board
 import constructs.condition.Conditional
+import constructs.condition.TerminalCondition
 import constructs.condition.functions.Function
 import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
@@ -13,9 +14,9 @@ import gdl.clauses.HasClauses
  */
 class EndGameConditions implements HasClauses
 {
-	private List<Conditional> conditions
+	private List<TerminalCondition> conditions
 	private Board board
-	EndGameConditions(List<Conditional> conditions, Board board)
+	EndGameConditions(List<TerminalCondition> conditions, Board board)
 	{
 		this.conditions = conditions
 		this.board = board
@@ -49,7 +50,7 @@ class EndGameConditions implements HasClauses
 	 * Retrieves a list of all the conditionals that can be supported by the current board
 	 * @return
 	 */
-	List<Conditional> getSupportedConditions()
+	List<Conditional> getSupportedConditionals()
 	{
 		def F = []
 		for (Conditional c : conditions)
@@ -58,6 +59,21 @@ class EndGameConditions implements HasClauses
 				F.add(c)
 		}
 		return F
+	}
+
+	/**
+	 * Retrieves all of the GDL clauses from the board that correspond to t
+	 * @return
+	 */
+	Collection<GDLClause> getSupportedBoardGDLClauses()
+	{
+		def clauses = []
+		for (Conditional c : supportedConditionals)
+		{
+			def clause = board.getImplementation(c.antecedent)
+			clauses.add(clause)
+		}
+		return clauses
 	}
 
 	@Override

@@ -17,8 +17,8 @@ class MockOpen implements SupportsOpen
 	}
 
 	@Override
-	List<GameFunction> getSupportedFunctions()
+	boolean supports(Function f)
 	{
-		return [GameFunction.Open]
+		return f == GameFunction.Open
 	}
 }

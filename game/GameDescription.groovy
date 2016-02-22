@@ -55,6 +55,7 @@ class GameDescription implements GDLConvertable
 		{
 			clauses += p.GDLClauses
 		}
+		clauses += end.supportedBoardGDLClauses
 		clauses += end.GDLClauses
 
 		return new GDLDescription(clauses)
