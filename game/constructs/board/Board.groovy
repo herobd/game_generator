@@ -9,26 +9,29 @@ import gdl.clauses.HasClauses
 /**
  * @author Lawrence Thatcher
  *
- * stores information about the game board.
+ * Stores information about the game board.
  */
 class Board implements HasClauses, Supports
 {
-	List<GDLClause> getImplementations(List<GameFunction> funcs)
+	/**
+	 * Retrieves the GDL-description and implementation of a particular function
+	 * relative to the current game board. If that function is not supported by
+	 * the current setup, this method will throw a FunctionNotSupportedException.
+	 *
+	 * @param func The function to retrieve the implementation for.
+	 * @return A GDL clause giving the description of that function.
+	 */
+	GDLClause getImplementation(GameFunction func)
 	{
-		def result = []
-		for (GameFunction f : funcs)
+		try
 		{
-			try
-			{
-				def clause = f.retrieveBoardGDL(this)
-				result.add(clause)
-			}
-			catch (MissingMethodException ex)
-			{
-				throw new FunctionNotSupportedException(f, ex)
-			}
+			def clause = func.retrieveBoardGDL(this)
+			return clause
 		}
-		return result
+		catch (MissingMethodException ex)
+		{
+			throw new FunctionNotSupportedException(func, ex)
+		}
 	}
 
 	@Override
