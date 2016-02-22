@@ -43,7 +43,7 @@ var ControllerApp = function(host,port) {
         }
 
         //  Local cache for static content.
-        self.zcache['index.html'] = fs.readFileSync('./index.html');
+        //self.zcache['index.html'] = fs.readFileSync('./index.html');
         //self.zcache['projects.html'] = fs.readFileSync('./projects.html');
         
         //self.zcache['game/assests/Monster Growl-SoundBible.com-344645592.mp3'] = fs.readFileSync('./public/game/assests/Monster Growl-SoundBible.com-344645592.mp3');
@@ -65,12 +65,17 @@ var ControllerApp = function(host,port) {
      *  @param {string} sig  Signal to terminate on.
      */
     self.terminator = function(sig){
-        self.sendDisconnect(self.evaluatorAddress);
-        self.sendDisconnect(self.generatorAddress);
+        
         if (typeof sig === "string") {
            console.log('%s: Received %s - terminating control app ...',
                        Date(Date.now()), sig);
-           process.exit(1);
+           self.sendDisconnect(self.evaluatorAddress,function() {
+             self.sendDisconnect(self.generatorAddress, function() {
+               process.exit(1); 
+             });
+           });
+           
+           //process.exit(1);
         }
         console.log('%s: Node server stopped.', Date(Date.now()) );
     };
@@ -103,10 +108,10 @@ var ControllerApp = function(host,port) {
         self.routes = { };
 
 
-        self.routes['/'] = function(req, res) {
+        /*self.routes['/'] = function(req, res) {
             res.setHeader('Content-Type', 'text/html');
             res.send(self.cache_get('index.html') );
-        };
+        };*/
         self.routes['/a-page'] = function(req, res) {
             res.setHeader('Content-Type', 'text/html');
             res.send(self.cache_get('a-page.html') );
@@ -232,6 +237,12 @@ var ControllerApp = function(host,port) {
         self.app.listen(self.port, /*self.ipaddress,*/ function() {
             console.log('%s: Node server started on :%d ...',
                         Date(Date.now() ), self.port);
+            
+            //TODO DEBUG init////
+            self.sendConnect('localhost:8081');
+            self.gameCord.addPlayer('heuristic','localhost',9147,'heu',1,1);
+            self.gameCord.addPlayer('minimax','localhost',9148,'min',2,1);
+            ////////////////////
         });
     };
     
@@ -254,31 +265,48 @@ var ControllerApp = function(host,port) {
         );
     };
     
+    //localhost:8081/connect?id=controller&address=localhost:8080
+    //http://localhost:8081/connect?id=controller&address=localhost:8080
+    
     self.sendConnect = function (address) {
         if (address !== null) {
-            request.get(address+'/connect?id=controller&address='+self.myAddress, function (error, response, body) {
+            var url = encodeURI('/connect?id=controller&address='+self.myAddress);
+            //console.log('send ' + address+url);
+            request.get('http://'+address+url, function (error, response, body) {
               if (!error && response.statusCode == 200) {
                 //console.log(body) // Show the HTML for the Google homepage. 
                 var resj=JSON.parse(body);
                 if (resj.status!=='ok') {
                     console.log('Failed to connect to: '+address);
-                } else if (resj.id==='generator') {
+                } else {
+                    console.log('Connected to '+resj.id+' '+address);
+                    if (resj.id==='generator') {
                     self.generatorAddress=address;
+                    }
+                    else if (resj.id==='evaluator') {
+                        self.evaluatorAddress=address;
+                    }
+                    //self.sendDisconnect(address);
                 }
-                else if (resj.id==='evaluator') {
-                    self.evaluatorAddress=address;
-                }
+              } else {
+                console.log('get ERROR: '+error+' code:'+response.statusCode);
               }
             });
         }
     };
-    self.sendDisconnect = function (address) {
+    self.sendDisconnect = function (address,callback) {
         if (address !== null) {
-            request.get(address+'/disconnect?id=controller', function (error, response, body) {
+            //console.log('Sending disconnect '+'http://'+address+'/disconnect?id=controller');
+            request.get('http://'+address+'/disconnect?id=controller', function (error, response, body) {
               if (!error && response.statusCode == 200) {
-                //console.log(body) // Show the HTML for the Google homepage. 
+                console.log('Disconnected: '+body);
+              } else {
+                console.log('get ERROR: '+error+' code:'+response.statusCode);
               }
+              callback();
             });
+        } else {
+            callback();
         }
     };
 };   /*  END Controller Application.  */
@@ -288,7 +316,7 @@ var ControllerApp = function(host,port) {
 /**
  *  main():  Main code.
  */
-var zapp = new ControllerApp(+process.argv[2],+process.argv[3]);
+var zapp = new ControllerApp(process.argv[2],+process.argv[3]);
 zapp.initialize();
 zapp.start();
 

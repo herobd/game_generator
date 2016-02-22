@@ -122,9 +122,10 @@ var EvaluatorServer = function(host,port) {
         
             res.setHeader('Content-Type', 'application/json');
             if (req.query.id === 'controller') {
+                console.log('Controller disconnected: '+self.controllerAddress);
                 self.controllerAddress=null;
                 res.send('{"id":"evaluator","status":"ok"}');
-                console.log('Disconnected from controller, '+self.controllerAddress);
+                
             } else {
                 res.send('{"id":"evaluator","status":"id not recognized"}');
             }
@@ -205,7 +206,7 @@ var EvaluatorServer = function(host,port) {
     
     self.sendConnect = function (address) {
         if (address !== null) {
-            request.get(address+'/connect?id=evaluator&address='+self.myAddress, function (error, response, body) {
+            request.get('http://'+address+'/connect?id=evaluator&address='+self.myAddress, function (error, response, body) {
               if (!error && response.statusCode == 200) {
                 //console.log(body) // Show the HTML for the Google homepage. 
                 var resj=JSON.parse(body);
@@ -213,6 +214,7 @@ var EvaluatorServer = function(host,port) {
                     console.log('Failed to connect to: '+address);
                 } else if (resj.id==='controller') {
                     self.controllerAddress=address;
+                    console.log('Connected to '+resj.id+' '+address);
                 }
               }
             });
@@ -220,9 +222,9 @@ var EvaluatorServer = function(host,port) {
     };
     self.sendDisconnect = function (address) {
         if (address !== null) {
-            request.get(address+'/disconnect?id=evaluator', function (error, response, body) {
+            request.get('http://'+address+'/disconnect?id=evaluator', function (error, response, body) {
               if (!error && response.statusCode == 200) {
-                //console.log(body) // Show the HTML for the Google homepage. 
+                console.log('Disconnected: '+body); 
               }
             });
         }
@@ -234,7 +236,7 @@ var EvaluatorServer = function(host,port) {
 /**
  *  main():  Main code.
  */
-var zapp = new EvaluatorServer(+process.argv[2],+process.argv[3]);
+var zapp = new EvaluatorServer(process.argv[2],+process.argv[3]);
 zapp.initialize();
 zapp.start();
 

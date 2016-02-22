@@ -144,14 +144,14 @@ module.exports =  function() {
         
         
         var self = this;
-        function allCombinationsOfPlayerTypes(count,startclock,playclock,gameId,ret,depth,allPlayerTypes,soFar) {
+        function allCombinationsOfPlayerTypes(count,startclock,playclock,gameId,gdlVersion,ret,depth,allPlayerTypes,soFar) {
             if (soFar === undefined)
                 soFar=[];
             for (var pn=0; pn<allPlayerTypes.length; pn++) {
                 var pType=allPlayerTypes[pn];
                 //if (soFar.indexOf(pid)==-1) {
                     if (depth>1) {
-                        allCombinationsOfPlayerTypes(count,startclock,playclock,gameId,ret,depth-1,allPlayerTypes.splice(pn+1),soFar.concat([pType]));
+                        allCombinationsOfPlayerTypes(count,startclock,playclock,gameId,gdlVersion,ret,depth-1,allPlayerTypes.splice(pn+1),soFar.concat([pType]));
                     } else {
                         ret.push({
                                     id:(self.nextMatchId++), 
@@ -160,6 +160,7 @@ module.exports =  function() {
                                     startclock:startclock,
                                     playclock:playclock,
                                     gameId:gameId,
+                                    gdlVersion:gdlVersion,
                                     beingPlayed:false
                                 });
                     }
@@ -196,7 +197,7 @@ module.exports =  function() {
                 } else {
                     console.log('ERROR: game '+gameMeta.id+' '+gameMeta.name+' has an invalid testLength: '+gameMeta.testLength);
                 }
-                allCombinationsOfPlayerTypes(numOfRuns,startclock,playclock,gameMeta.id,this.matches,gameMeta.numPlayers,self.allPlayerTypes);///match has a boolean played and a list playerTypes
+                allCombinationsOfPlayerTypes(numOfRuns,startclock,playclock,gameMeta.id,gameMeta.gdlVersion,this.matches,gameMeta.numPlayers,self.allPlayerTypes);///match has a boolean played and a list playerTypes
                 
             }
             this.matchesByPlayerTypes = {};
@@ -258,8 +259,9 @@ module.exports =  function() {
     
     GameCord.prototype.beginMatch = function (m,gameMeta) {
         if (m.beingPlayed==false && m.numToPlay>0) {
+            console.log('Beginning match '+m.id); 
             var self=this;
-            m.played=true;
+            m.beingPlayed=true;
             for (p of this.players) {
                 if (p.id!==0 && m.playerIds.indexOf(p.id)!=-1) {
                     p.busy=true;
@@ -311,10 +313,10 @@ module.exports =  function() {
         }
         var rep=(m.numToPlay-leftToPlayWith);
         var matchId = (m.id)+'_'+allOrders.length+'_'+rep;
-        var startGameControllerCommand = 'java -jar ./gamecontroller/gamecontroller-cli.jar '+matchId+' '+gameLoc+' '+m.startclock+' '+m.playclock;
+        var startGameControllerCommand = 'java -jar ./gamecontroller/gamecontroller-cli.jar '+matchId+' '+gameLoc+' '+m.startclock+' '+m.playclock+' '+m.gdlVersion;
         //startGameControllerCommand += ' -printxml '+OUTPUTDIR+' '+XSLT;//TODO possibly
         for (var roleIndex=1; roleIndex<=thisGamePlayers.length; roleIndex++) {
-            if (self.players[thisGamePlayers[roleIndex-1]].method='random')
+            if (self.players[thisGamePlayers[roleIndex-1]].type==='random')
                 startGameControllerCommand += ' -random '+roleIndex;
             else {
                 var name = self.players[thisGamePlayers[roleIndex-1]].name;

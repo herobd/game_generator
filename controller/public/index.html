@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>GREGG Controller</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="default.css" rel="stylesheet" type="text/css" />
+<script>
+var checked=null;
+function check(val) {
+    checked = val;
+}
+function httpGetAsync(theUrl, callback)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+        else if (xmlHttp.readyState == 4)
+            callback(xmlHttp.status);
+            
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
+function submit_player() {
+    var method=checked;
+    if (checked==='other')
+        method=document.getElementById("othermethod").value;
+    var host=document.getElementById("host").value;
+    var port=document.getElementById("port").value;
+    var name=document.getElementById("name").value;
+    var skillLevel=document.getElementById("skillLevel").value;
+    var gdlVersion=document.getElementById("gdlVersion").value;
+    var url = '/addPlayer?method='+method+'&host='+host+'&port='+port+'&name='+name+'&skillLevel='+skillLevel+'&gdlVersion='+gdlVersion;
+    document.getElementById("submit_show").innerHTML = 'submitting...';
+    httpGetAsync(encodeURI(url),function(res) {
+        document.getElementById("submit_show").innerHTML = res;
+    });
+}
+</script>
+</head>
+<body>
+<div id="add_player_box">
+    <h1>Add player</h1>
+    Host: <input type="text" id="host"><br>
+    Port: <input type="text" id="port"><br>
+    Method:<br>
+      <input type="radio" name="method" value="minimax" onclick="check(this.value)"> Minimax<br>
+      <input type="radio" name="method" value="heurisitc" onclick="check(this.value)"> Heurisitc<br>
+      <input type="radio" name="method" value="montecarlo" onclick="check(this.value)"> Monte Carlo<br>
+      <input type="radio" name="method" value="montecarlotreesearch" onclick="check(this.value)"> Monte Carlo Tree Search<br>
+      <input type="radio" name="method" value="other" onclick="check(this.value)"> <input type="text" id="othermethod"> (note: use consistent spelling)<br>
+    Name: <input type="text" id="name"><br>
+    Skill level: <input type="text" id="skillLevel"><br>
+    GDL Version: <input type="text" id="gdlVersion" value="1"><br>
+    <button type="button" onclick="submit_player()">Submit player</button><br>
+    Status: <div id="submit_show">not submitted</div>
+</div>
+</body>
+</html>
