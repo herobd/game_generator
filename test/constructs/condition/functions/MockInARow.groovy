@@ -23,8 +23,8 @@ class MockInARow implements SupportsInARow
 	}
 
 	@Override
-	List<Function> getSupportedFunctions()
+	List<GameFunction> getSupportedFunctions()
 	{
-		return [Function.N_inARow]
+		return [GameFunction.N_inARow]
 	}
 }

@@ -1,7 +1,7 @@
 package constructs.board
 
-import constructs.condition.functions.Function
 import constructs.condition.functions.GameFunction
+import constructs.condition.functions.Function
 import constructs.condition.functions.Supports
 import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
@@ -21,7 +21,7 @@ class Board implements HasClauses, Supports
 	 * @param func The function to retrieve the implementation for.
 	 * @return A GDL clause giving the description of that function.
 	 */
-	GDLClause getImplementation(GameFunction func)
+	GDLClause getImplementation(Function func)
 	{
 		try
 		{
@@ -41,7 +41,7 @@ class Board implements HasClauses, Supports
 	}
 
 	@Override
-	List<Function> getSupportedFunctions()
+	List<GameFunction> getSupportedFunctions()
 	{
 		return []
 	}

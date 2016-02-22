@@ -1,5 +1,5 @@
 package constructs.board
-import constructs.condition.functions.GameFunction
+import constructs.condition.functions.Function
 
 /**
  * @author Lawrence Thatcher
@@ -8,7 +8,7 @@ import constructs.condition.functions.GameFunction
  */
 class FunctionNotSupportedException extends Exception
 {
-	FunctionNotSupportedException(GameFunction func, Exception ex)
+	FunctionNotSupportedException(Function func, Exception ex)
 	{
 		super("The function " + func.toString() + " is not supported on this board", ex)
 	}

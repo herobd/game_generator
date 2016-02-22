@@ -1,7 +1,6 @@
 package constructs.condition.functions
 
 import gdl.clauses.GDLClause
-import gdl.clauses.base.BaseClause
 import gdl.clauses.legal.LegalClause
 
 /**
@@ -18,8 +17,8 @@ class MockOpen implements SupportsOpen
 	}
 
 	@Override
-	List<Function> getSupportedFunctions()
+	List<GameFunction> getSupportedFunctions()
 	{
-		return [Function.Open]
+		return [GameFunction.Open]
 	}
 }

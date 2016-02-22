@@ -5,20 +5,20 @@ import gdl.clauses.GDLClause
 /**
  * @author Lawrence Thatcher
  */
-class ParametrizedFunction implements GameFunction
+class ParametrizedFunction implements Function
 {
 	private String name = "default"
 	private def args
 	private def func
-	private Function parent
+	private GameFunction parent
 
-	ParametrizedFunction(String name, Function parent)
+	ParametrizedFunction(String name, GameFunction parent)
 	{
 		this.name = name
 		this.parent = parent
 	}
 
-	ParametrizedFunction(Closure c, Function parent)
+	ParametrizedFunction(Closure c, GameFunction parent)
 	{
 		this.func = c
 		this.parent = parent
@@ -39,7 +39,7 @@ class ParametrizedFunction implements GameFunction
 	}
 
 	@Override
-	Function getType()
+	GameFunction getType()
 	{
 		return this.parent
 	}

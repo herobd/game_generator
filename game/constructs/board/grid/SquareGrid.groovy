@@ -1,6 +1,6 @@
 package constructs.board.grid
 
-import constructs.condition.functions.Function
+import constructs.condition.functions.GameFunction
 import constructs.condition.functions.SupportsInARow
 import constructs.condition.functions.SupportsOpen
 import gdl.GDLStatement
@@ -40,9 +40,9 @@ class SquareGrid extends Grid implements
 	}
 
 	@Override
-	List<Function> getSupportedFunctions()
+	List<GameFunction> getSupportedFunctions()
 	{
-		return [Function.N_inARow, Function.Open]
+		return [GameFunction.N_inARow, GameFunction.Open]
 	}
 
 	@Override

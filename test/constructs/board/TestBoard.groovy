@@ -1,7 +1,7 @@
 package constructs.board
 
 import constructs.board.grid.SquareGrid
-import constructs.condition.functions.Function
+import constructs.condition.functions.GameFunction
 import gdl.clauses.dynamic.DynamicComponentsClause
 import org.junit.Test
 import static org.junit.Assert.fail
@@ -18,12 +18,12 @@ class TestBoard
 	{
 		// non-parametrized
 		def board = new SquareGrid(3)
-		def gdl = board.getImplementation(Function.Open)
+		def gdl = board.getImplementation(GameFunction.Open)
 		assert gdl instanceof DynamicComponentsClause
 		assert gdl.contains("(<= open\n(true (cell ?x ?y b)))")
 
 		// parametrized
-		gdl = board.getImplementation(Function.N_inARow(3))
+		gdl = board.getImplementation(GameFunction.N_inARow(3))
 		assert gdl instanceof DynamicComponentsClause
 		assert gdl.contains("(<= (3inARow ?w) (row ?x ?y ?w)")
 		assert gdl.statements.size() == 4
@@ -36,7 +36,7 @@ class TestBoard
 		try
 		{
 			def board = new Board()
-			board.getImplementation(Function.N_inARow(5))
+			board.getImplementation(GameFunction.N_inARow(5))
 			fail("The default board does not support the in-a-row function")
 		}
 		catch (FunctionNotSupportedException ignore)
