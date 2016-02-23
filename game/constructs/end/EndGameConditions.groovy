@@ -56,10 +56,11 @@ class EndGameConditions implements HasClauses
 		for (Conditional c : conditions)
 		{
 			if (supportsAllFunctions(c))
-				S += c.functions
+				S += c
 		}
 		return S
 	}
+	//TODO: add some sort of reducer to get a partial conditional..?
 
 	/**
 	 * Retrieves all of the GDL clauses from the board that correspond to supported functions
@@ -67,7 +68,6 @@ class EndGameConditions implements HasClauses
 	 */
 	Collection<GDLClause> getSupportedBoardGDLClauses()
 	{
-		//TODO: add some sort of reducer to get a partial conditional..?
 		def clauses = []
 		for (Conditional c : supportedConditionals)
 		{

@@ -54,4 +54,28 @@ class Conditional
 		result += consequent.toString()
 		return result
 	}
+
+	boolean equals(o)
+	{
+		if (this.is(o))
+			return true
+		if (!(o instanceof Conditional))
+			return false
+
+		Conditional that = (Conditional) o
+		if (antecedent != that.antecedent)
+			return false
+		if (consequent != that.consequent)
+			return false
+
+		return true
+	}
+
+	int hashCode()
+	{
+		int result
+		result = antecedent.hashCode()
+		result = 31 * result + (consequent != null ? consequent.hashCode() : 0)
+		return result
+	}
 }

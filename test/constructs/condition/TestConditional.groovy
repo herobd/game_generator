@@ -10,7 +10,7 @@ import org.junit.Test
 class TestConditional
 {
 	@Test
-	void testToString()
+	void test_toString()
 	{
 		Conditional c = new Conditional(GameFunction.N_inARow(3), EndGameResult.Lose)
 		assert c.toString() == "3inARow -> Lose"
@@ -19,5 +19,17 @@ class TestConditional
 		def f = new NegatedCondition(GameFunction.N_inARow(4))
 		c = new Conditional(f, EndGameResult.Win)
 		assert c.toString() == "not 4inARow -> Win"
+	}
+
+	@Test
+	void test_equals()
+	{
+		Conditional a = new Conditional(GameFunction.N_inARow(3), EndGameResult.Lose)
+		Conditional b = new TerminalConditional(GameFunction.N_inARow(3), EndGameResult.Lose)
+		Conditional c = new Conditional(new NegatedCondition(GameFunction.N_inARow(4)), EndGameResult.Win)
+		Conditional d = new Conditional(new NegatedCondition(GameFunction.N_inARow(4)), EndGameResult.Win)
+		assert a == b
+		assert a != c
+		assert c == d
 	}
 }
