@@ -240,8 +240,8 @@ var ControllerApp = function(host,port) {
             
             //TODO DEBUG init////
             self.sendConnect('localhost:8081');
-            self.gameCord.addPlayer('heuristic','localhost',9147,'heu',1,1);
-            self.gameCord.addPlayer('minimax','localhost',9148,'min',2,1);
+            self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
+            self.gameCord.addPlayer('minimax','localhost',9147,'min1',1,1);
             ////////////////////
         });
     };
@@ -253,6 +253,22 @@ var ControllerApp = function(host,port) {
         
         request.post(
             'http://'+self.evaluatorAddress+'/gameResults',
+            { json: results },
+            function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    //Do something with body?
+                    if (body.status!=='recieved'&&body.status!=='ok') {
+                        console.log('ERROR: match '+results.id+' didnt stick in evaluator');
+                    }
+                }
+            }
+        );
+    };
+    
+    self.sendGameDone = function(results) {
+        
+        request.post(
+            'http://'+self.evaluatorAddress+'/gameDone',
             { json: results },
             function (error, response, body) {
                 if (!error && response.statusCode == 200) {

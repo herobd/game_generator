@@ -332,11 +332,11 @@ module.exports =  function() {
                 console.log('exec ERROR: ' + error);
             } else {
                 //record from stdout
-                var thisGamePlayersSkill=[]
+                var thisGamePlayers=[]
                 for (playerId of thisGamePlayers) {
-                    thisGamePlayersSkill.push(self.players[playerId].skill);
+                    thisGamePlayers.push({id:self.players[playerId].id,name:self.players[playerId].name,skill:self.players[playerId].skill,type:self.players[playerId].type);
                 }
-                owner.sendGameResults({matchId:m.id, playerSkills:thisGamePlayersSkill, gameId:m.gameId,printout:stdout});
+                self.owner.sendGameResults({matchId:m.id, playerOrder:allOrders.length, rep:rep, players:thisGamePlayers, gameId:m.gameId,printout:stdout});
             }
             if (allOrders.length>0 || leftToPlayWith>0)
                 self.playMatch(m,allOrders,gameLoc,leftToPlayWith,thisGamePlayers);
@@ -355,7 +355,8 @@ module.exports =  function() {
         if (this.findNextMatch(m.playerTypes))
             this.kickMatches();
         
-        //TODO inform evaluator
+        //TODO inform evaluator? 
+        //this.owner.sendGameDone({matchId:m.id, playerSkills:thisGamePlayersSkill, gameId:m.gameId});
     }
     
     GameCord.prototype.kickMatches = function () {

@@ -151,10 +151,18 @@ var EvaluatorServer = function(host,port) {
         }
         
         self.app.post('/gameResults', upload.array(), function (req, res, next) {
-            console.log('Recieved match id: '+req.body.id+'. Stubed out');
-            console.log(req.body.printout);
+            console.log('Recieved match: '+req.body.matchId+'_'+req.body.playerOrder+'_'+req.body.rep+'. Stubed out');
+            //console.log(req.body.printout);
+            var status = self.evalRes(req.body);
             res.setHeader('Content-Type', 'application/json');
-            res.json({status:'recieved'});
+            res.json({id:'evaluator',status:status});
+        });
+        
+        self.app.post('/gameDone', upload.array(), function (req, res, next) {
+            console.log('Recieved DONE for game id: '+req.body.gameId+'. Stubed out');
+            var status = self.evalGame(req.body);
+            res.setHeader('Content-Type', 'application/json');
+            res.json({id:'evaluator',status:'recieved'});
         });
         
         // Static file (images, css, etc)
@@ -191,18 +199,7 @@ var EvaluatorServer = function(host,port) {
     
     
     //////////////////////////////additional functions
-    self.sendGameResults = function(results) {
-        //TODO save in database
-        request.post(
-            self.evaluatorAddress,
-            { json: results },
-            function (error, response, body) {
-                if (!error && response.statusCode == 200) {
-                    //Do something with body?
-                }
-            }
-        );
-    };
+    
     
     self.sendConnect = function (address) {
         if (address !== null) {
@@ -229,6 +226,27 @@ var EvaluatorServer = function(host,port) {
             });
         }
     };
+    
+    ////////////////////
+    self.RE_outcome = /^INFO\([0-9.:]+\): Game over! results: ([0-9. ]+)$/;
+    self.RE_numbers = /[0-9.]/g;
+    self.RE_state = /^INFO\([0-9.:]+\): current state:\((\([a-zA-Z0-9_ ]*\))*\)$/;
+    self.evalRes = function(matchResults) {
+        var err='ok';
+        var outcome = matchResults.printout.match(self.RE_outcome)[1].match(self.RE_numbers);
+        if (outcome.length !=== matchResults.players.length) {
+            err='ERROR: could not match scores to players (length)';
+            console.log(err);
+            return err
+        }
+        //TODO
+        return err;
+    }
+    self.evalGame = function(gaemMeta) {
+        var err='ok';
+        //TODO
+        return err;
+    }
 };   /*  END EvaluatorServer.  */
 
 
