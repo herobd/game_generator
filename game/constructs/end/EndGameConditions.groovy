@@ -4,15 +4,20 @@ import constructs.board.Board
 import constructs.condition.Conditional
 import constructs.condition.TerminalConditional
 import constructs.condition.functions.Function
+import gdl.GDLStatement
 import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
+import gdl.clauses.goal.GoalClause
+import gdl.clauses.goal.HasGoalClause
+import gdl.clauses.terminal.HasTerminalClause
+import gdl.clauses.terminal.TerminalClause
 
 /**
  * @author Lawrence Thatcher
  *
  * A class used to store and represent the ending conditions for a game.
  */
-class EndGameConditions implements HasClauses
+class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 {
 	private List<TerminalConditional> conditions
 	private Board board
@@ -41,7 +46,7 @@ class EndGameConditions implements HasClauses
 	 * Retrieves all of the conditionals
 	 * @return
 	 */
-	List<Conditional> getConditions()
+	List<Conditional> getConditionals()
 	{
 		return this.conditions
 	}
@@ -83,8 +88,22 @@ class EndGameConditions implements HasClauses
 	@Override
 	Collection<GDLClause> getGDLClauses()
 	{
-		return []
+		return [terminalClause]
 	}
+
+	@Override
+	GoalClause getGoalClause()
+	{
+		return null
+	}
+
+	@Override
+	TerminalClause getTerminalClause()
+	{
+		return generateTerminalStatements()
+	}
+
+	// HELPER FUNCTIONS
 
 	private boolean supportsAllFunctions(Conditional c)
 	{
@@ -94,5 +113,18 @@ class EndGameConditions implements HasClauses
 				return false
 		}
 		return true
+	}
+
+	private TerminalClause generateTerminalStatements()
+	{
+		def T = []
+		for (Conditional c : supportedConditionals)
+		{
+			String s = "(<= terminal\n("
+			s += c.antecedent.toString()
+			s += "))"
+			T.add(new GDLStatement(s))
+		}
+		return new TerminalClause(T)
 	}
 }
