@@ -75,6 +75,9 @@ class ParametrizedFunction implements Function
 
 	int hashCode()
 	{
-		return name.hashCode()
+		int result
+		result = name.hashCode()
+		result = 31 * result + parent.hashCode()
+		return result
 	}
 }

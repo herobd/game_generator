@@ -15,5 +15,9 @@ class TestConditional
 		Conditional c = new Conditional(GameFunction.N_inARow(3), EndGameResult.Lose)
 		assert c.toString() == "3inARow -> Lose"
 		println(c.toString())
+
+		def f = new NegatedCondition(GameFunction.N_inARow(4))
+		c = new Conditional(f, EndGameResult.Win)
+		assert c.toString() == "not 4inARow -> Win"
 	}
 }

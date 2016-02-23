@@ -1,9 +1,7 @@
 package constructs.condition
 
-import constructs.condition.functions.Function
 import constructs.condition.result.EndGameResult
-import constructs.condition.result.Result
-import constructs.end.EndGameConditions
+
 
 /**
  * @author Lawrence Thatcher
@@ -12,8 +10,8 @@ import constructs.end.EndGameConditions
  */
 class TerminalConditional extends Conditional
 {
-	TerminalConditional(Function function, EndGameResult result)
+	TerminalConditional(Condition condition, EndGameResult result)
 	{
-		super(function, result)
+		super(condition, result)
 	}
 }

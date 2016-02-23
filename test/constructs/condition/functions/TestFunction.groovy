@@ -21,7 +21,7 @@ class TestFunction
 	}
 
 	@Test
-	void test_NinARow__plain()
+	void test_NinARow()
 	{
 		def f = GameFunction.N_inARow
 		assert f instanceof GameFunction
@@ -35,7 +35,7 @@ class TestFunction
 		def f = GameFunction.Open
 		assert f instanceof Function
 		assert f(5) == f
-		assert f(6).toString() == "Open"
+		assert f(6).toString() == "open"
 	}
 
 	@Test
@@ -92,5 +92,15 @@ class TestFunction
 		f = GameFunction.N_inARow(4)
 		assert f.functions == [GameFunction.N_inARow(4)]
 		assert f.functions != [GameFunction.N_inARow(3)]
+	}
+
+	@Test
+	void test_hashSet()
+	{
+		def S = new HashSet([GameFunction.Open, GameFunction.N_inARow(3), GameFunction.N_inARow, GameFunction.N_inARow(3)])
+		assert S.size() == 3
+		assert S.contains(GameFunction.Open)
+		assert S.contains(GameFunction.N_inARow)
+		assert S.contains(GameFunction.N_inARow(3))
 	}
 }

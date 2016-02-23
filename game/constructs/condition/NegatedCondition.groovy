@@ -38,4 +38,23 @@ class NegatedCondition implements Condition
 			result += "(" + condition.toString() + ")"
 		return result
 	}
+
+	boolean equals(o)
+	{
+		if (this.is(o))
+			return true
+		if (getClass() != o.class)
+			return false
+
+		NegatedCondition that = (NegatedCondition) o
+		if (condition != that.condition)
+			return false
+
+		return true
+	}
+
+	int hashCode()
+	{
+		return this.toString().hashCode()
+	}
 }

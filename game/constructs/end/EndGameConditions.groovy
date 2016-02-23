@@ -50,15 +50,15 @@ class EndGameConditions implements HasClauses
 	 * Retrieves a list of all the conditionals that can be supported by the current board
 	 * @return
 	 */
-	List<Conditional> getSupportedConditionals()
+	Collection<Conditional> getSupportedConditionals()
 	{
-		def F = []
+		def S = new HashSet()
 		for (Conditional c : conditions)
 		{
-			if (board.supports(c.antecedent))
-				F.add(c)
+			if (supportsAllFunctions(c))
+				S += c.functions
 		}
-		return F
+		return S
 	}
 
 	/**
@@ -67,11 +67,15 @@ class EndGameConditions implements HasClauses
 	 */
 	Collection<GDLClause> getSupportedBoardGDLClauses()
 	{
+		//TODO: add some sort of reducer to get a partial conditional..?
 		def clauses = []
 		for (Conditional c : supportedConditionals)
 		{
-			def clause = board.getImplementation(c.antecedent)
-			clauses.add(clause)
+			for (Function f : c.functions)
+			{
+				def clause = board.getImplementation(f)
+				clauses.add(clause)
+			}
 		}
 		return clauses
 	}
@@ -80,5 +84,15 @@ class EndGameConditions implements HasClauses
 	Collection<GDLClause> getGDLClauses()
 	{
 		return []
+	}
+
+	private boolean supportsAllFunctions(Conditional c)
+	{
+		for (Function f : c.functions)
+		{
+			if (!board.supports(f))
+				return false
+		}
+		return true
 	}
 }

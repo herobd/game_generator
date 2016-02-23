@@ -10,12 +10,12 @@ import constructs.condition.result.Result
  */
 class Conditional
 {
-	private Function antecedent
+	private Condition antecedent
 	private Result consequent
 
-	Conditional(Function function, Result result)
+	Conditional(Condition condition, Result result)
 	{
-		this.antecedent = function
+		this.antecedent = condition
 		this.consequent = result
 	}
 
@@ -23,7 +23,7 @@ class Conditional
 	 * Retrieves the game state condition that this conditional rests upon
 	 * @return a Function type
 	 */
-	Function getAntecedent()
+	Condition getAntecedent()
 	{
 		return antecedent
 	}
@@ -35,6 +35,15 @@ class Conditional
 	Result getConsequent()
 	{
 		return consequent
+	}
+
+	/**
+	 * Retrieves a collection of all the Functions that are used in the antecedent
+	 * @return a list or set of Functions
+	 */
+	Collection<Function> getFunctions()
+	{
+		return antecedent.functions
 	}
 
 	@Override

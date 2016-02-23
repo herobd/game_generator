@@ -44,4 +44,17 @@ class TestCondition
 		assert c.functions == [GameFunction.Open]
 	}
 
+	@Test
+	void test_hashSet()
+	{
+		def not_open = new NegatedCondition(GameFunction.Open)
+		def not_not_open = new NegatedCondition(not_open)
+		def S = new HashSet([GameFunction.Open, GameFunction.N_inARow(3), not_open, not_not_open, not_open, GameFunction.N_inARow(3)])
+		assert S.size() == 4
+		assert S.contains(GameFunction.Open)
+		assert S.contains(GameFunction.N_inARow(3))
+		assert S.contains(not_open)
+		assert S.contains(not_not_open)
+	}
+
 }
