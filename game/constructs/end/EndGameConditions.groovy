@@ -88,13 +88,13 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 	@Override
 	Collection<GDLClause> getGDLClauses()
 	{
-		return [terminalClause]
+		return [terminalClause, goalClause]
 	}
 
 	@Override
 	GoalClause getGoalClause()
 	{
-		return null
+		return generateGoalStatements()
 	}
 
 	@Override
@@ -115,16 +115,56 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 		return true
 	}
 
-	private TerminalClause generateTerminalStatements()
+	private static TerminalClause generateTerminalStatements()
 	{
 		def T = []
-		for (Conditional c : supportedConditionals)
-		{
-			String s = "(<= terminal\n("
-			s += c.antecedent.toString()
-			s += "))"
-			T.add(new GDLStatement(s))
-		}
+		//TODO: BAD! don't hard-code, use generators
+//		for (Conditional c : supportedConditionals)
+//		{
+//			String s = "(<= terminal\n("
+//			s += c.antecedent.toString()
+//			s += "))"
+//			T.add(new GDLStatement(s))
+//		}
+
+		String s =
+				"(<= terminal\n" +
+				"(3inARow x))\n" +
+				"\n" +
+				"(<= terminal\n" +
+				"(3inARow o))\n" +
+				"\n" +
+				"(<= terminal\n" +
+				"(not open))"
+		T.add(new GDLStatement(s))
+
 		return new TerminalClause(T)
+	}
+
+	private static GoalClause generateGoalStatements()
+	{
+		String s =
+			"(<= (goal White 100)\n" +
+			"(line x))\n" +
+			"\n" +
+			"(<= (goal White 50)\n" +
+			"(not (line x))\n" +
+			"(not (line o))\n" +
+			"(not open))\n" +
+			"\n" +
+			"(<= (goal White 0)\n" +
+			"(line o))\n" +
+			"\n" +
+			"(<= (goal Black 100)\n" +
+			"(line o))\n" +
+			"\n" +
+			"(<= (goal Black 50)\n" +
+			"(not (line x))\n" +
+			"(not (line o))\n" +
+			"(not open))\n" +
+			"\n" +
+			"(<= (goal Black 0)\n" +
+			"(line x))"
+		return new GoalClause([new GDLStatement(s)])
 	}
 }
