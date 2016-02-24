@@ -160,9 +160,10 @@ var EvaluatorServer = function(host,port) {
         
         self.app.post('/gameDone', upload.array(), function (req, res, next) {
             console.log('Recieved DONE for game id: '+req.body.gameId+'. Stubed out');
-            var status = self.evalGame(req.body);
+            var score = {};
+            var status = self.evalGame(req.body,score);
             res.setHeader('Content-Type', 'application/json');
-            res.json({id:'evaluator',status:'recieved'});
+            res.json({id:'evaluator',status:'recieved',score:score});
         });
         
         // Static file (images, css, etc)
@@ -183,6 +184,12 @@ var EvaluatorServer = function(host,port) {
         
         
         self.controllerAddress=null;
+        
+        //params
+        //TODO load last params
+        self.params = {
+                        skillDifWeight:0.3
+                      };
     };
 
 
@@ -235,15 +242,126 @@ var EvaluatorServer = function(host,port) {
         var err='ok';
         var outcome = matchResults.printout.match(self.RE_outcome)[1].match(self.RE_numbers);
         if (outcome.length !=== matchResults.players.length) {
-            err='ERROR: could not match scores to players (length)';
+            err='ERROR: could not match scores to players (length) for match '+matchResults.matchId;
             console.log(err);
             return err
         }
+        
+        //var stats = self.gameStats[matchResults.gameId];
+        var matchInfo = {
+                            outcome:outcome
+                        };
+        
+        
+        
+        
         //TODO
+        
+        self.matches[matchResults.gameId]=matchInfo;
+        
         return err;
     }
-    self.evalGame = function(gaemMeta) {
+    self.evalGame = function(gameMeta,retScore) {
         var err='ok';
+        var stats;// = self.gameStats[gameMeta.gameId];
+        
+        var drawsWeighted=0.0;
+        var playsWeighted=0.0;
+        for (var matchInfo of self.matches[gameMeta.gameId]) {
+            var minSkill=1000; var maxSkill=-1000;
+            var idMinSkill=[];   var idMaxSkill=[];
+            
+            var maxScore=-1000; var maxScore2nd=-1; var minScore=1000;
+            var playersAtMaxScore = [];
+            var playersAt2ndMaxScore = [];
+            for (var pIdx=0; pIdx<matchInfo.players.length; pIdx++) {
+                var p = matchInfo.players[pIdx];
+                if (p.skill>=maxSkill) {
+                    if (p.skill==maxSkill) {
+                        idMaxSkill.push(p.id);
+                    } else {
+                        idMaxSkill = [p.id];
+                        maxSkill=p.skill;
+                    }
+                }
+                if (p.skill<=minSkill) {
+                    if (p.skill==momSkill) {
+                        idMinSkill.push(p.id);
+                    } else {
+                        idMinSkill = [p.id];
+                        minSkill=p.skill;
+                    }
+                }
+                
+                var pScore = matchInfo.outcome[pIdx];
+                if (pScore>=maxScore) {
+                    if (pScore==maxScore)
+                        playersAtMaxScore.push(matchResults.players[i]);
+                    else {
+                        playersAt2ndMaxScore=playersAtMaxScore;
+                        maxScore2nd=maxScore;
+                        
+                        playersAtMaxScore=[matchResults.players[i]];
+                        maxScore=pScore;
+                    }
+                } else if (maxScore2nd==-1) {
+                    maxScore2nd=pScore;
+                    playersAt2ndMaxScore[matchResults.players[i]];
+                } else if (maxScore2nd==pScore) {
+                    playersAt2ndMaxScore.push(matchResults.players[i]);
+                }   
+                if (pScore<minScore) 
+                    minScore=pScore;
+            }
+            var skillDif=maxSkill-minSkill;
+            var weight = 1 + (skillDif*self.params.skillDifWeight);
+            
+            var draw = playersAtMaxScore.length>1;
+            if (draw) {
+                drawsWeighted+=weight;
+                playsWeighted+=weight;
+            } else {
+                playsWeighted+=1;//don't emphasize non-draw games
+            }
+            
+            
+            if (skillDif>1 || (minSkill==0 && maxSkill>0)) {
+                if (draw) {
+                    if (playersAt2ndMaxScore.length==0)//always true for 2 player games
+                        draws_weakVstrong+=1;
+                    else {
+                        if (matchInfo.players.length<3) {
+                            err = 'ERROR: draw with 2nd place players in 2 player game';
+                            console.log(err);
+                            return err;
+                        }
+                        //In the event of a 3+ player game, a coalition could allow for a weak
+                        //player to tie for first with a better player.
+                        //We compare the avg firstplace and secondplace skills to account for this.
+                        var sum=0;
+                        for (var p : playersAtMaxScore)
+                            sum += p.skill;
+                        var sum2=0;
+                        for (var p : playersAt2ndMaxScore)
+                            sum2 += p.skill;
+                        
+                        var skillDif2ndPlace = (sum2/(1.0*playersAt2ndMaxScore.length)) - (sum/(1.0*playersAtMaxScore.length))
+                        if ( || skillDif2ndPlace>0.5)
+                            draws_weakVstrong+=1;
+                    }
+                }
+                else if (playersAtMaxScore[0].skill==minSkill)
+                    wins_weakVstrong+=1;
+                
+                total_weakVstrong+=1;
+            }
+            
+            
+        }//end match evals
+        //1, not drawish ------ 0, very drawish x
+        retScore.decisive=(playsWeighted-drawsWeighted)/(playsWeighted);
+        
+        retScore.luck=(wins_weakVstrong+draws_weakVstrong)/total_weakVstrong;
         //TODO
         return err;
     }
