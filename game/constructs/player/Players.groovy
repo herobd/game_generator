@@ -15,6 +15,7 @@ import genetic.GeneticElement
  */
 class Players implements HasClauses, HasRolesClause, GeneticElement
 {
+	private static final Random RANDOM = new Random()
 	private List<Player> players = []
 
 	Players(int numPlayers)
@@ -57,6 +58,7 @@ class Players implements HasClauses, HasRolesClause, GeneticElement
 		return false
 	}
 
+	// Implements Methods
 	@Override
 	Collection<GDLClause> getGDLClauses()
 	{
@@ -76,12 +78,30 @@ class Players implements HasClauses, HasRolesClause, GeneticElement
 		return new RolesClause(playerDefs)
 	}
 
+	/**
+	 * Gets the possible mutations available on this Players object.
+	 * The possible mutations are:
+	 * 	addNewPlayer()	--adds a new player
+	 * 	removePlayer()	--removes a player (not available if result would be less than 2 players)
+	 * 	changeName()	--changes a player's name
+	 *
+	 * @return a list of closures that can be called to execute the given function.
+	 * 		   Each closure takes in a reference to this Players object as a parameter.
+	 */
 	@Override
 	List<Closure> getPossibleMutations()
 	{
-		return [{n -> n.addNewPlayer()}]
+		def result = []
+		if (canRemoveAPlayer())
+			result.add({n -> n.removePlayer()})
+		result.add({n -> n.addNewPlayer()})
+		return result
 	}
 
+	// Genetic Functions
+	/**
+	 * Adds a new player to this player set, using the next available PlayerName in the series.
+	 */
 	def addNewPlayer()
 	{
 		Player p = players[-1]
@@ -93,17 +113,37 @@ class Players implements HasClauses, HasRolesClause, GeneticElement
 		players.add(name.toPlayer())
 	}
 
-	@Override
-	protected Object clone() throws CloneNotSupportedException
+	/**
+	 * Removes a player from this player set, if there are any to remove.
+	 * In general this method should not be called to reduce the number of players down to below two.
+	 */
+	def removePlayer()
 	{
-		return super.clone()
+		int idx = RANDOM.nextInt(this.size())
+		this.players.removeAt(idx)
 	}
 
-	boolean inNames(PlayerName name)
+	// Helper Methods
+	/**
+	 * Checks to see if a given name is already in use.
+	 * @param name the name to check against
+	 * @return true if already in use, false otherwise
+	 */
+	protected boolean inNames(PlayerName name)
 	{
 		return playerNames.contains(name.toString())
 	}
 
+	/**
+	 * Only allows a player to be removed if there are already at least 2 players
+	 * @return true if size > 2, false otherwise
+	 */
+	protected boolean canRemoveAPlayer()
+	{
+		return this.size() > 2
+	}
+
+	// List-like Functions
 	@Override
 	String toString()
 	{

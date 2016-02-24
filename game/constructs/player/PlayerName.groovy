@@ -9,12 +9,6 @@ enum PlayerName
 {
 	Unknown,
 
-	// Tic-Tac-Toe-ish
-	xPlayer("x"),
-	oPlayer("o"),
-	yPlayer("y"),
-	tPlayer("t"),
-
 	//Colors
 	White,
 	Black,
@@ -44,6 +38,12 @@ enum PlayerName
 	Lavender,
 	Olive,
 	Salmon,
+
+	// Tic-Tac-Toe-ish
+	xPlayer("x"),
+	oPlayer("o"),
+	yPlayer("y"),
+	tPlayer("t"),
 
 	Robot,
 	Human,
