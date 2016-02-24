@@ -1,5 +1,7 @@
 package constructs.board
 
+import util.Treenum
+
 /**
  * @author Lawrence Thatcher
  *
@@ -7,7 +9,7 @@ package constructs.board
  *
  * Grid: A simple grid (such as chess or tic-tac-toe)
  */
-enum BoardType
+enum BoardType implements Treenum
 {
 	Grid(null),
 		Square(Grid)
