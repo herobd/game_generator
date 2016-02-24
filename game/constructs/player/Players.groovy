@@ -5,6 +5,7 @@ import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
 import gdl.clauses.role.HasRolesClause
 import gdl.clauses.role.RolesClause
+import genetic.GeneticElement
 
 /**
  * @author Lawrence Thatcher
@@ -12,7 +13,7 @@ import gdl.clauses.role.RolesClause
  * Stores information concerning the Players construct,
  * including number of players and the players' names.
  */
-class Players implements HasClauses, HasRolesClause
+class Players implements HasClauses, HasRolesClause, GeneticElement
 {
 	private List<Player> players = []
 
@@ -74,4 +75,49 @@ class Players implements HasClauses, HasRolesClause
 		}
 		return new RolesClause(playerDefs)
 	}
+
+	@Override
+	List<Closure> getPossibleMutations()
+	{
+		return [{n -> n.addNewPlayer()}]
+	}
+
+	def addNewPlayer()
+	{
+		Player p = players[-1]
+		PlayerName name = p.toPlayerName()
+		while(inNames(name))
+		{
+			name = name.next()
+		}
+		players.add(name.toPlayer())
+	}
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException
+	{
+		return super.clone()
+	}
+
+	boolean inNames(PlayerName name)
+	{
+		return playerNames.contains(name.toString())
+	}
+
+	@Override
+	String toString()
+	{
+		String result = ""
+		for (Player p : players)
+		{
+			result += p.name + " "
+		}
+		return result
+	}
+
+	int size()
+	{
+		return players.size()
+	}
+
 }

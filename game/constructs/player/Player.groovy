@@ -33,8 +33,15 @@ class Player
 		return mark_token
 	}
 
+	@Override
 	String toString()
 	{
 		return this.name
+	}
+
+	PlayerName toPlayerName()
+	{
+		PlayerName result = PlayerName.toPlayerName(this.name)
+		return result
 	}
 }
