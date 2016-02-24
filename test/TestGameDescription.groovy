@@ -1,4 +1,4 @@
-import constructs.Players
+import constructs.player.Players
 import constructs.TurnOrder
 import constructs.board.grid.SquareGrid
 import constructs.condition.NegatedCondition

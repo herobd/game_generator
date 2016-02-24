@@ -1,4 +1,4 @@
-package constructs
+package constructs.player
 
 import gdl.GDLStatement
 import gdl.clauses.GDLClause
@@ -9,31 +9,35 @@ import gdl.clauses.role.RolesClause
 /**
  * @author Lawrence Thatcher
  *
- * Stores information concerning the Players construct, including number of players and the player names.
+ * Stores information concerning the Players construct,
+ * including number of players and the players' names.
  */
 class Players implements HasClauses, HasRolesClause
 {
-	private List<String> players = []
+	private List<Player> players = []
 
 	Players(int numPlayers)
 	{
 		for (int i = 0; i < numPlayers; i++)
-			this.players.add("Player" + Integer.toString(i+1))
+			this.players.add(new Player("Player" + Integer.toString(i+1)))
 	}
 
 	Players(Iterable<String> players)
 	{
 		for (String p : players)
-			this.players.add(p)
+			this.players.add(new Player(p))
 	}
 
 	/**
 	 * The String names of the players for this game
 	 * @return a list of the players' names
 	 */
-	def getPlayerNames()
+	List<String> getPlayerNames()
 	{
-		return this.players
+		def result = []
+		for (Player p : players)
+			result.add(p.name)
+		return result
 	}
 
 	/**
@@ -44,9 +48,9 @@ class Players implements HasClauses, HasRolesClause
 	 */
 	boolean hasRandomPlayer()
 	{
-		for (String p : this.players)
+		for (Player p : this.players)
 		{
-			if (p.toLowerCase().contains('random'))
+			if (p.name.toLowerCase().contains('random'))
 				return true
 		}
 		return false
