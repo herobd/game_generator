@@ -94,6 +94,7 @@ enum PlayerName
 		return false
 	}
 
+	//Helper Methods
 	private boolean matches(String name)
 	{
 		return this.toString().toLowerCase() == name.toLowerCase()

@@ -114,7 +114,7 @@ class Players implements HasClauses, HasRolesClause, GeneticElement
 	}
 
 	/**
-	 * Removes a player from this player set, if there are any to remove.
+	 * Removes a randomly selected player from this player set.
 	 * In general this method should not be called to reduce the number of players down to below two.
 	 */
 	def removePlayer()
