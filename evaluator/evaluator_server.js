@@ -151,7 +151,7 @@ var EvaluatorServer = function(host,port) {
         }
         
         self.app.post('/gameResults', upload.array(), function (req, res, next) {
-            console.log('Recieved match: '+req.body.matchId+'_'+req.body.playerOrder+'_'+req.body.rep+'. Stubed out');
+            console.log('Recieved for game id: '+req.body.gameId+' match: '+req.body.matchId+'_'+req.body.playerOrder+'_'+req.body.rep+'.');
             //console.log(req.body.printout);
             var status = self.evalRes(req.body);
             res.setHeader('Content-Type', 'application/json');
@@ -159,7 +159,7 @@ var EvaluatorServer = function(host,port) {
         });
         
         self.app.post('/gameDone', upload.array(), function (req, res, next) {
-            console.log('Recieved DONE for game id: '+req.body.gameId+'. Stubed out');
+            console.log('Recieved DONE for game id: '+req.body.gameId+'.');
             var score = {};
             var status = self.evalGame(req.body,score);
             res.setHeader('Content-Type', 'application/json');
@@ -184,6 +184,8 @@ var EvaluatorServer = function(host,port) {
         
         
         self.controllerAddress=null;
+        
+        self.matches=[];
         
         //params
         //TODO load last params
@@ -235,35 +237,43 @@ var EvaluatorServer = function(host,port) {
     };
     
     ////////////////////
-    self.RE_outcome = /^INFO\([0-9.:]+\): Game over! results: ([0-9. ]+)$/;
-    self.RE_numbers = /[0-9.]/g;
-    self.RE_state = /^INFO\([0-9.:]+\): current state:\((\([a-zA-Z0-9_ ]*\))*\)$/;
+    self.RE_outcome = /INFO\([0-9.:]+\): Game over! results: ([0-9. ]+)/;
+    self.RE_numbers = /[0-9.]+/g;
+    self.RE_state = /INFO\([0-9.:]+\): current state:\((\([a-zA-Z0-9_ ]*\))*\)/;
     self.evalRes = function(matchResults) {
         var err='ok';
+        //console.log(matchResults);
         var outcome = matchResults.printout.match(self.RE_outcome)[1].match(self.RE_numbers);
-        if (outcome.length !=== matchResults.players.length) {
-            err='ERROR: could not match scores to players (length) for match '+matchResults.matchId;
+        //console.log(outcome);
+        if (outcome.length !== matchResults.players.length) {
+            err='ERROR: could not match scores ('+outcome.length+') to players ('+matchResults.players.length+') for match '+matchResults.matchId;
             console.log(err);
             return err
         }
         
         //var stats = self.gameStats[matchResults.gameId];
         var matchInfo = {
-                            outcome:outcome
+                            outcome:outcome,
+                            players:matchResults.players
                         };
         
         
         
         
         //TODO
-        
-        self.matches[matchResults.gameId]=matchInfo;
+        if (self.matches[matchResults.gameId]===undefined)
+            self.matches[matchResults.gameId]=[];
+        self.matches[matchResults.gameId].push(matchInfo);
         
         return err;
     }
     self.evalGame = function(gameMeta,retScore) {
         var err='ok';
         var stats;// = self.gameStats[gameMeta.gameId];
+        
+        var total_weakVstrong=0;
+        var wins_weakVstrong=0;
+        var draws_weakVstrong=0;
         
         var drawsWeighted=0.0;
         var playsWeighted=0.0;
@@ -285,7 +295,7 @@ var EvaluatorServer = function(host,port) {
                     }
                 }
                 if (p.skill<=minSkill) {
-                    if (p.skill==momSkill) {
+                    if (p.skill==minSkill) {
                         idMinSkill.push(p.id);
                     } else {
                         idMinSkill = [p.id];
@@ -296,19 +306,19 @@ var EvaluatorServer = function(host,port) {
                 var pScore = matchInfo.outcome[pIdx];
                 if (pScore>=maxScore) {
                     if (pScore==maxScore)
-                        playersAtMaxScore.push(matchResults.players[i]);
+                        playersAtMaxScore.push(matchInfo.players[pIdx]);
                     else {
                         playersAt2ndMaxScore=playersAtMaxScore;
                         maxScore2nd=maxScore;
                         
-                        playersAtMaxScore=[matchResults.players[i]];
+                        playersAtMaxScore=[matchInfo.players[pIdx]];
                         maxScore=pScore;
                     }
                 } else if (maxScore2nd==-1) {
                     maxScore2nd=pScore;
-                    playersAt2ndMaxScore[matchResults.players[i]];
+                    playersAt2ndMaxScore[matchInfo.players[i]];
                 } else if (maxScore2nd==pScore) {
-                    playersAt2ndMaxScore.push(matchResults.players[i]);
+                    playersAt2ndMaxScore.push(matchInfo.players[i]);
                 }   
                 if (pScore<minScore) 
                     minScore=pScore;
@@ -339,14 +349,14 @@ var EvaluatorServer = function(host,port) {
                         //player to tie for first with a better player.
                         //We compare the avg firstplace and secondplace skills to account for this.
                         var sum=0;
-                        for (var p : playersAtMaxScore)
+                        for (var p of playersAtMaxScore)
                             sum += p.skill;
                         var sum2=0;
-                        for (var p : playersAt2ndMaxScore)
+                        for (var p of playersAt2ndMaxScore)
                             sum2 += p.skill;
                         
                         var skillDif2ndPlace = (sum2/(1.0*playersAt2ndMaxScore.length)) - (sum/(1.0*playersAtMaxScore.length))
-                        if ( || skillDif2ndPlace>0.5)
+                        if (skillDif2ndPlace>0.5)
                             draws_weakVstrong+=1;
                     }
                 }
@@ -362,6 +372,9 @@ var EvaluatorServer = function(host,port) {
         retScore.decisive=(playsWeighted-drawsWeighted)/(playsWeighted);
         
         retScore.luck=(wins_weakVstrong+draws_weakVstrong)/total_weakVstrong;
+        console.log('Evaluation complete for game: '+gameMeta.gameId);
+        console.log('Decisive: '+retScore.decisive);
+        console.log('Luck: '+retScore.luck);
         //TODO
         return err;
     }

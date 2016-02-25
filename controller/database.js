@@ -29,7 +29,10 @@ module.exports =  function() {
     Database.prototype.gdlFileLocation = function (gameId,callback) {
         console.log('Database is stubbed. Would be retrieving gdl file location for '+gameId);
         //if it doesnt exist, create it
+        //if (gameId===0)
         callback('./gamecontroller/ticTacToe.kif');
+        //else
+        //    callback('./example.kif');
     }
     
     Database.prototype.getMaxMatchId = function (callback) {

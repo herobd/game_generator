@@ -165,6 +165,17 @@ var ControllerApp = function(host,port) {
             
         };
         
+        self.routes['/executeConnect'] = function(req, res) {
+            //console.log(req.query.id + ' is connecting.');
+            
+            res.setHeader('Content-Type', 'application/json');
+            var err = self.gameCord.addPlayer(req.query.method,req.query.host,+req.query.port,req.query.name,+req.query.skillLevel,+req.query.gdlVersion);
+            self.sendConnect(req.query.address,function(err){res.send('{"id":"controller","status":"'+err+'"}');});
+            
+            
+            
+        };
+        
         self.routes['/testSend'] = function(req, res) {
             self.sendGameResults({id:0, name:'test'});
             res.send('ok');
@@ -239,9 +250,9 @@ var ControllerApp = function(host,port) {
                         Date(Date.now() ), self.port);
             
             //TODO DEBUG init////
-            self.sendConnect('localhost:8081');
-            self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
-            self.gameCord.addPlayer('minimax','localhost',9147,'min1',1,1);
+            //self.sendConnect('localhost:8081',function(err){console.log(err);});
+            //self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
+            //self.gameCord.addPlayer('minimax','localhost',9147,'min1',1,1);
             ////////////////////
         });
     };
@@ -284,7 +295,7 @@ var ControllerApp = function(host,port) {
     //localhost:8081/connect?id=controller&address=localhost:8080
     //http://localhost:8081/connect?id=controller&address=localhost:8080
     
-    self.sendConnect = function (address) {
+    self.sendConnect = function (address,callback) {
         if (address !== null) {
             var url = encodeURI('/connect?id=controller&address='+self.myAddress);
             //console.log('send ' + address+url);
@@ -294,6 +305,7 @@ var ControllerApp = function(host,port) {
                 var resj=JSON.parse(body);
                 if (resj.status!=='ok') {
                     console.log('Failed to connect to: '+address);
+                    callback('failed:'+resj.status);
                 } else {
                     console.log('Connected to '+resj.id+' '+address);
                     if (resj.id==='generator') {
@@ -303,9 +315,16 @@ var ControllerApp = function(host,port) {
                         self.evaluatorAddress=address;
                     }
                     //self.sendDisconnect(address);
+                    callback('ok');
                 }
               } else {
-                console.log('get ERROR: '+error+' code:'+response.statusCode);
+                if (error) {
+                    console.log('get ERROR: '+error);
+                    callback(error);
+                } else {
+                    console.log('get ERROR code:'+response.statusCode);
+                    callback(response.statusCode);
+                }
               }
             });
         }

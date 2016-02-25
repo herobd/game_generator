@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>GREGG Controller</title>
+<title>Controller</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link href="default.css" rel="stylesheet" type="text/css" />
 <script>
@@ -37,11 +37,21 @@ function submit_player() {
         document.getElementById("submit_show").innerHTML = res;
     });
 }
+
+function connect_eval() {
+    var method=checked;
+    var address=document.getElementById("eval").value;
+    var url = '/executeConnect?address='+address;
+    document.getElementById("eval_show").innerHTML = 'connecting...';
+    httpGetAsync(encodeURI(url),function(res) {
+        document.getElementById("eval_show").innerHTML = res;
+    });
+}
 </script>
 </head>
 <body>
 <div id="add_player_box">
-    <h1>Add player</h1>
+    <h2>Add player</h2>
     Host: <input type="text" id="host"><br>
     Port: <input type="text" id="port"><br>
     Method:<br>
@@ -55,6 +65,12 @@ function submit_player() {
     GDL Version: <input type="text" id="gdlVersion" value="1"><br>
     <button type="button" onclick="submit_player()">Submit player</button><br>
     Status: <div id="submit_show">not submitted</div>
+</div>
+<div id="connect_to_eval_box">
+    <h2>Connect to</h2>
+    Evaluator: <input type="text" id="eval"><br>
+    <button type="button" onclick="connect_eval()">Connect</button><br>
+    Status: <div id="eval_show">not connected</div>
 </div>
 </body>
 </html>
