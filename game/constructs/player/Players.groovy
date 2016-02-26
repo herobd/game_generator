@@ -6,7 +6,6 @@ import gdl.clauses.HasClauses
 import gdl.clauses.role.HasRolesClause
 import gdl.clauses.role.RolesClause
 import genetic.GeneticElement
-import genetic.Mutation
 
 /**
  * @author Lawrence Thatcher
@@ -18,12 +17,21 @@ class Players implements HasClauses, HasRolesClause, GeneticElement
 {
 	private List<Player> players = []
 
+	/**
+	 * Creates a new list of players with the specified number of players.
+	 * The names of the players will be of the form: Player1, Player2, etc...
+	 * @param numPlayers the number of players to generate
+	 */
 	Players(int numPlayers)
 	{
 		for (int i = 0; i < numPlayers; i++)
 			this.players.add(new Player("Player" + Integer.toString(i+1)))
 	}
 
+	/**
+	 * Creates a list of players based off of the specified names
+	 * @param players
+	 */
 	Players(Iterable<String> players)
 	{
 		for (String p : players)
@@ -93,9 +101,9 @@ class Players implements HasClauses, HasRolesClause, GeneticElement
 	{
 		def result = []
 		if (canRemoveAPlayer())
-			result.add(new Mutation("removePlayer", this))
-		result.add(new Mutation("addNewPlayer", this))
-		result.add(new Mutation("changeName", this))
+			result.add(mutationMethod("removePlayer"))
+		result.add(mutationMethod("addNewPlayer"))
+		result.add(mutationMethod("changeName"))
 		return result
 	}
 
@@ -175,4 +183,8 @@ class Players implements HasClauses, HasRolesClause, GeneticElement
 		return players.size()
 	}
 
+	Player getAt(int idx)
+	{
+		return players[idx]
+	}
 }
