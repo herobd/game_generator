@@ -45,6 +45,7 @@ enum PlayerName
 	yPlayer("y"),
 	tPlayer("t"),
 
+	// Entity
 	Robot,
 	Human,
 	Dinosaur,
@@ -52,9 +53,12 @@ enum PlayerName
 	Alien,
 	Ghost;
 
-
+	private static final List<PlayerName> VALUES = Collections.unmodifiableList(Arrays.asList(values())) as List<PlayerName>
+	private static final Random RAND = new Random()
+	private static final int SIZE = values().size()
 
 	private String mark_token = null
+
 	private PlayerName()
 	{}
 
@@ -76,7 +80,7 @@ enum PlayerName
 	//Static Methods
 	static PlayerName toPlayerName(String name)
 	{
-		for (PlayerName p : values())
+		for (PlayerName p : VALUES)
 		{
 			if (p.matches(name))
 				return p
@@ -84,9 +88,14 @@ enum PlayerName
 		return Unknown
 	}
 
+	static PlayerName getRandom()
+	{
+		return VALUES.get(RAND.nextInt(SIZE))
+	}
+
 	static boolean contains(String name)
 	{
-		for (PlayerName p : values())
+		for (PlayerName p : VALUES)
 		{
 			if (p.matches(name))
 				return true
