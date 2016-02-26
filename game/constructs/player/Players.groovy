@@ -6,6 +6,7 @@ import gdl.clauses.HasClauses
 import gdl.clauses.role.HasRolesClause
 import gdl.clauses.role.RolesClause
 import genetic.GeneticElement
+import genetic.Mutation
 
 /**
  * @author Lawrence Thatcher
@@ -93,8 +94,9 @@ class Players implements HasClauses, HasRolesClause, GeneticElement
 	{
 		def result = []
 		if (canRemoveAPlayer())
-			result.add({n -> n.removePlayer()})
-		result.add({n -> n.addNewPlayer()})
+			result.add(new Mutation("removePlayer", this))
+		result.add(new Mutation("addNewPlayer", this))
+
 		return result
 	}
 

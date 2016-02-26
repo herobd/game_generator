@@ -9,7 +9,7 @@ import java.util.concurrent.Callable
  */
 interface GeneticElement
 {
-	List<Closure> getPossibleMutations()
+	List<Mutation> getPossibleMutations()
 
 
 }

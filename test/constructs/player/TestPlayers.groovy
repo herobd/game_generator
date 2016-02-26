@@ -89,7 +89,7 @@ class TestPlayers
 		assert players.size() == 2
 
 		// add a player
-		mutations[0].call(players)
+		mutations[0].call()
 		assert players.size() == 3
 		def names = players.playerNames
 		assert PlayerName.contains(names[2])  // new player name comes from known list
@@ -101,7 +101,7 @@ class TestPlayers
 		assert players.size() == 3
 
 		// remove a player
-		mutations[0].call(players)
+		mutations[0].call()
 		assert players.size() == 2
 		assert players.toString() == "White Black " || "White Red " || "Black Red "
 	}
