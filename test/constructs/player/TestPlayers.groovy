@@ -85,7 +85,7 @@ class TestPlayers
 		// cannot remove a player if there are only two players already
 		Players players = new Players(["White", "Black"])
 		def mutations = players.possibleMutations
-		assert mutations.size() == 1
+		assert mutations.size() == 2
 		assert players.size() == 2
 
 		// add a player
@@ -97,12 +97,18 @@ class TestPlayers
 
 		// remove a player does appear with 3 players or more
 		mutations = players.possibleMutations
-		assert mutations.size() == 2
+		assert mutations.size() == 3
 		assert players.size() == 3
 
 		// remove a player
 		mutations[0].call()
 		assert players.size() == 2
 		assert players.toString() == "White Black " || "White Red " || "Black Red "
+		String prev = players.toString()
+
+		// change name
+		mutations[2]()
+		println players.toString()
+		assert players.toString() != prev
 	}
 }

@@ -96,7 +96,7 @@ class Players implements HasClauses, HasRolesClause, GeneticElement
 		if (canRemoveAPlayer())
 			result.add(new Mutation("removePlayer", this))
 		result.add(new Mutation("addNewPlayer", this))
-
+		result.add(new Mutation("changeName", this))
 		return result
 	}
 
