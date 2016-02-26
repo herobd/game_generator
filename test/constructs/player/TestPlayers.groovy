@@ -111,4 +111,36 @@ class TestPlayers
 		println players.toString()
 		assert players.toString() != prev
 	}
+
+	@Test
+	void test_mutate()
+	{
+		Players players = new Players(["White", "Black"])
+		String next = players.toString()
+		for(int i = 0; i < 10; i++)
+		{
+			players.mutate(1)
+			println players.toString()
+			assert next != players.toString()
+			next = players.toString()
+		}
+	}
+
+	@Test
+	void test_mutate__default()
+	{
+		Players players = new Players(["White", "Black"])
+		String next = players.toString()
+		int count = 0
+		for(int i = 0; i < 1000; i++)
+		{
+			players.mutate()
+			if (players.toString() != next)
+				count++
+			next = players.toString()
+		}
+		double mut_prob = (double)count / 1000.0
+		println "mutation probability: " + Double.toString(mut_prob)
+		assert count > 0
+	}
 }

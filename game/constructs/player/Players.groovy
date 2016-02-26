@@ -16,7 +16,6 @@ import genetic.Mutation
  */
 class Players implements HasClauses, HasRolesClause, GeneticElement
 {
-	private static final Random RANDOM = new Random()
 	private List<Player> players = []
 
 	Players(int numPlayers)
