@@ -46,6 +46,19 @@ class TestPlayers
 	}
 
 	@Test
+	void test_changeName()
+	{
+		Players players = new Players(["White", "Black", "Red"])
+		String output = "White Black Red "
+		for (int i = 0; i < 15; i++)
+		{
+			players.changeName()
+			println players.toString()
+			assert output != players.toString()
+		}
+	}
+
+	@Test
 	void test_canRemoveAPlayer()
 	{
 		Players players = new Players(["White", "Black", "Red"])
@@ -63,6 +76,7 @@ class TestPlayers
 		assert players.inNames(PlayerName.Red)
 		assert players.inNames(PlayerName.Robot)
 		assert !players.inNames(PlayerName.Blue)
+		assert !players.inNames(null)
 	}
 
 	@Test

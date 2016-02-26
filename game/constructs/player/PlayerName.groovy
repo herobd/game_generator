@@ -45,13 +45,18 @@ enum PlayerName
 	yPlayer("y"),
 	tPlayer("t"),
 
-	// Entity
+	// Champion
 	Robot,
 	Human,
 	Dinosaur,
 	Animal,
 	Alien,
-	Ghost;
+	Ghost,
+	Ninja,
+	Samurai,
+	Monster,
+	Wizard,
+	Mage;
 
 	private static final List<PlayerName> VALUES = Collections.unmodifiableList(Arrays.asList(values())) as List<PlayerName>
 	private static final Random RAND = new Random()

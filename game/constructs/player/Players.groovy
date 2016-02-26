@@ -123,6 +123,20 @@ class Players implements HasClauses, HasRolesClause, GeneticElement
 		this.players.removeAt(idx)
 	}
 
+	/**
+	 * Selects a player at random and randomly changes their name to one not already in use
+	 */
+	def changeName()
+	{
+		PlayerName name = PlayerName.random
+		while (inNames(name))
+		{
+			name = PlayerName.random
+		}
+		int idx = RANDOM.nextInt(this.size())
+		this.players[idx].updateTo(name.toPlayer())
+	}
+
 	// Helper Methods
 	/**
 	 * Checks to see if a given name is already in use.
