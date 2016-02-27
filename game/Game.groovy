@@ -8,13 +8,14 @@ import constructs.pieces.Piece
 import gdl.clauses.GDLClause
 import gdl.GDLConvertable
 import gdl.GDLDescription
+import genetic.Evolvable
 
 /**
  * @author Lawrence Thatcher
  *
- * A class representing the abstract game description of a particular game.
+ * A class holding an abstract game description of a particular game.
  */
-class GameDescription implements GDLConvertable
+class Game implements Evolvable, GDLConvertable
 {
 	private Players players
 	private Board board
@@ -32,7 +33,7 @@ class GameDescription implements GDLConvertable
 	 * @param end a list of TerminalConditions that will be used to set when the game will end,
 	 * as well as who the winner will be (if any).
 	 */
-	GameDescription(Players players, Board board, TurnOrder turnOrder, List<Piece> pieces, List<TerminalConditional> end)
+	Game(Players players, Board board, TurnOrder turnOrder, List<Piece> pieces, List<TerminalConditional> end)
 	{
 		this.players = players
 		this.board = board

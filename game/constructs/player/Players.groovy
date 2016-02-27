@@ -5,7 +5,7 @@ import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
 import gdl.clauses.role.HasRolesClause
 import gdl.clauses.role.RolesClause
-import genetic.GeneticElement
+import genetic.MutatableElement
 
 /**
  * @author Lawrence Thatcher
@@ -13,7 +13,7 @@ import genetic.GeneticElement
  * Stores information concerning the Players construct,
  * including number of players and the players' names.
  */
-class Players implements HasClauses, HasRolesClause, GeneticElement
+class Players implements HasClauses, HasRolesClause, MutatableElement
 {
 	private List<Player> players = []
 

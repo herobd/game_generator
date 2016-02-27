@@ -7,7 +7,7 @@ import java.util.concurrent.Callable
  *
  * Interface that game constructs implement in order to facilitate the genetic evolutionary process.
  */
-trait GeneticElement
+trait MutatableElement
 {
 	private final static double DEFAULT_MUTATION_PROBABILITY = 0.1
 	private final static Random RANDOM = new Random()

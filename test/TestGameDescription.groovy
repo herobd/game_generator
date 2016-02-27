@@ -21,7 +21,7 @@ class TestGameDescription
 		def end = []
 		end.add(new TerminalConditional(GameFunction.N_inARow(3), EndGameResult.Win))
 		end.add(new TerminalConditional(new NegatedCondition(GameFunction.Open), EndGameResult.Draw))
-		GameDescription ticTacToe = new GameDescription(new Players(["White", "Black"]), board, TurnOrder.Alternating, [], end)
+		Game ticTacToe = new Game(new Players(["White", "Black"]), board, TurnOrder.Alternating, [], end)
 		GDLDescription gdl = ticTacToe.convertToGDL()
 		//Roles
 		def roles = (AbstractClause)gdl.rolesClauses[0]
