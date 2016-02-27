@@ -92,6 +92,12 @@ class SquareGrid extends Grid implements
 		return new DynamicComponentsClause([s])
 	}
 
+	@Override
+	SquareGrid clone()
+	{
+		return new SquareGrid(this.size, this.i_nbors)
+	}
+
 	protected GDLClause generateIndexClause()
 	{
 		//TODO: use statement generator

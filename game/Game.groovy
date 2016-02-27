@@ -1,3 +1,4 @@
+import constructs.condition.Conditional
 import constructs.player.Players
 import constructs.TurnOrder
 import constructs.board.Board
@@ -9,6 +10,7 @@ import gdl.clauses.GDLClause
 import gdl.GDLConvertable
 import gdl.GDLDescription
 import genetic.Evolvable
+import genetic.MutatableElement
 
 /**
  * @author Lawrence Thatcher
@@ -60,5 +62,39 @@ class Game implements Evolvable, GDLConvertable
 		clauses += end.GDLClauses
 
 		return new GDLDescription(clauses)
+	}
+
+	@Override
+	Evolvable crossOver(Evolvable mate)
+	{
+		return null
+	}
+
+	@Override
+	def mutate()
+	{
+		for (MutatableElement gene : mutatableGenes)
+		{
+			gene.mutate()
+		}
+	}
+
+	@Override
+	Game clone()
+	{
+		Players c_players = players.clone()
+		Board c_board = (Board)board.clone()
+		def c_pieces = []
+		def c_end = []
+		for (Piece p : pieces)
+			c_pieces.add(p.clone())
+		for (Conditional c : end.conditionals)
+			c_end.add(c.clone())
+		return new Game(c_players, c_board, turnOrder, c_pieces, c_end)
+	}
+
+	private List<MutatableElement> getMutatableGenes()
+	{
+		return [players]
 	}
 }

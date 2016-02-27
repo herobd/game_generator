@@ -36,4 +36,10 @@ class Piece implements HasClauses
 			clauses += m.GDLClauses
 		return clauses
 	}
+
+	@Override
+	Piece clone()
+	{
+		return new Piece(name, placement, new ArrayList<Move>(moves))
+	}
 }

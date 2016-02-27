@@ -55,6 +55,7 @@ class Conditional
 		return result
 	}
 
+	@Override
 	boolean equals(o)
 	{
 		if (this.is(o))
@@ -71,11 +72,18 @@ class Conditional
 		return true
 	}
 
+	@Override
 	int hashCode()
 	{
 		int result
 		result = antecedent.hashCode()
 		result = 31 * result + (consequent != null ? consequent.hashCode() : 0)
 		return result
+	}
+
+	@Override
+	Conditional clone()
+	{
+		return new Conditional(antecedent, consequent)
 	}
 }
