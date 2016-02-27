@@ -34,13 +34,7 @@ class Player
 		return mark_token
 	}
 
-	//Conversion functions
-	@Override
-	String toString()
-	{
-		return this.name
-	}
-
+	// Public Methods
 	/**
 	 * Gets the PlayerName that matches this Player's name.
 	 * If none match, it returns the default PlayerName (Unknown)
@@ -60,5 +54,37 @@ class Player
 	{
 		this.name = player.name
 		this.mark_token = player.mark_token
+	}
+
+	//Helper Functions
+	@Override
+	String toString()
+	{
+		return this.name
+	}
+
+	@Override
+	boolean equals(o)
+	{
+		if (this.is(o))
+			return true
+		if (!(o instanceof Player))
+			return false
+
+		Player player = (Player) o
+
+		if (name != player.name)
+			return false
+
+		return true
+	}
+
+	@Override
+	int hashCode()
+	{
+		int result
+		result = name.hashCode()
+		result = 31 * result + mark_token.hashCode()
+		return result
 	}
 }

@@ -107,7 +107,24 @@ class Players implements HasClauses, HasRolesClause, MutatableElement
 		return result
 	}
 
-	// Genetic Functions
+	/**
+	 * @return a deep copy of this Players object
+	 */
+	@Override
+	Players clone()
+	{
+		def clones = []
+		for (Player p : players)
+		{
+			Player clone = new Player(p.name, p.markToken)
+			clones.add(clone)
+		}
+		def result = new Players([])
+		result.players = clones
+		return result
+	}
+
+// Genetic Functions
 	/**
 	 * Adds a new player to this player set, using the next available PlayerName in the series.
 	 */
@@ -186,5 +203,30 @@ class Players implements HasClauses, HasRolesClause, MutatableElement
 	Player getAt(int idx)
 	{
 		return players[idx]
+	}
+
+	@Override
+	boolean equals(o)
+	{
+		if (this.is(o))
+			return true
+		if (getClass() != o.class)
+			return false
+
+		Players other = (Players) o
+		if (other.size() != size())
+			return false
+		for (int i = 0; i < size(); i++)
+		{
+			if (players[i] != other.players[i])
+				return false
+		}
+		return true
+	}
+
+	@Override
+	int hashCode()
+	{
+		return players.hashCode()
 	}
 }

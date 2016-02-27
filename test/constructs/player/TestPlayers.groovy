@@ -143,4 +143,13 @@ class TestPlayers
 		println "mutation probability: " + Double.toString(mut_prob)
 		assert count > 0
 	}
+
+	@Test
+	void test_clone()
+	{
+		Players p1 = new Players(["White", "Black", "Red", "Robot"])
+		Players p2 = p1.clone()
+		assert !p1.is(p2)
+		assert  p1 == p2
+	}
 }
