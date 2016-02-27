@@ -6,6 +6,7 @@ import gdl.clauses.HasClauses
 import gdl.clauses.role.HasRolesClause
 import gdl.clauses.role.RolesClause
 import genetic.MutatableElement
+import genetic.Mutation
 
 /**
  * @author Lawrence Thatcher
@@ -97,7 +98,7 @@ class Players implements HasClauses, HasRolesClause, MutatableElement
 	 * 		   Each closure takes in a reference to this Players object as a parameter.
 	 */
 	@Override
-	List<Closure> getPossibleMutations()
+	List<Mutation> getPossibleMutations()
 	{
 		def result = []
 		if (canRemoveAPlayer())
@@ -203,6 +204,18 @@ class Players implements HasClauses, HasRolesClause, MutatableElement
 	Player getAt(int idx)
 	{
 		return players[idx]
+	}
+
+	def putAt(int idx, Player p)
+	{
+		players[idx] = p
+	}
+
+	Players plus(Player p)
+	{
+		Players result = this.clone()
+		result.players.add(p)
+		return result
 	}
 
 	@Override

@@ -152,4 +152,39 @@ class TestPlayers
 		assert !p1.is(p2)
 		assert  p1 == p2
 	}
+
+	@Test
+	void test_indexing()
+	{
+		Players players = new Players(["White", "Black", "Red", "Robot"])
+		// getAt
+		assert players[0].toString() == "White"
+		assert players[-1].toString() == "Robot"
+
+		// putAt
+		players[0] = new Player("Cool")
+		assert players.size() == 4
+		assert players.toString() == "Cool Black Red Robot "
+		players[-1] = new Player("Camel")
+		assert players.size() == 4
+		assert players.toString() == "Cool Black Red Camel "
+		players[4] = new Player("Goose")
+		assert players.size() == 5
+		assert players.toString() == "Cool Black Red Camel Goose "
+	}
+
+	@Test
+	void test_plus()
+	{
+		Players players = new Players(["White", "Black"])
+		Player p = new Player("Blue")
+		players += p
+		assert players.size() == 3
+		assert players.toString() == "White Black Blue "
+
+		p = new Player("Green")
+		assert (players + p).toString() == "White Black Blue Green "
+		assert players.size() == 3
+		assert players.toString() == "White Black Blue "
+	}
 }
