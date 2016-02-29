@@ -10,7 +10,7 @@ import gdl.clauses.GDLClause
 import gdl.GDLConvertable
 import gdl.GDLDescription
 import genetic.Evolvable
-import genetic.MutatableElement
+import genetic.Gene
 
 /**
  * @author Lawrence Thatcher
@@ -76,7 +76,7 @@ class Game implements Evolvable, GDLConvertable
 	@Override
 	def mutate()
 	{
-		for (MutatableElement gene : mutatableGenes)
+		for (Gene gene : mutatableGenes)
 		{
 			gene.mutate()
 		}
@@ -96,7 +96,7 @@ class Game implements Evolvable, GDLConvertable
 		return new Game(c_players, c_board, turnOrder, c_pieces, c_end)
 	}
 
-	private List<MutatableElement> getMutatableGenes()
+	private List<Gene> getMutatableGenes()
 	{
 		return [players]
 	}

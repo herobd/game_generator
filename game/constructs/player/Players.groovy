@@ -6,7 +6,7 @@ import gdl.clauses.HasClauses
 import gdl.clauses.role.HasRolesClause
 import gdl.clauses.role.RolesClause
 import genetic.GeneCross
-import genetic.MutatableElement
+import genetic.Gene
 import genetic.Mutation
 
 /**
@@ -15,7 +15,7 @@ import genetic.Mutation
  * Stores information concerning the Players construct,
  * including number of players and the players' names.
  */
-class Players implements HasClauses, HasRolesClause, MutatableElement
+class Players implements HasClauses, HasRolesClause, Gene
 {
 	private List<Player> players = []
 
@@ -110,7 +110,7 @@ class Players implements HasClauses, HasRolesClause, MutatableElement
 	}
 
 	@Override
-	List<GeneCross> getPossibleCrossOvers(MutatableElement other)
+	List<GeneCross> getPossibleCrossOvers(Gene other)
 	{
 		return []
 	}

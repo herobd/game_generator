@@ -5,7 +5,7 @@ package genetic
  *
  * Interface that game constructs implement in order to facilitate the genetic evolutionary process.
  */
-trait MutatableElement
+trait Gene
 {
 	private final static double DEFAULT_MUTATION_PROBABILITY = 0.1
 	private final static double DEFAULT_CROSS_OVER_PROBABILITY = 0.1
@@ -24,7 +24,7 @@ trait MutatableElement
 	 * @param other the other
 	 * @return a list of GeneCross objects
 	 */
-	abstract List<GeneCross> getPossibleCrossOvers(MutatableElement other)
+	abstract List<GeneCross> getPossibleCrossOvers(Gene other)
 
 	/**
 	 * Performs each of the possible mutations,
@@ -79,7 +79,7 @@ trait MutatableElement
 	 * @param other the other element to check if it is compatible
 	 * @return true if they are of the same type, false otherwise
 	 */
-	boolean compatible(MutatableElement other)
+	boolean compatible(Gene other)
 	{
 		return (other.class == this.class)
 	}
