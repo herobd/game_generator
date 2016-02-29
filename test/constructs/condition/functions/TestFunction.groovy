@@ -3,6 +3,8 @@ package constructs.condition.functions
 import gdl.clauses.base.BaseClause
 import gdl.clauses.init.InitClause
 import gdl.clauses.legal.LegalClause
+import mock.MockInARow
+import mock.MockOpen
 import org.junit.Test
 
 /**

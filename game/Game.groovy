@@ -19,6 +19,8 @@ import genetic.MutatableElement
  */
 class Game implements Evolvable, GDLConvertable
 {
+	private static final double DEFAULT_CROSS_OVER_PROBABILITY = 0.1
+
 	private Players players
 	private Board board
 	private TurnOrder turnOrder
@@ -67,6 +69,7 @@ class Game implements Evolvable, GDLConvertable
 	@Override
 	Evolvable crossOver(Evolvable mate)
 	{
+		Game child = this.clone()
 		return null
 	}
 

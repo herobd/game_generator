@@ -5,6 +5,7 @@ import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
 import gdl.clauses.role.HasRolesClause
 import gdl.clauses.role.RolesClause
+import genetic.GeneCross
 import genetic.MutatableElement
 import genetic.Mutation
 
@@ -106,6 +107,12 @@ class Players implements HasClauses, HasRolesClause, MutatableElement
 		result.add(mutationMethod("addNewPlayer"))
 		result.add(mutationMethod("changeName"))
 		return result
+	}
+
+	@Override
+	List<GeneCross> getPossibleCrossOvers(MutatableElement other)
+	{
+		return []
 	}
 
 	/**

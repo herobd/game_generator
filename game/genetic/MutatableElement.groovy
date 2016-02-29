@@ -1,7 +1,5 @@
 package genetic
 
-import java.util.concurrent.Callable
-
 /**
  * @author Lawrence Thatcher
  *
@@ -10,6 +8,7 @@ import java.util.concurrent.Callable
 trait MutatableElement
 {
 	private final static double DEFAULT_MUTATION_PROBABILITY = 0.1
+	private final static double DEFAULT_CROSS_OVER_PROBABILITY = 0.1
 	private final static Random RANDOM = new Random()
 
 	/**
@@ -18,6 +17,14 @@ trait MutatableElement
 	 * @return a list of Mutation objects
 	 */
 	abstract List<Mutation> getPossibleMutations()
+
+	/**
+	 * Should return a list of callable GeneCross objects,
+	 * representing the possible cross-overs available with the other object.
+	 * @param other the other
+	 * @return a list of GeneCross objects
+	 */
+	abstract List<GeneCross> getPossibleCrossOvers(MutatableElement other)
 
 	/**
 	 * Performs each of the possible mutations,
@@ -65,5 +72,15 @@ trait MutatableElement
 	Mutation mutationMethod(String name)
 	{
 		return new Mutation(name, this)
+	}
+
+	/**
+	 * Returns whether or not the specified element is compatible to be crossed over with
+	 * @param other the other element to check if it is compatible
+	 * @return true if they are of the same type, false otherwise
+	 */
+	boolean compatible(MutatableElement other)
+	{
+		return (other.class == this.class)
 	}
 }

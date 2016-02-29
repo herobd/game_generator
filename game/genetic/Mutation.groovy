@@ -11,6 +11,11 @@ class Mutation
 	private def parent
 	private String name
 
+	/**
+	 * Creates a callable Closure that calls the method in the provided class based on the name
+	 * @param methodName the name of the method to call
+	 * @param parent the object to call the method in
+	 */
 	Mutation(String methodName, def parent)
 	{
 		this.parent = parent
