@@ -1,6 +1,6 @@
 package mock
 
-import genetic.GeneCross
+import genetic.CrossOver
 import genetic.Gene
 import genetic.Mutation
 
@@ -19,7 +19,7 @@ class MockGene implements Gene
 	}
 
 	@Override
-	List<GeneCross> getPossibleCrossOvers(Gene other)
+	List<CrossOver> getPossibleCrossOvers(Gene other)
 	{
 		return []
 	}

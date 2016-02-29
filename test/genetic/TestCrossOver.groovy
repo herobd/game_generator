@@ -6,7 +6,7 @@ import org.junit.Test
 /**
  * @author Lawrence Thatcher
  */
-class TestGeneCross
+class TestCrossOver
 {
 	List<String> left
 	List<String> right
@@ -23,7 +23,7 @@ class TestGeneCross
 	{
 		assert left == ['A', 'B', 'C']
 		def c = {int i -> left[i] = right[i]}
-		GeneCross g = new GeneCross(c)
+		CrossOver g = new CrossOver(c)
 		g(1)
 		assert left == ['A', 'Y', 'C']
 		assert right == ['X', 'Y', 'Z']
@@ -40,7 +40,7 @@ class TestGeneCross
 	void cross(List<String> RIGHT)
 	{
 		def c = {int i -> left[i] = RIGHT[i]}
-		GeneCross g = new GeneCross(c)
+		CrossOver g = new CrossOver(c)
 		g(1)
 	}
 }

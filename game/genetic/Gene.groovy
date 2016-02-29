@@ -19,12 +19,12 @@ trait Gene
 	abstract List<Mutation> getPossibleMutations()
 
 	/**
-	 * Should return a list of callable GeneCross objects,
+	 * Should return a list of callable CrossOver objects,
 	 * representing the possible cross-overs available with the other object.
 	 * @param other the other
-	 * @return a list of GeneCross objects
+	 * @return a list of CrossOver objects
 	 */
-	abstract List<GeneCross> getPossibleCrossOvers(Gene other)
+	abstract List<CrossOver> getPossibleCrossOvers(Gene other)
 
 	/**
 	 * Performs each of the possible mutations,
