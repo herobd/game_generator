@@ -5,7 +5,7 @@ import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
 import gdl.clauses.role.HasRolesClause
 import gdl.clauses.role.RolesClause
-import genetic.GeneCross
+import genetic.CrossOver
 import genetic.Gene
 import genetic.Mutation
 
@@ -110,7 +110,7 @@ class Players implements HasClauses, HasRolesClause, Gene
 	}
 
 	@Override
-	List<GeneCross> getPossibleCrossOvers(Gene other)
+	List<CrossOver> getPossibleCrossOvers(Gene other)
 	{
 		return []
 	}

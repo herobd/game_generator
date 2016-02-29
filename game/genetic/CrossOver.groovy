@@ -5,11 +5,11 @@ package genetic
  *
  * Like the Mutation class, but for Cross-Overs.
  */
-class GeneCross
+class CrossOver
 {
 	private Closure closure
 
-	GeneCross(Closure action)
+	CrossOver(Closure action)
 	{
 		this.closure = action
 	}
