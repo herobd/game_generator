@@ -1,4 +1,4 @@
-package game.gdl
+package game.gdl.statement
 
 /**
  * @author Lawrence Thatcher

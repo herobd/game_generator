@@ -1,5 +1,6 @@
 package game.gdl
 
+import game.gdl.statement.GDLStatement
 import org.junit.Test
 
 /**

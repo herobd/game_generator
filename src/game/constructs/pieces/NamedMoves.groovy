@@ -1,6 +1,6 @@
 package game.constructs.pieces
 
-import game.gdl.GDLStatement
+import game.gdl.statement.GDLStatement
 
 /**
  * @author Lawrence Thatcher

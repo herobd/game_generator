@@ -2,7 +2,7 @@ package game.constructs.board.grid
 
 import game.constructs.condition.functions.SupportsInARow
 import game.constructs.condition.functions.SupportsOpen
-import game.gdl.GDLStatement
+import game.gdl.statement.GDLStatement
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.base.BaseClause

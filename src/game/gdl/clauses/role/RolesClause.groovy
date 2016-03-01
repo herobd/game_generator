@@ -1,6 +1,6 @@
 package game.gdl.clauses.role
 
-import game.gdl.GDLStatement
+import game.gdl.statement.GDLStatement
 import game.gdl.clauses.AbstractClause
 import game.gdl.clauses.ClauseType
 

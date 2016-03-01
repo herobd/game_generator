@@ -1,6 +1,6 @@
 package game.gdl.clauses
 
-import game.gdl.GDLStatement
+import game.gdl.statement.GDLStatement
 
 /**
  * @author Lawrence Thatcher
