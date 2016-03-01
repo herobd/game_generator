@@ -1,4 +1,4 @@
-package genetic
+package generator
 
 import game.constructs.player.Players
 import mock.MockGene

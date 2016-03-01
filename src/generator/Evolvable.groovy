@@ -1,9 +1,9 @@
-package genetic
+package generator
 
 /**
  * @author Lawrence Thatcher
  *
- * Interface indicating that the implementing object is a type that supports the basic genetic operators and can
+ * Interface indicating that the implementing object is a type that supports the basic generator operators and can
  * be used in an evolutionary algorithm.
  */
 interface Evolvable

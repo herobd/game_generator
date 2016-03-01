@@ -1,4 +1,4 @@
-package genetic
+package generator
 
 /**
  * @author Lawrence Thatcher

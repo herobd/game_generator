@@ -11,8 +11,8 @@ import game.constructs.pieces.Piece
 import game.gdl.clauses.GDLClause
 import game.gdl.GDLConvertable
 import game.gdl.GDLDescription
-import genetic.Evolvable
-import genetic.Gene
+import generator.Evolvable
+import generator.Gene
 
 /**
  * @author Lawrence Thatcher

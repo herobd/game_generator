@@ -1,4 +1,4 @@
-package genetic
+package generator
 
 import game.constructs.TurnOrder
 import game.constructs.board.grid.SquareGrid

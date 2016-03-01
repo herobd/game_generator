@@ -1,4 +1,4 @@
-package genetic
+package generator
 
 import org.junit.Before
 import org.junit.Test

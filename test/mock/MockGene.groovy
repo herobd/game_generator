@@ -1,8 +1,8 @@
 package mock
 
-import genetic.CrossOver
-import genetic.Gene
-import genetic.Mutation
+import generator.CrossOver
+import generator.Gene
+import generator.Mutation
 
 /**
  * @author Lawrence Thatcher

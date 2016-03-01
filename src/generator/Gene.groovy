@@ -1,9 +1,9 @@
-package genetic
+package generator
 
 /**
  * @author Lawrence Thatcher
  *
- * Interface that game constructs implement in order to facilitate the genetic evolutionary process.
+ * Interface that game constructs implement in order to facilitate the generator evolutionary process.
  */
 trait Gene
 {

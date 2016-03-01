@@ -5,9 +5,9 @@ import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.role.HasRolesClause
 import game.gdl.clauses.role.RolesClause
-import genetic.CrossOver
-import genetic.Gene
-import genetic.Mutation
+import generator.CrossOver
+import generator.Gene
+import generator.Mutation
 
 /**
  * @author Lawrence Thatcher
