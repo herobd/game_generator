@@ -53,6 +53,36 @@ trait Gene
 	}
 
 	/**
+	 * Performs each of the possible cross-overs, each with the specified probability.
+	 * @param other The other Gene to cross-over with. If these are not compatible, no change will occur
+	 * @param probability the probability for each possible cross-over to occur independently
+	 */
+	def crossOver(Gene other, double probability)
+	{
+		if (compatible(other))
+		{
+			def crossOvers = getPossibleCrossOvers(other)
+			for (CrossOver c : crossOvers)
+			{
+				double d = RANDOM.nextDouble()
+				if (d <= probability)
+				{
+					c.call(other)
+				}
+			}
+		}
+	}
+
+	/**
+	 * Performs each possible cross-over, each with a probability of 10%
+	 * @param other The other Gene to cross-over with. If these are not compatible, no change will occur
+	 */
+	def crossOver(Gene other)
+	{
+		crossOver(other, DEFAULT_CROSS_OVER_PROBABILITY)
+	}
+
+	/**
 	 * The Random object getter.
 	 * Useful so the the implementing class doesn't have to create another instance of Random.
 	 * @return the Random object

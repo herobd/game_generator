@@ -118,7 +118,7 @@ class TestPlayers
 		Players p1 = new Players(["White", "Black"])
 		Players p2 = new Players(["Red", "Blue", "Green"])
 		Players p3 = new Players(["Purple", "Pink"])
-		Players p4 = new Players(["Orange", "Yelllow", "Gold"])
+		Players p4 = new Players(["Orange", "Yellow", "Gold"])
 
 		//crossing with a larger element
 		def crossOvers = p1.getPossibleCrossOvers(p2)
@@ -169,6 +169,19 @@ class TestPlayers
 		double mut_prob = (double)count / 1000.0
 		println "mutation probability: " + Double.toString(mut_prob)
 		assert count > 0
+	}
+
+	@Test
+	void test_crossOver()
+	{
+		Players p1 = new Players(["White", "Black"])
+		Players p2 = new Players(["Red", "Blue", "Green"])
+		Players p3 = new Players(["Purple", "Pink"])
+		Players p4 = new Players(["Orange", "Yellow", "Gold"])
+		p1.crossOver(p2, 1)
+		assert p1 == p2
+		p4.crossOver(p3, 1)
+		assert p4 == new Players(["Purple", "Pink", "Gold"])
 	}
 
 	@Test
