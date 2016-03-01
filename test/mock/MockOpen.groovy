@@ -1,10 +1,10 @@
 package mock
 
-import constructs.condition.functions.Function
-import constructs.condition.functions.GameFunction
-import constructs.condition.functions.SupportsOpen
-import gdl.clauses.GDLClause
-import gdl.clauses.legal.LegalClause
+import game.constructs.condition.functions.Function
+import game.constructs.condition.functions.GameFunction
+import game.constructs.condition.functions.SupportsOpen
+import game.gdl.clauses.GDLClause
+import game.gdl.clauses.legal.LegalClause
 
 /**
  * @author Lawrence Thatcher

@@ -1,16 +1,16 @@
 package game
 
-import constructs.condition.Conditional
-import constructs.player.Players
-import constructs.TurnOrder
-import constructs.board.Board
-import constructs.condition.TerminalConditional
-import constructs.end.EndGameConditions
-import constructs.pieces.NamedPieces
-import constructs.pieces.Piece
-import gdl.clauses.GDLClause
-import gdl.GDLConvertable
-import gdl.GDLDescription
+import game.constructs.condition.Conditional
+import game.constructs.player.Players
+import game.constructs.TurnOrder
+import game.constructs.board.Board
+import game.constructs.condition.TerminalConditional
+import game.constructs.end.EndGameConditions
+import game.constructs.pieces.NamedPieces
+import game.constructs.pieces.Piece
+import game.gdl.clauses.GDLClause
+import game.gdl.GDLConvertable
+import game.gdl.GDLDescription
 import genetic.Evolvable
 import genetic.Gene
 

@@ -1,6 +1,6 @@
 package genetic
 
-import constructs.player.Players
+import game.constructs.player.Players
 import mock.MockGene
 import org.junit.Test
 

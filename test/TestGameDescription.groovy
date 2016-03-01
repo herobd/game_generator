@@ -1,13 +1,13 @@
-import constructs.player.Players
-import constructs.TurnOrder
-import constructs.board.grid.SquareGrid
-import constructs.condition.NegatedCondition
-import constructs.condition.TerminalConditional
-import constructs.condition.functions.GameFunction
-import constructs.condition.result.EndGameResult
+import game.constructs.player.Players
+import game.constructs.TurnOrder
+import game.constructs.board.grid.SquareGrid
+import game.constructs.condition.NegatedCondition
+import game.constructs.condition.TerminalConditional
+import game.constructs.condition.functions.GameFunction
+import game.constructs.condition.result.EndGameResult
 import game.Game
-import gdl.GDLDescription
-import gdl.clauses.AbstractClause
+import game.gdl.GDLDescription
+import game.gdl.clauses.AbstractClause
 import org.junit.Test
 
 /**
