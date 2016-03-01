@@ -112,25 +112,24 @@ class Players implements HasClauses, HasRolesClause, Gene
 	@Override
 	List<CrossOver> getPossibleCrossOvers(Gene other)
 	{
-//		Players mate = (Players)other
-//
-//		def result = []
-//		for (int i = 0; i < mate.size(); i++)
-//		{
-//			def c
-//			if (i < this.size())
-//			{
-//				c = {Players r -> this[i] = r[i]}
-//			}
-//			else
-//			{
-//				c = {Players r -> this += r[i]}
-//			}
-//			CrossOver g = new CrossOver(c)
-//			result.add(g)
-//		}
-//		return result
-		return []
+		Players mate = (Players)other
+
+		def result = []
+		for (int i = 0; i < mate.size(); i++)
+		{
+			def c
+			if (i < this.size())
+			{
+				c = {int j, Players r -> this.players[j] = r.players[j]}
+			}
+			else
+			{
+				c = {int j, Players r -> this.players += r.players[j]}
+			}
+			CrossOver g = new CrossOver(c.curry(i))
+			result.add(g)
+		}
+		return result
 	}
 
 	/**

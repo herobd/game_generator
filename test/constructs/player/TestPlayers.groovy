@@ -117,9 +117,25 @@ class TestPlayers
 	{
 		Players p1 = new Players(["White", "Black"])
 		Players p2 = new Players(["Red", "Blue", "Green"])
+		Players p3 = new Players(["Purple", "Pink"])
+		Players p4 = new Players(["Orange", "Yelllow", "Gold"])
+
+		//crossing with a larger element
 		def crossOvers = p1.getPossibleCrossOvers(p2)
 		assert crossOvers.size() == 3
-		crossOvers = p2.getPossibleCrossOvers(p1)
+
+		//swap
+		crossOvers[0].call(p2)
+		assert p1 == new Players(["Red", "Black"])
+		crossOvers[1].call(p3)
+		assert p1 == new Players(["Red", "Pink"])
+
+		//add
+		crossOvers[2].call(p2)
+		assert p1 == new Players(["Red", "Pink", "Green"])
+
+		//crossing with a smaller element
+		crossOvers = p4.getPossibleCrossOvers(p3)
 		assert crossOvers.size() == 2
 	}
 
