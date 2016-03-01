@@ -1,3 +1,6 @@
+package game
+
+import constructs.condition.Conditional
 import constructs.player.Players
 import constructs.TurnOrder
 import constructs.board.Board
@@ -8,14 +11,18 @@ import constructs.pieces.Piece
 import gdl.clauses.GDLClause
 import gdl.GDLConvertable
 import gdl.GDLDescription
+import genetic.Evolvable
+import genetic.Gene
 
 /**
  * @author Lawrence Thatcher
  *
- * A class representing the abstract game description of a particular game.
+ * A class holding an abstract game description of a particular game.
  */
-class GameDescription implements GDLConvertable
+class Game implements Evolvable, GDLConvertable
 {
+	private static final double DEFAULT_CROSS_OVER_PROBABILITY = 0.1
+
 	private Players players
 	private Board board
 	private TurnOrder turnOrder
@@ -32,7 +39,7 @@ class GameDescription implements GDLConvertable
 	 * @param end a list of TerminalConditions that will be used to set when the game will end,
 	 * as well as who the winner will be (if any).
 	 */
-	GameDescription(Players players, Board board, TurnOrder turnOrder, List<Piece> pieces, List<TerminalConditional> end)
+	Game(Players players, Board board, TurnOrder turnOrder, List<Piece> pieces, List<TerminalConditional> end)
 	{
 		this.players = players
 		this.board = board
@@ -59,5 +66,64 @@ class GameDescription implements GDLConvertable
 		clauses += end.GDLClauses
 
 		return new GDLDescription(clauses)
+	}
+
+	@Override
+	Evolvable crossOver(Evolvable mate)
+	{
+		Game child = this.clone()
+		List<List<Gene>> matchableGenes = [child.genes, mate.genes].transpose()
+		for (def pair : matchableGenes)
+		{
+			Gene m = pair[0]
+			Gene f = pair[1]
+			m.crossOver(f)
+		}
+		return child
+	}
+
+	@Override
+	def mutate()
+	{
+		for (Gene gene : genes)
+		{
+			gene.mutate()
+		}
+	}
+
+	@Override
+	Game clone()
+	{
+		Players c_players = players.clone()
+		Board c_board = (Board)board.clone()
+		def c_pieces = []
+		def c_end = []
+		for (Piece p : pieces)
+			c_pieces.add(p.clone())
+		for (Conditional c : end.conditionals)
+			c_end.add(c.clone())
+		return new Game(c_players, c_board, turnOrder, c_pieces, c_end)
+	}
+
+	@Override
+	List<Gene> getGenes()
+	{
+		return [players]
+	}
+
+	@Override
+	String toString()
+	{
+		String result = ""
+		result += "Players: " + players.toString() + "\n"
+		result += "Board: " + board.toString() + "\n"
+		result += "TurnOrder: " + turnOrder.toString() + "\n"
+		result += "Pieces: " + pieces.toString() + "\n"
+		result += "End:\n"
+		for (Conditional c : end.conditionals)
+		{
+			result += "\t" + c.toString() + "\n"
+		}
+		return result
 	}
 }

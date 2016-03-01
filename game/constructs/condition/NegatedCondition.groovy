@@ -39,6 +39,7 @@ class NegatedCondition implements Condition
 		return result
 	}
 
+	@Override
 	boolean equals(o)
 	{
 		if (this.is(o))
@@ -53,8 +54,15 @@ class NegatedCondition implements Condition
 		return true
 	}
 
+	@Override
 	int hashCode()
 	{
 		return this.toString().hashCode()
+	}
+
+	@Override
+	NegatedCondition clone()
+	{
+		return new NegatedCondition(condition)
 	}
 }

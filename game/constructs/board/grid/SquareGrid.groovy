@@ -77,10 +77,10 @@ class SquareGrid extends Grid implements
 			s.add(line_diag_desc(n))
 			s.add(line_diag_asc(n))
 		}
-		s.add(new GDLStatement("(<= (" + name + " ?w) (row ?x ?y ?w)"))
-		s.add(new GDLStatement("(<= (" + name + " ?w) (column ?x ?y ?w)"))
+		s.add(new GDLStatement("(<= (" + name + " ?w) (row ?x ?y ?w))"))
+		s.add(new GDLStatement("(<= (" + name + " ?w) (column ?x ?y ?w))"))
 		if (this.i_nbors)
-			s.add(new GDLStatement("(<= (" + name + " ?w) (diagonal ?x ?y ?w)"))
+			s.add(new GDLStatement("(<= (" + name + " ?w) (diagonal ?x ?y ?w))"))
 
 		return new DynamicComponentsClause(s)
 	}
@@ -90,6 +90,12 @@ class SquareGrid extends Grid implements
 	{
 		GDLStatement s = new GDLStatement("(<= open\n(true (cell ?x ?y b)))")
 		return new DynamicComponentsClause([s])
+	}
+
+	@Override
+	SquareGrid clone()
+	{
+		return new SquareGrid(this.size, this.i_nbors)
 	}
 
 	protected GDLClause generateIndexClause()

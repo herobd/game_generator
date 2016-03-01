@@ -5,7 +5,9 @@ import gdl.clauses.GDLClause
 import gdl.clauses.HasClauses
 import gdl.clauses.role.HasRolesClause
 import gdl.clauses.role.RolesClause
-import genetic.GeneticElement
+import genetic.CrossOver
+import genetic.Gene
+import genetic.Mutation
 
 /**
  * @author Lawrence Thatcher
@@ -13,17 +15,25 @@ import genetic.GeneticElement
  * Stores information concerning the Players construct,
  * including number of players and the players' names.
  */
-class Players implements HasClauses, HasRolesClause, GeneticElement
+class Players implements HasClauses, HasRolesClause, Gene
 {
-	private static final Random RANDOM = new Random()
 	private List<Player> players = []
 
+	/**
+	 * Creates a new list of players with the specified number of players.
+	 * The names of the players will be of the form: Player1, Player2, etc...
+	 * @param numPlayers the number of players to generate
+	 */
 	Players(int numPlayers)
 	{
 		for (int i = 0; i < numPlayers; i++)
 			this.players.add(new Player("Player" + Integer.toString(i+1)))
 	}
 
+	/**
+	 * Creates a list of players based off of the specified names
+	 * @param players
+	 */
 	Players(Iterable<String> players)
 	{
 		for (String p : players)
@@ -89,16 +99,57 @@ class Players implements HasClauses, HasRolesClause, GeneticElement
 	 * 		   Each closure takes in a reference to this Players object as a parameter.
 	 */
 	@Override
-	List<Closure> getPossibleMutations()
+	List<Mutation> getPossibleMutations()
 	{
 		def result = []
 		if (canRemoveAPlayer())
-			result.add({n -> n.removePlayer()})
-		result.add({n -> n.addNewPlayer()})
+			result.add(mutationMethod("removePlayer"))
+		result.add(mutationMethod("addNewPlayer"))
+		result.add(mutationMethod("changeName"))
 		return result
 	}
 
-	// Genetic Functions
+	@Override
+	List<CrossOver> getPossibleCrossOvers(Gene other)
+	{
+		Players mate = (Players)other
+		//TODO: add check to not cross-over if same name already exists
+		def result = []
+		for (int i = 0; i < mate.size(); i++)
+		{
+			def c
+			if (i < this.size())
+			{
+				c = {int j, Players r -> this.players[j] = r.players[j]}
+			}
+			else
+			{
+				c = {int j, Players r -> this.players += r.players[j]}
+			}
+			CrossOver g = new CrossOver(c.curry(i))
+			result.add(g)
+		}
+		return result
+	}
+
+	/**
+	 * @return a deep copy of this Players object
+	 */
+	@Override
+	Players clone()
+	{
+		def clones = []
+		for (Player p : players)
+		{
+			Player clone = new Player(p.name, p.markToken)
+			clones.add(clone)
+		}
+		def result = new Players([])
+		result.players = clones
+		return result
+	}
+
+// Genetic Functions
 	/**
 	 * Adds a new player to this player set, using the next available PlayerName in the series.
 	 */
@@ -114,13 +165,27 @@ class Players implements HasClauses, HasRolesClause, GeneticElement
 	}
 
 	/**
-	 * Removes a player from this player set, if there are any to remove.
+	 * Removes a randomly selected player from this player set.
 	 * In general this method should not be called to reduce the number of players down to below two.
 	 */
 	def removePlayer()
 	{
 		int idx = RANDOM.nextInt(this.size())
 		this.players.removeAt(idx)
+	}
+
+	/**
+	 * Selects a player at random and randomly changes their name to one not already in use
+	 */
+	def changeName()
+	{
+		PlayerName name = PlayerName.random
+		while (inNames(name))
+		{
+			name = PlayerName.random
+		}
+		int idx = RANDOM.nextInt(this.size())
+		this.players[idx].updateTo(name.toPlayer())
 	}
 
 	// Helper Methods
@@ -160,4 +225,45 @@ class Players implements HasClauses, HasRolesClause, GeneticElement
 		return players.size()
 	}
 
+	Player getAt(int idx)
+	{
+		return players[idx]
+	}
+
+	def putAt(int idx, Player p)
+	{
+		players[idx] = p
+	}
+
+	Players plus(Player p)
+	{
+		Players result = this.clone()
+		result.players.add(p)
+		return result
+	}
+
+	@Override
+	boolean equals(o)
+	{
+		if (this.is(o))
+			return true
+		if (getClass() != o.class)
+			return false
+
+		Players other = (Players) o
+		if (other.size() != size())
+			return false
+		for (int i = 0; i < size(); i++)
+		{
+			if (players[i] != other.players[i])
+				return false
+		}
+		return true
+	}
+
+	@Override
+	int hashCode()
+	{
+		return players.hashCode()
+	}
 }

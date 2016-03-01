@@ -21,6 +21,7 @@ class Player
 		this.mark_token = mark_token
 	}
 
+	//Getters
 	String getName()
 	{
 		return this.name
@@ -33,15 +34,57 @@ class Player
 		return mark_token
 	}
 
+	// Public Methods
+	/**
+	 * Gets the PlayerName that matches this Player's name.
+	 * If none match, it returns the default PlayerName (Unknown)
+	 * @return a PlayerName
+	 */
+	PlayerName toPlayerName()
+	{
+		PlayerName result = PlayerName.toPlayerName(this.name)
+		return result
+	}
+
+	/**
+	 * Updates the current player's name and mark_token to the ones given
+	 * @param player the Player object to take the name and mark_token from
+	 */
+	void updateTo(Player player)
+	{
+		this.name = player.name
+		this.mark_token = player.mark_token
+	}
+
+	//Helper Functions
 	@Override
 	String toString()
 	{
 		return this.name
 	}
 
-	PlayerName toPlayerName()
+	@Override
+	boolean equals(o)
 	{
-		PlayerName result = PlayerName.toPlayerName(this.name)
+		if (this.is(o))
+			return true
+		if (!(o instanceof Player))
+			return false
+
+		Player player = (Player) o
+
+		if (name != player.name)
+			return false
+
+		return true
+	}
+
+	@Override
+	int hashCode()
+	{
+		int result
+		result = name.hashCode()
+		result = 31 * result + mark_token.hashCode()
 		return result
 	}
 }
