@@ -1,11 +1,11 @@
 package mock
 
-import constructs.condition.functions.Function
-import constructs.condition.functions.GameFunction
-import constructs.condition.functions.SupportsInARow
-import gdl.clauses.GDLClause
-import gdl.clauses.base.BaseClause
-import gdl.clauses.init.InitClause
+import game.constructs.condition.functions.Function
+import game.constructs.condition.functions.GameFunction
+import game.constructs.condition.functions.SupportsInARow
+import game.gdl.clauses.GDLClause
+import game.gdl.clauses.base.BaseClause
+import game.gdl.clauses.init.InitClause
 
 /**
  * @author Lawrence Thatcher

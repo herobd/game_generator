@@ -1,7 +1,7 @@
-Controller server for our General Rudimental Evolutionary Game Generator (GREGG)
+Controller server for our General Rudimentary Evolutionary Game Generator (GREGG)
 
 ## Requirements:
-- Node.js  (incldues packages)
+- Node.js  (includes packages)
   - express
   - request
   - fs
@@ -19,10 +19,10 @@ GET
 
 POST
 * `/submit_game` with:    (this is open to modification, depending on what's easier for you to send over)
-  * meta:json with elemnts: id,score,testLength[short,med,long],gdlVersion[1,2],numPlayers,name(optional)
-    * the id is expected to be qunique for each submission. If submitting different versions of the same game (eg fine tuning), be sure the id's are different (perhaps use a version number after it, eg "ticTacToe1.2"). 
+  * meta:json with elements: id,score,testLength[short,med,long],gdlVersion[1,2],numPlayers,name(optional)
+    * the id is expected to be unique for each submission. If submitting different versions of the same game (eg fine tuning), be sure the id's are different (perhaps use a version number after it, eg "ticTacToe1.2"). 
   * gdl: text of gdl file
-  * hlgdl: text of high-level gdl file (I have these to seperate as 
+  * hlgdl: text of high-level gdl file (I have these two separate for convenience for now)
 
 What will this store?
 * Games that have given to it (GDL,[high],ref to gene params,meta)
