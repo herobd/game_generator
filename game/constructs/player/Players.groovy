@@ -113,7 +113,7 @@ class Players implements HasClauses, HasRolesClause, Gene
 	List<CrossOver> getPossibleCrossOvers(Gene other)
 	{
 		Players mate = (Players)other
-
+		//TODO: add check to not cross-over if same name already exists
 		def result = []
 		for (int i = 0; i < mate.size(); i++)
 		{

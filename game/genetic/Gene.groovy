@@ -54,6 +54,7 @@ trait Gene
 
 	/**
 	 * Performs each of the possible cross-overs, each with the specified probability.
+	 * Changes from the cross over will be reflected in this object (the one calling the crossOver method).
 	 * @param other The other Gene to cross-over with. If these are not compatible, no change will occur
 	 * @param probability the probability for each possible cross-over to occur independently
 	 */

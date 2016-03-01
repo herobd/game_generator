@@ -70,13 +70,20 @@ class Game implements Evolvable, GDLConvertable
 	Evolvable crossOver(Evolvable mate)
 	{
 		Game child = this.clone()
-		return null
+		List<List<Gene>> matchableGenes = [child.genes, mate.genes].transpose()
+		for (def pair : matchableGenes)
+		{
+			Gene m = pair[0]
+			Gene f = pair[1]
+			m.crossOver(f)
+		}
+		return child
 	}
 
 	@Override
 	def mutate()
 	{
-		for (Gene gene : mutatableGenes)
+		for (Gene gene : genes)
 		{
 			gene.mutate()
 		}
@@ -96,8 +103,25 @@ class Game implements Evolvable, GDLConvertable
 		return new Game(c_players, c_board, turnOrder, c_pieces, c_end)
 	}
 
-	private List<Gene> getMutatableGenes()
+	@Override
+	List<Gene> getGenes()
 	{
 		return [players]
+	}
+
+	@Override
+	String toString()
+	{
+		String result = ""
+		result += "Players: " + players.toString() + "\n"
+		result += "Board: " + board.toString() + "\n"
+		result += "TurnOrder: " + turnOrder.toString() + "\n"
+		result += "Pieces: " + pieces.toString() + "\n"
+		result += "End:\n"
+		for (Conditional c : end.conditionals)
+		{
+			result += "\t" + c.toString() + "\n"
+		}
+		return result
 	}
 }
