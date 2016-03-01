@@ -5,6 +5,7 @@ import constructs.condition.NegatedCondition
 import constructs.condition.TerminalConditional
 import constructs.condition.functions.GameFunction
 import constructs.condition.result.EndGameResult
+import game.Game
 import gdl.GDLDescription
 import gdl.clauses.AbstractClause
 import org.junit.Test

@@ -1,3 +1,5 @@
+package game
+
 import constructs.condition.Conditional
 import constructs.player.Players
 import constructs.TurnOrder
