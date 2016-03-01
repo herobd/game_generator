@@ -113,6 +113,17 @@ class TestPlayers
 	}
 
 	@Test
+	void test_getPossibleCrossOvers()
+	{
+		Players p1 = new Players(["White", "Black"])
+		Players p2 = new Players(["Red", "Blue", "Green"])
+		def crossOvers = p1.getPossibleCrossOvers(p2)
+		assert crossOvers.size() == 3
+		crossOvers = p2.getPossibleCrossOvers(p1)
+		assert crossOvers.size() == 2
+	}
+
+	@Test
 	void test_mutate()
 	{
 		Players players = new Players(["White", "Black"])

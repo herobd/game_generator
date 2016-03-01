@@ -18,4 +18,9 @@ class CrossOver
 	{
 		return closure.call(args)
 	}
+
+	String toString()
+	{
+		return closure.toString()
+	}
 }
