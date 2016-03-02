@@ -27,6 +27,7 @@ class GDLStatement
 		return this.statement
 	}
 
+	@Override
 	boolean equals(o)
 	{
 		if (this.is(o))
@@ -42,6 +43,7 @@ class GDLStatement
 		return true
 	}
 
+	@Override
 	int hashCode()
 	{
 		return statement.hashCode()
