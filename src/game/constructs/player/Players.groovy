@@ -15,7 +15,7 @@ import generator.Mutation
  * Stores information concerning the Players construct,
  * including number of players and the players' names.
  */
-class Players implements HasClauses, HasRolesClause, Gene
+class Players implements HasClauses, HasRolesClause, Gene, Iterable<Player>
 {
 	private List<Player> players = []
 
@@ -265,5 +265,20 @@ class Players implements HasClauses, HasRolesClause, Gene
 	int hashCode()
 	{
 		return players.hashCode()
+	}
+
+	@Override
+	Iterator<Player> iterator()
+	{
+		return this.players.iterator()
+	}
+
+	Player next(Player player)
+	{
+		int idx = players.indexOf(player)
+		idx++
+		if (idx == size())
+			return players[0]
+		return players[idx]
 	}
 }
