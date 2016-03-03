@@ -2,7 +2,7 @@ package game.gdl.clauses.legal
 
 import game.gdl.clauses.AbstractClause
 import game.gdl.clauses.ClauseType
-import game.gdl.statement.GDLStatement
+import game.gdl.statement.SimpleStatement
 
 /**
  * @author Lawrence Thatcher
@@ -11,7 +11,7 @@ import game.gdl.statement.GDLStatement
  */
 class LegalClause extends AbstractClause
 {
-	LegalClause(List<GDLStatement> statements)
+	LegalClause(List<SimpleStatement> statements)
 	{
 		super(ClauseType.Legal, statements)
 	}

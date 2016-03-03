@@ -1,7 +1,6 @@
 package game.constructs
 
 import game.gdl.clauses.GDLClause
-import game.gdl.statement.GDLStatement
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.base.BaseClause
 import game.gdl.clauses.base.HasBaseClause
@@ -11,6 +10,7 @@ import game.gdl.clauses.init.HasInitClause
 import game.gdl.clauses.init.InitClause
 import game.gdl.clauses.legal.HasLegalClause
 import game.gdl.clauses.legal.LegalClause
+import game.gdl.statement.SimpleStatement
 
 /**
  * @author Lawrence Thatcher
@@ -26,54 +26,54 @@ enum TurnOrder implements HasClauses, HasLegalClause, HasDynCompClause, HasBaseC
 
 
 	//TODO: Replace these with generic form
-	private static final GDLStatement getWhite_noop()
+	private static final SimpleStatement getWhite_noop()
 	{
-		return new GDLStatement(
+		return new SimpleStatement(
 				"(<= (legal White noop)\n" +
 				"(true (control Black)))")
 	}
 
-	private static final GDLStatement getBlack_noop()
+	private static final SimpleStatement getBlack_noop()
 	{
-		return new GDLStatement(
+		return new SimpleStatement(
 				"(<= (legal Black noop)\n" +
 				"(true (control White)))")
 	}
 
-	private static final GDLStatement getWhite_next()
+	private static final SimpleStatement getWhite_next()
 	{
-		return new GDLStatement(
+		return new SimpleStatement(
 				"(<= (next (control White))\n" +
 				"(true (control Black)))")
 	}
 
-	private static final GDLStatement getBlack_next()
+	private static final SimpleStatement getBlack_next()
 	{
-		return new GDLStatement(
+		return new SimpleStatement(
 				"(<= (next (control Black))\n" +
 				"(true (control White)))")
 	}
 
-	private static final GDLStatement getInput_noop()
+	private static final SimpleStatement getInput_noop()
 	{
-		return new GDLStatement("(<= (input ?p noop) (role ?p))")
+		return new SimpleStatement("(<= (input ?p noop) (role ?p))")
 	}
 
-	private static final GDLStatement getControl_base()
+	private static final SimpleStatement getControl_base()
 	{
-		return new GDLStatement("(<= (base (control ?p)) (role ?p))")
+		return new SimpleStatement("(<= (base (control ?p)) (role ?p))")
 	}
 
-	private static final GDLStatement getControl_init()
+	private static final SimpleStatement getControl_init()
 	{
-		return new GDLStatement("(init (control White))")
+		return new SimpleStatement("(init (control White))")
 	}
 
 	private LegalClause legal
 	private DynamicComponentsClause dynComp
 	private BaseClause base
 	private InitClause initState
-	private TurnOrder(List<GDLStatement> ls, List<GDLStatement> dcs, List<GDLStatement> bis, List<GDLStatement> is)
+	private TurnOrder(List<SimpleStatement> ls, List<SimpleStatement> dcs, List<SimpleStatement> bis, List<SimpleStatement> is)
 	{
 		this.legal = new LegalClause(ls)
 		this.dynComp = new DynamicComponentsClause(dcs)

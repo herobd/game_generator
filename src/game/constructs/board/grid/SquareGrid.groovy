@@ -2,7 +2,6 @@ package game.constructs.board.grid
 
 import game.constructs.condition.functions.SupportsInARow
 import game.constructs.condition.functions.SupportsOpen
-import game.gdl.statement.GDLStatement
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.base.BaseClause
@@ -10,6 +9,7 @@ import game.gdl.clauses.base.HasBaseClause
 import game.gdl.clauses.dynamic.DynamicComponentsClause
 import game.gdl.clauses.init.HasInitClause
 import game.gdl.clauses.init.InitClause
+import game.gdl.statement.SimpleStatement
 
 /**
  * @author Lawrence Thatcher
@@ -76,10 +76,10 @@ class SquareGrid extends Grid implements
 			s.add(line_diag_desc(n))
 			s.add(line_diag_asc(n))
 		}
-		s.add(new GDLStatement("(<= (" + name + " ?w) (row ?x ?y ?w))"))
-		s.add(new GDLStatement("(<= (" + name + " ?w) (column ?x ?y ?w))"))
+		s.add(new SimpleStatement("(<= (" + name + " ?w) (row ?x ?y ?w))"))
+		s.add(new SimpleStatement("(<= (" + name + " ?w) (column ?x ?y ?w))"))
 		if (this.i_nbors)
-			s.add(new GDLStatement("(<= (" + name + " ?w) (diagonal ?x ?y ?w))"))
+			s.add(new SimpleStatement("(<= (" + name + " ?w) (diagonal ?x ?y ?w))"))
 
 		return new DynamicComponentsClause(s)
 	}
@@ -87,7 +87,7 @@ class SquareGrid extends Grid implements
 	@Override
 	GDLClause open()
 	{
-		GDLStatement s = new GDLStatement("(<= open\n(true (cell ?x ?y b)))")
+		SimpleStatement s = new SimpleStatement("(<= open\n(true (cell ?x ?y b)))")
 		return new DynamicComponentsClause([s])
 	}
 
@@ -103,7 +103,7 @@ class SquareGrid extends Grid implements
 		def indices = []
 		for (int i = 1; i <= this.size; i++)
 		{
-			GDLStatement s = new GDLStatement("(index " + Integer.toString(i) + ")")
+			SimpleStatement s = new SimpleStatement("(index " + Integer.toString(i) + ")")
 			indices.add(s)
 		}
 		return new BaseClause(indices)
@@ -115,7 +115,7 @@ class SquareGrid extends Grid implements
 		def succs = []
 		for (int i = 1; i < this.size; i++)
 		{
-			GDLStatement s = new GDLStatement("(succ " + Integer.toString(i) + " " + Integer.toString(i+1) +  ")")
+			SimpleStatement s = new SimpleStatement("(succ " + Integer.toString(i) + " " + Integer.toString(i+1) +  ")")
 			succs.add(s)
 		}
 		return new BaseClause(succs)
@@ -130,7 +130,7 @@ class SquareGrid extends Grid implements
 			for (int j = 1; j <= this.size; j++)
 			{
 				// TODO: the last value should be taken from some abstract representation of the board start state
-				GDLStatement s = new GDLStatement("(init (cell " + Integer.toString(i) + " " + Integer.toString(j) + " b))")
+				SimpleStatement s = new SimpleStatement("(init (cell " + Integer.toString(i) + " " + Integer.toString(j) + " b))")
 				cells.add(s)
 			}
 		}
@@ -138,7 +138,7 @@ class SquareGrid extends Grid implements
 	}
 
 	//TODO: remove code duplication in these somehow?
-	private static GDLStatement line_row(int n)
+	private static SimpleStatement line_row(int n)
 	{
 		String result = ""
 		result += "(<= (row ?x ?y ?w)\n"
@@ -149,10 +149,10 @@ class SquareGrid extends Grid implements
 				result += "\n"
 		}
 		result += ")"
-		return new GDLStatement(result)
+		return new SimpleStatement(result)
 	}
 
-	private static GDLStatement line_column(int n)
+	private static SimpleStatement line_column(int n)
 	{
 		String result = ""
 		result += "(<= (column ?x ?y ?w)\n"
@@ -163,10 +163,10 @@ class SquareGrid extends Grid implements
 				result += "\n"
 		}
 		result += ")"
-		return new GDLStatement(result)
+		return new SimpleStatement(result)
 	}
 
-	private static GDLStatement line_diag_desc(int n)
+	private static SimpleStatement line_diag_desc(int n)
 	{
 		String result = ""
 		result += "(<= (diagonal ?x ?y ?w)\n"
@@ -177,10 +177,10 @@ class SquareGrid extends Grid implements
 				result += "\n"
 		}
 		result += ")"
-		return new GDLStatement(result)
+		return new SimpleStatement(result)
 	}
 
-	private static GDLStatement line_diag_asc(int n)
+	private static SimpleStatement line_diag_asc(int n)
 	{
 		String result = ""
 		result += "(<= (diagonal ?x ?y ?w)\n"
@@ -191,7 +191,7 @@ class SquareGrid extends Grid implements
 				result += "\n"
 		}
 		result += ")"
-		return new GDLStatement(result)
+		return new SimpleStatement(result)
 	}
 
 	private static String addSuccessors(String var, int i)

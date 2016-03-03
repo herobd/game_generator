@@ -6,12 +6,12 @@ package game.gdl.statement
  * A simple GDL Predicate or Implication
  * (Currently a placeholder class, may be replaced later?)
  */
-class GDLStatement
+class SimpleStatement
 {
 	private String statement
 	//TODO: add support for generic/dynamic statements (ex: for player loop, etc...)
 
-	GDLStatement(String statement)
+	SimpleStatement(String statement)
 	{
 		this.statement = statement
 	}
@@ -35,7 +35,7 @@ class GDLStatement
 		if (getClass() != o.class)
 			return false
 
-		GDLStatement that = (GDLStatement) o
+		SimpleStatement that = (SimpleStatement) o
 
 		if (statement != that.statement)
 			return false

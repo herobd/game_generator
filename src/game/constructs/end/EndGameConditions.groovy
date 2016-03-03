@@ -4,13 +4,13 @@ import game.constructs.board.Board
 import game.constructs.condition.Conditional
 import game.constructs.condition.TerminalConditional
 import game.constructs.condition.functions.Function
-import game.gdl.statement.GDLStatement
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.goal.GoalClause
 import game.gdl.clauses.goal.HasGoalClause
 import game.gdl.clauses.terminal.HasTerminalClause
 import game.gdl.clauses.terminal.TerminalClause
+import game.gdl.statement.SimpleStatement
 
 /**
  * @author Lawrence Thatcher
@@ -124,7 +124,7 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 //			String s = "(<= terminal\n("
 //			s += c.antecedent.toString()
 //			s += "))"
-//			T.add(new GDLStatement(s))
+//			T.add(new SimpleStatement(s))
 //		}
 
 		String s =
@@ -136,7 +136,7 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 				"\n" +
 				"(<= terminal\n" +
 				"(not open))"
-		T.add(new GDLStatement(s))
+		T.add(new SimpleStatement(s))
 
 		return new TerminalClause(T)
 	}
@@ -165,6 +165,6 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 			"\n" +
 			"(<= (goal Black 0)\n" +
 			"(line x))"
-		return new GoalClause([new GDLStatement(s)])
+		return new GoalClause([new SimpleStatement(s)])
 	}
 }

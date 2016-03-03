@@ -1,7 +1,7 @@
 package game.gdl.clauses
 
 import game.GameContextInfo
-import game.gdl.statement.GDLStatement
+import game.gdl.statement.SimpleStatement
 
 /**
  * @author Lawrence Thatcher
@@ -13,7 +13,7 @@ interface GDLClause
 {
 	ClauseType getClauseType()
 
-	List<GDLStatement> getStatements()
+	List<SimpleStatement> getStatements()
 
 	String toGDLString(GameContextInfo context)
 }

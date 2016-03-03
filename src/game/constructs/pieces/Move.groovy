@@ -1,6 +1,5 @@
 package game.constructs.pieces
 
-import game.gdl.statement.GDLStatement
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.base.BaseClause
@@ -9,6 +8,7 @@ import game.gdl.clauses.dynamic.DynamicComponentsClause
 import game.gdl.clauses.dynamic.HasDynCompClause
 import game.gdl.clauses.legal.HasLegalClause
 import game.gdl.clauses.legal.LegalClause
+import game.gdl.statement.SimpleStatement
 
 /**
  * @author Lawrence Thatcher
@@ -30,7 +30,7 @@ class Move implements HasClauses, HasDynCompClause, HasBaseClause, HasLegalClaus
 	 * @param i					(temporary) the input clause statement
 	 * @param l					(temporary) the legal clause statement
 	 */
-	Move(List<String> inputs, List<GDLStatement> dynCompStatements, GDLStatement i, GDLStatement l)
+	Move(List<String> inputs, List<SimpleStatement> dynCompStatements, SimpleStatement i, SimpleStatement l)
 	{
 		//TODO: generate Input and Legal statements using inputs, rather than hard-coding
 		this.inputs = inputs

@@ -2,7 +2,7 @@ package game.gdl.clauses.init
 
 import game.gdl.clauses.AbstractClause
 import game.gdl.clauses.ClauseType
-import game.gdl.statement.GDLStatement
+import game.gdl.statement.SimpleStatement
 
 /**
  * @author Lawrence Thatcher
@@ -11,7 +11,7 @@ import game.gdl.statement.GDLStatement
  */
 class InitClause extends AbstractClause
 {
-	InitClause(List<GDLStatement> statements)
+	InitClause(List<SimpleStatement> statements)
 	{
 		super(ClauseType.InitialState, statements)
 	}

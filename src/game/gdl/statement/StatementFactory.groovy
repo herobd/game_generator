@@ -10,7 +10,7 @@ import game.GameContextInfo
  */
 class StatementFactory
 {
-	static List<GDLStatement> interpolateStatements(List<GDLStatement> statements, GameContextInfo contextInfo)
+	static List<SimpleStatement> interpolateStatements(List<SimpleStatement> statements, GameContextInfo contextInfo)
 	{
 
 		return statements

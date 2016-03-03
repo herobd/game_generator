@@ -1,10 +1,10 @@
 package game.constructs.pieces
 
-import game.gdl.statement.GDLStatement
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.dynamic.DynamicComponentsClause
 import game.gdl.clauses.dynamic.HasDynCompClause
+import game.gdl.statement.SimpleStatement
 
 /**
  * @author Lawrence Thatcher
@@ -17,16 +17,16 @@ enum Placement implements HasClauses, HasDynCompClause
 {
 	Persistent([persistenceGDL])
 
-	private static final GDLStatement getPersistenceGDL()
+	private static final SimpleStatement getPersistenceGDL()
 	{
-		return new GDLStatement(
+		return new SimpleStatement(
 				"(<= (next (cell ?m ?n ?w))\n" +
 				"(true (cell ?m ?n ?w))\n" +
 				"(distinct ?w b))")
 	}
 
 	private DynamicComponentsClause dynComp
-	private Placement(List<GDLStatement> statements)
+	private Placement(List<SimpleStatement> statements)
 	{
 		this.dynComp = new DynamicComponentsClause(statements)
 	}

@@ -1,10 +1,10 @@
 package game.constructs.player
 
-import game.gdl.statement.GDLStatement
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.role.HasRolesClause
 import game.gdl.clauses.role.RolesClause
+import game.gdl.statement.SimpleStatement
 import generator.CrossOver
 import generator.Gene
 import generator.Mutation
@@ -79,10 +79,10 @@ class Players implements HasClauses, HasRolesClause, Gene, Iterable<Player>
 	RolesClause getRolesClause()
 	{
 		//TODO: Replace with GDL-statement generator
-		List<GDLStatement> playerDefs = []
+		List<SimpleStatement> playerDefs = []
 		for (String name : this.playerNames)
 		{
-			def statement = new GDLStatement("(role " + name + ")")
+			def statement = new SimpleStatement("(role " + name + ")")
 			playerDefs.add(statement)
 		}
 		return new RolesClause(playerDefs)
