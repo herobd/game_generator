@@ -5,7 +5,7 @@ package game.gdl.statement
  *
  * Contains getters for tokens used by the substitution and generator statements.
  */
-class StatementContext
+class StatementContext implements TokenUser
 {
 	private String player
 	private String player_mark

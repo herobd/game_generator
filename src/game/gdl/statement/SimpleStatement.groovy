@@ -8,7 +8,7 @@ package game.gdl.statement
  */
 class SimpleStatement implements GDLStatement
 {
-	private String statement
+	protected String statement
 	//TODO: add support for generic/dynamic statements (ex: for player loop, etc...)
 
 	SimpleStatement(String statement)

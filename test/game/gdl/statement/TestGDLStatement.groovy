@@ -1,4 +1,4 @@
-package game.gdl
+package game.gdl.statement
 
 import game.gdl.statement.SimpleStatement
 import org.junit.Test
