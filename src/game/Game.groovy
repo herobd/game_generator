@@ -23,6 +23,7 @@ class Game implements Evolvable, GDLConvertable
 {
 	private static final double DEFAULT_CROSS_OVER_PROBABILITY = 0.1
 
+	private String name = "unnamed game"
 	private Players players
 	private Board board
 	private TurnOrder turnOrder
@@ -65,7 +66,8 @@ class Game implements Evolvable, GDLConvertable
 		clauses += end.supportedBoardGDLClauses
 		clauses += end.GDLClauses
 
-		return new GDLDescription(clauses)
+		GameContextInfo contextInfo = new GameContextInfo(players)
+		return new GDLDescription(name, clauses, contextInfo)
 	}
 
 	@Override

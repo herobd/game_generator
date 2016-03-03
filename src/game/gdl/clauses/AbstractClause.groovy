@@ -1,6 +1,8 @@
 package game.gdl.clauses
 
+import game.GameContextInfo
 import game.gdl.statement.GDLStatement
+import game.gdl.statement.StatementFactory
 
 /**
  * @author Lawrence Thatcher
@@ -29,10 +31,11 @@ abstract class AbstractClause implements GDLClause
 	}
 
 	@Override
-	String toGDLString()
+	String toGDLString(GameContextInfo contextInfo)
 	{
+		def allStatements = StatementFactory.interpolateStatements(statements, contextInfo)
 		String result = ""
-		for (def s : statementList)
+		for (def s : allStatements)
 		{
 			result += s.toString()
 			result += "\n"

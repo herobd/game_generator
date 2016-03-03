@@ -1,5 +1,6 @@
 package game.gdl
 
+import game.GameContextInfo
 import game.gdl.clauses.ClauseType
 import game.gdl.clauses.GDLClause
 
@@ -10,7 +11,9 @@ import game.gdl.clauses.GDLClause
  */
 class GDLDescription
 {
-	//TODO: add gameName
+	private String name
+	private GameContextInfo context
+
 	private List<GDLClause> roles = []
 	private List<GDLClause> baseAndInput = []
 	private List<GDLClause> initialState = []
@@ -48,8 +51,11 @@ class GDLDescription
 	private static final String TERMINAL_HEADER =
 			";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;\n"
 
-	GDLDescription(List<GDLClause> clauses)
+	GDLDescription(String name, List<GDLClause> clauses, GameContextInfo context)
 	{
+		this.name = name
+		this.context = context
+
 		for (GDLClause clause : clauses)
 		{
 			switch (clause.clauseType)
@@ -86,25 +92,25 @@ class GDLDescription
 
 		result += ROLES_HEADER
 		for (def role : roles)
-			result += role.toGDLString() + "\n"
+			result += role.toGDLString(context) + "\n"
 		result += BASE_INPUT_HEADER
 		for (def base : baseAndInput)
-			result += base.toGDLString() + "\n"
+			result += base.toGDLString(context) + "\n"
 		result += INITIAL_STATE_HEADER
 		for (def init : initialState)
-			result += init.toGDLString() + "\n"
+			result += init.toGDLString(context) + "\n"
 		result += DYNAMIC_COMPONENTS_HEADER
 		for (def comp : dynamicComponents)
-			result += comp.toGDLString() + "\n"
+			result += comp.toGDLString(context) + "\n"
 		result += LEGAL_HEADER
 		for (def l : legal)
-			result += l.toGDLString() + "\n"
+			result += l.toGDLString(context) + "\n"
 		result += GOAL_HEADER
 		for (def g : goal)
-			result += g.toGDLString() + "\n"
+			result += g.toGDLString(context) + "\n"
 		result += TERMINAL_HEADER
 		for (def t : terminal)
-			result += t.toGDLString() + "\n"
+			result += t.toGDLString(context) + "\n"
 		return result
 	}
 
