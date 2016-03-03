@@ -1,6 +1,7 @@
 package game.gdl.clauses
 
 import game.GameContextInfo
+import game.gdl.statement.GDLStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.statement.StatementFactory
 
@@ -10,16 +11,16 @@ import game.gdl.statement.StatementFactory
 abstract class AbstractClause implements GDLClause
 {
 	protected ClauseType type
-	protected List<SimpleStatement> statementList
+	protected List<GDLStatement> statementList
 
-	AbstractClause(ClauseType type, List<SimpleStatement> statements)
+	AbstractClause(ClauseType type, List<GDLStatement> statements)
 	{
 		this.type = type
 		this.statementList = statements
 	}
 
 	@Override
-	List<SimpleStatement> getStatements()
+	List<GDLStatement> getStatements()
 	{
 		return statementList
 	}
@@ -43,7 +44,7 @@ abstract class AbstractClause implements GDLClause
 		return result
 	}
 
-	boolean contains(SimpleStatement statement)
+	boolean contains(GDLStatement statement)
 	{
 		for (def s : this.statements)
 		{

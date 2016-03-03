@@ -2,7 +2,7 @@ package game.gdl.clauses.dynamic
 
 import game.gdl.clauses.AbstractClause
 import game.gdl.clauses.ClauseType
-import game.gdl.statement.SimpleStatement
+import game.gdl.statement.GDLStatement
 
 /**
  * @author Lawrence Thatcher
@@ -11,7 +11,7 @@ import game.gdl.statement.SimpleStatement
  */
 class DynamicComponentsClause extends AbstractClause
 {
-	DynamicComponentsClause(List<SimpleStatement> statements)
+	DynamicComponentsClause(List<GDLStatement> statements)
 	{
 		super(ClauseType.DynamicComponents, statements)
 	}

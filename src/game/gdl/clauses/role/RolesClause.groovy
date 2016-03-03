@@ -1,6 +1,6 @@
 package game.gdl.clauses.role
 
-import game.gdl.statement.SimpleStatement
+import game.gdl.statement.GDLStatement
 import game.gdl.clauses.AbstractClause
 import game.gdl.clauses.ClauseType
 
@@ -11,7 +11,7 @@ import game.gdl.clauses.ClauseType
  */
 class RolesClause extends AbstractClause
 {
-	RolesClause(List<SimpleStatement> statements)
+	RolesClause(List<GDLStatement> statements)
 	{
 		super(ClauseType.Roles, statements)
 	}

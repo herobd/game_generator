@@ -4,6 +4,7 @@ import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.dynamic.DynamicComponentsClause
 import game.gdl.clauses.dynamic.HasDynCompClause
+import game.gdl.statement.GDLStatement
 import game.gdl.statement.SimpleStatement
 
 /**
@@ -26,7 +27,7 @@ enum Placement implements HasClauses, HasDynCompClause
 	}
 
 	private DynamicComponentsClause dynComp
-	private Placement(List<SimpleStatement> statements)
+	private Placement(List<GDLStatement> statements)
 	{
 		this.dynComp = new DynamicComponentsClause(statements)
 	}

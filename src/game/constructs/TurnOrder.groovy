@@ -10,6 +10,7 @@ import game.gdl.clauses.init.HasInitClause
 import game.gdl.clauses.init.InitClause
 import game.gdl.clauses.legal.HasLegalClause
 import game.gdl.clauses.legal.LegalClause
+import game.gdl.statement.GDLStatement
 import game.gdl.statement.SimpleStatement
 
 /**
@@ -73,7 +74,7 @@ enum TurnOrder implements HasClauses, HasLegalClause, HasDynCompClause, HasBaseC
 	private DynamicComponentsClause dynComp
 	private BaseClause base
 	private InitClause initState
-	private TurnOrder(List<SimpleStatement> ls, List<SimpleStatement> dcs, List<SimpleStatement> bis, List<SimpleStatement> is)
+	private TurnOrder(List<GDLStatement> ls, List<GDLStatement> dcs, List<GDLStatement> bis, List<GDLStatement> is)
 	{
 		this.legal = new LegalClause(ls)
 		this.dynComp = new DynamicComponentsClause(dcs)

@@ -2,7 +2,7 @@ package game.gdl.clauses.base
 
 import game.gdl.clauses.AbstractClause
 import game.gdl.clauses.ClauseType
-import game.gdl.statement.SimpleStatement
+import game.gdl.statement.GDLStatement
 
 /**
  * @author Lawrence Thatcher
@@ -11,7 +11,7 @@ import game.gdl.statement.SimpleStatement
  */
 class BaseClause extends AbstractClause
 {
-	BaseClause(List<SimpleStatement> statements)
+	BaseClause(List<GDLStatement> statements)
 	{
 		super(ClauseType.BaseAndInput, statements)
 	}
