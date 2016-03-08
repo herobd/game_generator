@@ -4,6 +4,7 @@ import game.constructs.board.Board
 import game.constructs.condition.Conditional
 import game.constructs.condition.TerminalConditional
 import game.constructs.condition.functions.Function
+import game.constructs.condition.result.EndGameResult
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.goal.GoalClause
@@ -12,7 +13,7 @@ import game.gdl.clauses.terminal.HasTerminalClause
 import game.gdl.clauses.terminal.TerminalClause
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
-import org.codehaus.groovy.runtime.GStringImpl
+import game.gdl.statement.Tokens
 
 /**
  * @author Lawrence Thatcher
@@ -120,7 +121,6 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 	private TerminalClause generateTerminalStatements()
 	{
 		def T = []
-		//TODO: BAD! don't hard-code, use generators
 		for (Conditional c : supportedConditionals)
 		{
 			def sig = c.antecedent.GDL_Signature
@@ -141,50 +141,49 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 			if (s instanceof GString)
 				T.add(new GeneratorStatement(s))
 			else
-			{
 				T.add(new SimpleStatement(s))
-			}
-
 		}
-
-//		String s =
-//				"(<= terminal\n" +
-//				"(3inARow x))\n" +
-//				"\n" +
-//				"(<= terminal\n" +
-//				"(3inARow o))\n" +
-//				"\n" +
-//				"(<= terminal\n" +
-//				"(not open))"
-//		T.add(new SimpleStatement(s))
-
 		return new TerminalClause(T)
 	}
 
-	private static GoalClause generateGoalStatements()
+	private GoalClause generateGoalStatements()
 	{
-		String s =
-			"(<= (goal White 100)\n" +
-			"(3inARow x))\n" +
-			"\n" +
-			"(<= (goal White 50)\n" +
-			"(not (3inARow x))\n" +
-			"(not (3inARow o))\n" +
-			"(not open))\n" +
-			"\n" +
-			"(<= (goal White 0)\n" +
-			"(3inARow o))\n" +
-			"\n" +
-			"(<= (goal Black 100)\n" +
-			"(3inARow o))\n" +
-			"\n" +
-			"(<= (goal Black 50)\n" +
-			"(not (3inARow x))\n" +
-			"(not (3inARow o))\n" +
-			"(not open))\n" +
-			"\n" +
-			"(<= (goal Black 0)\n" +
-			"(line x))"
-		return new GoalClause([new SimpleStatement(s)])
+		def T = []
+		for (Conditional c : supportedConditionals)
+		{
+			switch (c.consequent)
+			{
+				case EndGameResult.Win:
+					GString s = "(<= (goal ${Tokens.PLAYER} 100)\n"
+					s += "("
+					s += c.antecedent.GDL_Signature
+					s += "))"
+					T.add(new GeneratorStatement(s))
+					break
+			}
+		}
+//		String s =
+//			"(<= (goal White 100)\n" +
+//			"(3inARow x))\n" +
+//			"\n" +
+//			"(<= (goal White 50)\n" +
+//			"(not (3inARow x))\n" +
+//			"(not (3inARow o))\n" +
+//			"(not open))\n" +
+//			"\n" +
+//			"(<= (goal White 0)\n" +
+//			"(3inARow o))\n" +
+//			"\n" +
+//			"(<= (goal Black 100)\n" +
+//			"(3inARow o))\n" +
+//			"\n" +
+//			"(<= (goal Black 50)\n" +
+//			"(not (3inARow x))\n" +
+//			"(not (3inARow o))\n" +
+//			"(not open))\n" +
+//			"\n" +
+//			"(<= (goal Black 0)\n" +
+//			"(line x))"
+		return new GoalClause(T)
 	}
 }
