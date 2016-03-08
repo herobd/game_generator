@@ -3,7 +3,7 @@ package game.gdl.clauses
 import game.GameContextInfo
 import game.gdl.statement.GDLStatement
 import game.gdl.statement.SimpleStatement
-import game.gdl.statement.StatementFactory
+import game.gdl.statement.factory.StatementFactory
 
 /**
  * @author Lawrence Thatcher

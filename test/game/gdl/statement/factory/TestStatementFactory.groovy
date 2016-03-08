@@ -1,7 +1,11 @@
-package game.gdl.statement
+package game.gdl.statement.factory
 
 import game.GameContextInfo
 import game.constructs.player.Players
+import game.gdl.statement.GeneratorStatement
+import game.gdl.statement.SimpleStatement
+import game.gdl.statement.TokenUser
+import game.gdl.statement.Tokens
 import org.junit.Before
 import org.junit.Test
 
