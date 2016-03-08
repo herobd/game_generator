@@ -13,7 +13,7 @@ import game.gdl.clauses.terminal.HasTerminalClause
 import game.gdl.clauses.terminal.TerminalClause
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
-import game.gdl.statement.Tokens
+import game.gdl.statement.GameToken
 
 /**
  * @author Lawrence Thatcher
@@ -154,7 +154,7 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 			switch (c.consequent)
 			{
 				case EndGameResult.Win:
-					GString s = "(<= (goal ${Tokens.PLAYER} 100)\n"
+					GString s = "(<= (goal ${GameToken.PLAYER} 100)\n"
 					s += "("
 					s += c.antecedent.GDL_Signature
 					s += "))"

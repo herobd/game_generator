@@ -5,7 +5,7 @@ package game.gdl.statement
  *
  * Tokesn used as place-holders for generator and substitutor statements
  */
-enum Tokens
+enum GameToken
 {
 	PLAYER,
 	PLAYER_MARK,

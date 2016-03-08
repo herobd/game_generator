@@ -5,7 +5,7 @@ import game.constructs.player.Players
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.statement.TokenUser
-import game.gdl.statement.Tokens
+import game.gdl.statement.GameToken
 import org.junit.Before
 import org.junit.Test
 
@@ -37,8 +37,8 @@ class TestStatementFactory implements TokenUser
 				"(true (cell ?m ?n b))\n" +
 				"(or (distinct ?m ?j) (distinct ?n ?k)))"
 
-		gStr1 = "(<= (next (control ${Tokens.NEXT_PLAYER}))\n" +
-				"(true control ${Tokens.PLAYER})))"
+		gStr1 = "(<= (next (control ${GameToken.NEXT_PLAYER}))\n" +
+				"(true control ${GameToken.PLAYER})))"
 
 		players = new Players(["White", "Black", "Red", "Robot"])
 		contextInfo = new GameContextInfo(players)

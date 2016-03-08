@@ -11,16 +11,16 @@ trait TokenUser
 {
 	String getPLAYER()
 	{
-		return Tokens.PLAYER.toString()
+		return GameToken.PLAYER.toString()
 	}
 
 	String getPLAYER_MARK()
 	{
-		return Tokens.PLAYER_MARK.toString()
+		return GameToken.PLAYER_MARK.toString()
 	}
 
 	String getNEXT_PLAYER()
 	{
-		return Tokens.NEXT_PLAYER.toString()
+		return GameToken.NEXT_PLAYER.toString()
 	}
 }

@@ -22,7 +22,7 @@ class TestGeneratorStatement implements TokenUser
 	String getPLAYER()
 	{
 		if (player == null)
-			return Tokens.PLAYER.toString()
+			return GameToken.PLAYER.toString()
 		else
 			return player
 	}
@@ -31,7 +31,7 @@ class TestGeneratorStatement implements TokenUser
 	String getNEXT_PLAYER()
 	{
 		if (next_player == null)
-			return Tokens.NEXT_PLAYER.toString()
+			return GameToken.NEXT_PLAYER.toString()
 		else
 			return next_player
 	}

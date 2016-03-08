@@ -2,14 +2,14 @@ package game.constructs.condition.functions
 
 import game.constructs.condition.Condition
 import game.gdl.clauses.GDLClause
-import game.gdl.statement.Tokens
+import game.gdl.statement.GameToken
 
 /**
  * @author Lawrence Thatcher
  */
 enum GameFunction implements Function, Condition
 {
-	N_inARow("in_a_row", {n -> n.toString() + "inARow"}, "${Tokens.PLAYER_MARK}"),
+	N_inARow("in_a_row", {n -> n.toString() + "inARow"}, "${GameToken.PLAYER_MARK}"),
 	Open("open");
 
 	private Closure fn

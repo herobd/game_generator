@@ -13,7 +13,7 @@ import game.gdl.clauses.legal.LegalClause
 import game.gdl.statement.GDLStatement
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
-import game.gdl.statement.Tokens
+import game.gdl.statement.GameToken
 
 /**
  * @author Lawrence Thatcher
@@ -31,15 +31,15 @@ enum TurnOrder implements HasClauses, HasLegalClause, HasDynCompClause, HasBaseC
 	private static final GeneratorStatement getNoopStatement()
 	{
 		return new GeneratorStatement(
-				"(<= (legal ${Tokens.PLAYER} noop)\n" +
-				"(not (true (control ${Tokens.PLAYER}))))")
+				"(<= (legal ${GameToken.PLAYER} noop)\n" +
+				"(not (true (control ${GameToken.PLAYER}))))")
 	}
 
 	private static final GeneratorStatement getNextStatement()
 	{
 		return new GeneratorStatement(
-				"(<= (next (control ${Tokens.NEXT_PLAYER}))\n" +
-				"(true (control ${Tokens.PLAYER})))")
+				"(<= (next (control ${GameToken.NEXT_PLAYER}))\n" +
+				"(true (control ${GameToken.PLAYER})))")
 	}
 
 	private static final SimpleStatement getInput_noop()

@@ -2,7 +2,7 @@ package game.constructs.pieces
 
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
-import game.gdl.statement.Tokens
+import game.gdl.statement.GameToken
 
 /**
  * @author Lawrence Thatcher
@@ -15,8 +15,8 @@ final class NamedMoves
 	{
 		def inputs = ["index x", "index y"]
 		def dc1 = new GeneratorStatement(
-				"(<= (next (cell ?m ?n ${Tokens.PLAYER_MARK}))\n" +
-				"(does ${Tokens.PLAYER} (mark ?m ?n))\n" +
+				"(<= (next (cell ?m ?n ${GameToken.PLAYER_MARK}))\n" +
+				"(does ${GameToken.PLAYER} (mark ?m ?n))\n" +
 				"(true (cell ?m ?n b)))")
 		def dc3 = new SimpleStatement(
 				"(<= (next (cell ?m ?n b))\n" +

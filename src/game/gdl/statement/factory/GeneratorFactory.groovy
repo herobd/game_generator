@@ -5,7 +5,7 @@ import game.gdl.statement.GDLStatement
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.statement.TokenUser
-import game.gdl.statement.Tokens
+import game.gdl.statement.GameToken
 
 
 /**
@@ -54,22 +54,22 @@ class GeneratorFactory implements TokenUser
 		def vals = gString.values
 		for (int i = 0; i < vals.length; i++)
 		{
-			if (vals[i] instanceof Tokens)
+			if (vals[i] instanceof GameToken)
 			{
-				vals[i] = replaceToken(vals[i] as Tokens)
+				vals[i] = replaceToken(vals[i] as GameToken)
 			}
 		}
 	}
 
-	private String replaceToken(Tokens t)
+	private String replaceToken(GameToken t)
 	{
 		switch (t)
 		{
-			case Tokens.PLAYER:
+			case GameToken.PLAYER:
 				return this.PLAYER
-			case Tokens.PLAYER_MARK:
+			case GameToken.PLAYER_MARK:
 				return this.PLAYER_MARK
-			case Tokens.NEXT_PLAYER:
+			case GameToken.NEXT_PLAYER:
 				return this.NEXT_PLAYER
 			default:
 				return t.toString()
