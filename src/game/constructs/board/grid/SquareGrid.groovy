@@ -99,7 +99,6 @@ class SquareGrid extends Grid implements
 
 	protected GDLClause generateIndexClause()
 	{
-		//TODO: use statement generator
 		def indices = []
 		for (int i = 1; i <= this.size; i++)
 		{
@@ -111,7 +110,6 @@ class SquareGrid extends Grid implements
 
 	protected GDLClause generateSuccessorClause()
 	{
-		//TODO: use statement generator
 		def succs = []
 		for (int i = 1; i < this.size; i++)
 		{
@@ -123,7 +121,6 @@ class SquareGrid extends Grid implements
 
 	protected GDLClause generateInitClause()
 	{
-		//TODO: use statement generator
 		def cells = []
 		for (int i = 1; i <= this.size; i++)
 		{
