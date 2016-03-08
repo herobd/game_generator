@@ -39,6 +39,17 @@ class NegatedCondition implements Condition
 	}
 
 	@Override
+	def getGDL_Signature()
+	{
+		def result = "not "
+		if (condition instanceof Function)
+			result += condition.GDL_Signature
+		else
+			result += "(" + condition.GDL_Signature + ")"
+		return result
+	}
+
+	@Override
 	boolean equals(o)
 	{
 		if (this.is(o))

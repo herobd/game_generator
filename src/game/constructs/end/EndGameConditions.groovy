@@ -10,7 +10,9 @@ import game.gdl.clauses.goal.GoalClause
 import game.gdl.clauses.goal.HasGoalClause
 import game.gdl.clauses.terminal.HasTerminalClause
 import game.gdl.clauses.terminal.TerminalClause
+import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
+import org.codehaus.groovy.runtime.GStringImpl
 
 /**
  * @author Lawrence Thatcher
@@ -115,28 +117,46 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 		return true
 	}
 
-	private static TerminalClause generateTerminalStatements()
+	private TerminalClause generateTerminalStatements()
 	{
 		def T = []
 		//TODO: BAD! don't hard-code, use generators
-//		for (Conditional c : supportedConditionals)
-//		{
-//			String s = "(<= terminal\n("
-//			s += c.antecedent.toString()
-//			s += "))"
-//			T.add(new SimpleStatement(s))
-//		}
+		for (Conditional c : supportedConditionals)
+		{
+			def sig = c.antecedent.GDL_Signature
+			def s
+			if (sig instanceof GString)
+			{
+				s = GString.EMPTY
+				s += "(<= terminal\n("
+				s += c.antecedent.GDL_Signature
+				s += "))"
+			}
+			else
+			{
+				s = "(<= terminal\n("
+				s += c.antecedent.GDL_Signature
+				s += "))"
+			}
+			if (s instanceof GString)
+				T.add(new GeneratorStatement(s))
+			else
+			{
+				T.add(new SimpleStatement(s))
+			}
 
-		String s =
-				"(<= terminal\n" +
-				"(3inARow x))\n" +
-				"\n" +
-				"(<= terminal\n" +
-				"(3inARow o))\n" +
-				"\n" +
-				"(<= terminal\n" +
-				"(not open))"
-		T.add(new SimpleStatement(s))
+		}
+
+//		String s =
+//				"(<= terminal\n" +
+//				"(3inARow x))\n" +
+//				"\n" +
+//				"(<= terminal\n" +
+//				"(3inARow o))\n" +
+//				"\n" +
+//				"(<= terminal\n" +
+//				"(not open))"
+//		T.add(new SimpleStatement(s))
 
 		return new TerminalClause(T)
 	}
@@ -145,22 +165,22 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 	{
 		String s =
 			"(<= (goal White 100)\n" +
-			"(line x))\n" +
+			"(3inARow x))\n" +
 			"\n" +
 			"(<= (goal White 50)\n" +
-			"(not (line x))\n" +
-			"(not (line o))\n" +
+			"(not (3inARow x))\n" +
+			"(not (3inARow o))\n" +
 			"(not open))\n" +
 			"\n" +
 			"(<= (goal White 0)\n" +
-			"(line o))\n" +
+			"(3inARow o))\n" +
 			"\n" +
 			"(<= (goal Black 100)\n" +
-			"(line o))\n" +
+			"(3inARow o))\n" +
 			"\n" +
 			"(<= (goal Black 50)\n" +
-			"(not (line x))\n" +
-			"(not (line o))\n" +
+			"(not (3inARow x))\n" +
+			"(not (3inARow o))\n" +
 			"(not open))\n" +
 			"\n" +
 			"(<= (goal Black 0)\n" +
