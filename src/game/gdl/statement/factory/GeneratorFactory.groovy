@@ -49,19 +49,44 @@ class GeneratorFactory implements TokenUser
 		return result
 	}
 
+	List<GDLStatement> generateForOtherPlayers(GeneratorStatement statement)
+	{
+		def result = []
+		for (idx = 0; idx < contextInfo.players.size(); idx++)
+		{
+			for (int j = 0; j < contextInfo.players.size(); j++)
+			{
+				if (j != idx)
+				{
+					GString gString = statement.text
+					rewriteString(gString, j)
+					def s = new SimpleStatement(gString)
+					result.add(s)
+				}
+			}
+		}
+		idx = 0
+		return result
+	}
+
 	private void rewriteString(GString gString)
+	{
+		rewriteString(gString, -1)
+	}
+
+	private void rewriteString(GString gString, int otherPlayerID)
 	{
 		def vals = gString.values
 		for (int i = 0; i < vals.length; i++)
 		{
 			if (vals[i] instanceof GameToken)
 			{
-				vals[i] = replaceToken(vals[i] as GameToken)
+				vals[i] = replaceToken(vals[i] as GameToken, otherPlayerID)
 			}
 		}
 	}
 
-	private String replaceToken(GameToken t)
+	private def replaceToken(GameToken t, int otherPlayerID)
 	{
 		switch (t)
 		{
@@ -71,9 +96,18 @@ class GeneratorFactory implements TokenUser
 				return this.PLAYER_MARK
 			case GameToken.NEXT_PLAYER:
 				return this.NEXT_PLAYER
+			case GameToken.OTHER_PLAYER:
+				if (otherPlayerID != -1)
+					return contextInfo.players[otherPlayerID].PLAYER
+				break
+			case GameToken.OTHER_PLAYER_MARK:
+				if (otherPlayerID != -1)
+					return contextInfo.players[otherPlayerID].PLAYER_MARK
+				break
 			default:
-				return t.toString()
+				return t
 		}
+		return t
 	}
 
 	@Override

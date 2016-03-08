@@ -8,11 +8,24 @@ import org.codehaus.groovy.runtime.GStringImpl
  */
 class GeneratorStatement implements GDLStatement
 {
-	GString statement
+	private GString statement
+	private GenerationStrategy strategy
 
 	GeneratorStatement(GString statement)
 	{
 		this.statement = statement
+		this.strategy = GenerationStrategy.PerPlayer
+	}
+
+	GeneratorStatement(GString statement, GenerationStrategy strategy)
+	{
+		this.statement = statement
+		this.strategy = strategy
+	}
+
+	GenerationStrategy getStrategy()
+	{
+		return this.strategy
 	}
 
 	@Override

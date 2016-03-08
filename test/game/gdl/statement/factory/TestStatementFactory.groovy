@@ -2,6 +2,7 @@ package game.gdl.statement.factory
 
 import game.GameContextInfo
 import game.constructs.player.Players
+import game.gdl.statement.GenerationStrategy
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.statement.TokenUser
@@ -18,6 +19,7 @@ class TestStatementFactory implements TokenUser
 	String str2
 	String str3
 	GString gStr1
+	GString gStr2
 	Players players
 	GameContextInfo contextInfo
 
@@ -40,6 +42,9 @@ class TestStatementFactory implements TokenUser
 		gStr1 = "(<= (next (control ${GameToken.NEXT_PLAYER}))\n" +
 				"(true control ${GameToken.PLAYER})))"
 
+		gStr2 = "(<= (legal ${GameToken.PLAYER} noop)\n" +
+				"(true (control ${GameToken.OTHER_PLAYER})))"
+
 		players = new Players(["White", "Black", "Red", "Robot"])
 		contextInfo = new GameContextInfo(players)
 	}
@@ -59,7 +64,7 @@ class TestStatementFactory implements TokenUser
 	}
 
 	@Test
-	void test_generated()
+	void test_generated_perPlayer()
 	{
 		def statements = [new GeneratorStatement(gStr1)]
 		def result = StatementFactory.interpolateStatements(statements, contextInfo)
@@ -68,6 +73,26 @@ class TestStatementFactory implements TokenUser
 		assert result[1].toString() == "(<= (next (control Red))\n(true control Black)))"
 		assert result[2].toString() == "(<= (next (control Robot))\n(true control Red)))"
 		assert result[3].toString() == "(<= (next (control White))\n(true control Robot)))"
+	}
+
+	@Test
+	void test_generated_perOtherPlayer()
+	{
+		def statements = [new GeneratorStatement(gStr2, GenerationStrategy.PerOtherPlayer)]
+		def result = StatementFactory.interpolateStatements(statements, contextInfo)
+		assert result.size() == 12
+		assert result[0].toString() == "(<= (legal White noop)\n(true (control Black)))"
+		assert result[1].toString() == "(<= (legal White noop)\n(true (control Red)))"
+		assert result[2].toString() == "(<= (legal White noop)\n(true (control Robot)))"
+		assert result[3].toString() == "(<= (legal Black noop)\n(true (control White)))"
+		assert result[4].toString() == "(<= (legal Black noop)\n(true (control Red)))"
+		assert result[5].toString() == "(<= (legal Black noop)\n(true (control Robot)))"
+		assert result[6].toString() == "(<= (legal Red noop)\n(true (control White)))"
+		assert result[7].toString() == "(<= (legal Red noop)\n(true (control Black)))"
+		assert result[8].toString() == "(<= (legal Red noop)\n(true (control Robot)))"
+		assert result[9].toString() == "(<= (legal Robot noop)\n(true (control White)))"
+		assert result[10].toString() == "(<= (legal Robot noop)\n(true (control Black)))"
+		assert result[11].toString() == "(<= (legal Robot noop)\n(true (control Red)))"
 	}
 
 	@Test

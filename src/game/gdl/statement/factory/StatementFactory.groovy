@@ -2,6 +2,7 @@ package game.gdl.statement.factory
 
 import game.GameContextInfo
 import game.gdl.statement.GDLStatement
+import game.gdl.statement.GenerationStrategy
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.factory.GeneratorFactory
 
@@ -24,8 +25,13 @@ class StatementFactory
 			}
 			else
 			{
+				GeneratorStatement gs = statement as GeneratorStatement
 				def generator = new GeneratorFactory(contextInfo)
-				def simples = generator.generateForPlayer(statement as GeneratorStatement)
+				def simples = []
+				if (gs.strategy == GenerationStrategy.PerPlayer)
+					simples = generator.generateForPlayer(gs)
+				else if (gs.strategy == GenerationStrategy.PerOtherPlayer)
+					simples = generator.generateForOtherPlayers(gs)
 				result.addAll(simples)
 			}
 		}
