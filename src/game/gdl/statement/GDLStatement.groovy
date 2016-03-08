@@ -7,5 +7,7 @@ package game.gdl.statement
  */
 interface GDLStatement
 {
-	String getText()
+	def getText()
+
+	boolean isGenerator()
 }

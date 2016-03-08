@@ -52,7 +52,7 @@ class TestGeneratorStatement implements TokenUser
 		GeneratorStatement g = new GeneratorStatement("(<= (next (control ${ -> PLAYER}))\n" +
 													  "(true control ${ -> NEXT_PLAYER})))")
 		println g.text
-		assert g.text == "(<= (next (control PLAYER))\n(true control NEXT_PLAYER)))"
+		assert g.text.toString() == "(<= (next (control PLAYER))\n(true control NEXT_PLAYER)))"
 	}
 
 	@Test
@@ -65,6 +65,21 @@ class TestGeneratorStatement implements TokenUser
 		this.next_player = "White"
 
 		println g.text
-		assert g.text == "(<= (next (control Black))\n(true control White)))"
+		assert g.text.toString() == "(<= (next (control Black))\n(true control White)))"
+	}
+
+	@Test
+	void test_convertToSimpleStatement()
+	{
+		GeneratorStatement g = new GeneratorStatement("(<= (next (control ${ -> PLAYER}))\n" +
+				"(true control ${ -> NEXT_PLAYER})))")
+		this.player = "Red"
+		this.next_player = "Blue"
+		def simple = new SimpleStatement(g.toString())
+		this.player = "Green"
+		this.next_player = "Orange"
+
+		assert simple.text == "(<= (next (control Red))\n(true control Blue)))"
+		assert g.text.toString() == "(<= (next (control Green))\n(true control Orange)))"
 	}
 }

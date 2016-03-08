@@ -1,5 +1,7 @@
 package game.gdl.statement
 
+import org.codehaus.groovy.runtime.GStringImpl
+
 /**
  * A GDL Statement that generates multiple statements
  * @author Lawrence Thatcher
@@ -14,13 +16,23 @@ class GeneratorStatement implements GDLStatement
 	}
 
 	@Override
-	String getText()
+	GString getText()
 	{
-		return this.statement
+		def values = statement.values.clone()
+		return new GStringImpl(values, statement.strings)
 	}
 
+	@Override
+	boolean isGenerator()
+	{
+		return true
+	}
+
+	@Override
 	String toString()
 	{
 		return this.statement
 	}
+
+
 }

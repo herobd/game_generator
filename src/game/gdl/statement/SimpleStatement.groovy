@@ -22,6 +22,12 @@ class SimpleStatement implements GDLStatement
 	}
 
 	@Override
+	boolean isGenerator()
+	{
+		return false
+	}
+
+	@Override
 	String toString()
 	{
 		return this.statement
