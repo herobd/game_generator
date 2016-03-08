@@ -11,7 +11,9 @@ import game.gdl.clauses.init.InitClause
 import game.gdl.clauses.legal.HasLegalClause
 import game.gdl.clauses.legal.LegalClause
 import game.gdl.statement.GDLStatement
+import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
+import game.gdl.statement.Tokens
 
 /**
  * @author Lawrence Thatcher
@@ -23,36 +25,21 @@ import game.gdl.statement.SimpleStatement
  */
 enum TurnOrder implements HasClauses, HasLegalClause, HasDynCompClause, HasBaseClause, HasInitClause
 {
-	Alternating([white_noop, black_noop], [white_next, black_next], [control_base, input_noop], [control_init])
+	Alternating([noopStatement], [nextStatement], [control_base, input_noop], [control_init])
 
 
-	//TODO: Replace these with generic form
-	private static final SimpleStatement getWhite_noop()
+	private static final GeneratorStatement getNoopStatement()
 	{
-		return new SimpleStatement(
-				"(<= (legal White noop)\n" +
-				"(true (control Black)))")
+		return new GeneratorStatement(
+				"(<= (legal ${Tokens.PLAYER} noop)\n" +
+				"(not (true (control ${Tokens.PLAYER}))))")
 	}
 
-	private static final SimpleStatement getBlack_noop()
+	private static final GeneratorStatement getNextStatement()
 	{
-		return new SimpleStatement(
-				"(<= (legal Black noop)\n" +
-				"(true (control White)))")
-	}
-
-	private static final SimpleStatement getWhite_next()
-	{
-		return new SimpleStatement(
-				"(<= (next (control White))\n" +
-				"(true (control Black)))")
-	}
-
-	private static final SimpleStatement getBlack_next()
-	{
-		return new SimpleStatement(
-				"(<= (next (control Black))\n" +
-				"(true (control White)))")
+		return new GeneratorStatement(
+				"(<= (next (control ${Tokens.NEXT_PLAYER}))\n" +
+				"(true (control ${Tokens.PLAYER})))")
 	}
 
 	private static final SimpleStatement getInput_noop()
