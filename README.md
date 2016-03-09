@@ -1,4 +1,4 @@
-# Board Game Generator
+# PEGGASUS: Parallel Evolutionary Game Generation And Simulation System
 Our board-game generator for our CS 673 Project.
 
 ## Requirements:

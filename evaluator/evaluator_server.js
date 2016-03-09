@@ -111,6 +111,7 @@ var EvaluatorServer = function(host,port) {
                 self.controllerAddress=req.query.address;
                 res.send('{"id":"evaluator","status":"ok"}');
                 console.log('Connected to controller, '+self.controllerAddress);
+                self.requestLastParams();
             } else {
                 res.send('{"id":"evaluator","status":"id not recognized"}');
             }
@@ -160,10 +161,13 @@ var EvaluatorServer = function(host,port) {
         
         self.app.post('/gameDone', upload.array(), function (req, res, next) {
             console.log('Recieved DONE for game id: '+req.body.gameId+'.');
+            res.setHeader('Content-Type', 'application/json');
+            res.json({id:'evaluator',status:status,score:score});
+            
+            
             var score = {};
             var status = self.evalGame(req.body,score);
-            res.setHeader('Content-Type', 'application/json');
-            res.json({id:'evaluator',status:'recieved',score:score});
+            self.returnScore(req.body.gameId,score,status);
         });
         
         // Static file (images, css, etc)
@@ -190,7 +194,9 @@ var EvaluatorServer = function(host,port) {
         //params
         //TODO load last params
         self.params = {
-                        skillDifWeight:0.3
+                        id:0,
+                        skillDifWeight:0.3,
+                        prefLength:60
                       };
     };
 
@@ -221,6 +227,7 @@ var EvaluatorServer = function(host,port) {
                 } else if (resj.id==='controller') {
                     self.controllerAddress=address;
                     console.log('Connected to '+resj.id+' '+address);
+                    self.requestLastParams();
                 }
               }
             });
@@ -231,15 +238,50 @@ var EvaluatorServer = function(host,port) {
             request.get('http://'+address+'/disconnect?id=evaluator', function (error, response, body) {
               if (!error && response.statusCode == 200) {
                 console.log('Disconnected: '+body); 
+                self.controllerAddress==null;
               }
             });
         }
     };
     
-    ////////////////////
+    self.requestLastParams = function () {
+        if (self.controllerAddress !== null) {
+            request.get('http://'+address+'/lastParams?id=evaluator', function (error, response, body) {
+              if (!error && response.statusCode == 200) {
+                var resj=JSON.parse(body);
+                if (resj.status!=='ok') {
+                    console.log('Failed to get last params: '+resj.status);
+                } else if (resj.id==='controller') {
+                    self.params=resj.params;
+                }
+              }
+            });
+        } else {
+            console.log('ERROR: could not get last params, not connected to controller');
+        }
+    };
+    
+    self.returnScore = function(gameId,score,status) {
+        request.post(
+            'http://'+self.controllerAddress+'/gameScored',
+            { json: {gameId:gameId, score:score, status:status},
+            function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    //Do something with body?
+                    if (body.status!=='recieved'&&body.status!=='ok') {
+                        console.log('ERROR: score for game:'+gameId+' didnt stick in controller: '+body.status);
+                    }
+                }
+            }
+        );
+    }
+    
+    ////////////////////match too long
     self.RE_outcome = /INFO\([0-9.:]+\): Game over! results: ([0-9. ]+)/;
     self.RE_numbers = /[0-9.]+/g;
-    self.RE_state = /INFO\([0-9.:]+\): current state:\((\([a-zA-Z0-9_ ]*\))*\)/;
+    self.RE_outOfTime = /match too long/;
+    self.RE_state = /INFO\([0-9.:]+\): current state:\((\([a-zA-Z0-9_ ]*\))*\)/g;
+    
     self.evalRes = function(matchResults) {
         var err='ok';
         //console.log(matchResults);
@@ -251,10 +293,13 @@ var EvaluatorServer = function(host,port) {
             return err
         }
         
+        var turns = matchResults.printout.match(self.RE_state);
+        
         //var stats = self.gameStats[matchResults.gameId];
         var matchInfo = {
                             outcome:outcome,
-                            players:matchResults.players
+                            players:matchResults.players,
+                            turns:turns
                         };
         
         
@@ -267,6 +312,7 @@ var EvaluatorServer = function(host,port) {
         
         return err;
     }
+    
     self.evalGame = function(gameMeta,retScore) {
         var err='ok';
         var stats;// = self.gameStats[gameMeta.gameId];
@@ -277,6 +323,9 @@ var EvaluatorServer = function(host,port) {
         
         var drawsWeighted=0.0;
         var playsWeighted=0.0;
+        
+        var lengthDevSum=0;
+        
         for (var matchInfo of self.matches[gameMeta.gameId]) {
             var minSkill=1000; var maxSkill=-1000;
             var idMinSkill=[];   var idMaxSkill=[];
@@ -324,14 +373,14 @@ var EvaluatorServer = function(host,port) {
                     minScore=pScore;
             }
             var skillDif=maxSkill-minSkill;
-            var weight = 1 + (skillDif*self.params.skillDifWeight);
+            var weight = (skillDif*self.params.skillDifWeight);
             
             var draw = playersAtMaxScore.length>1;
             if (draw) {
-                drawsWeighted+=weight;
-                playsWeighted+=weight;
+                drawsWeighted+=1+weight;
+                playsWeighted+=1+weight;
             } else {
-                playsWeighted+=1;//don't emphasize non-draw games
+                playsWeighted+=Math.max(1-weight,0);//demphasize non-draw games which were unbalanced
             }
             
             
@@ -366,15 +415,19 @@ var EvaluatorServer = function(host,port) {
                 total_weakVstrong+=1;
             }
             
-            
+            lengthDevSum += Math.abs(self.params.prefLength - matchInfo.turns.length)/(1.0*self.params.prefLength);
         }//end match evals
-        //1, not drawish ------ 0, very drawish x
-        retScore.decisive=(playsWeighted-drawsWeighted)/(playsWeighted);
+        
+        retScore.drawish=(drawsWeighted)/(playsWeighted);
         
         retScore.luck=(wins_weakVstrong+draws_weakVstrong)/total_weakVstrong;
+        
+        retScore.duration=lengthDevSum/self.matches[gameMeta.gameId].length;
+        
         console.log('Evaluation complete for game: '+gameMeta.gameId);
-        console.log('Decisive: '+retScore.decisive);
+        console.log('Drawish: '+retScore.drawish);
         console.log('Luck: '+retScore.luck);
+        console.log('Duration: '+retScore.duration);
         //TODO
         return err;
     }

@@ -176,6 +176,21 @@ var ControllerApp = function(host,port) {
             
         };
         
+        self.routes['/lastParams'] = function(req, res) {
+            //console.log(req.query.id + ' is connecting.');
+            
+            res.setHeader('Content-Type', 'application/json');
+            if (req.query.id === 'evaluator') {
+                database.getLastParams(req.query.id,function(err,params) {
+                    res.json({id:"controller",status:err, params:params});
+                });
+            } else {
+                res.json({id:"controller",status:"id not recognized"});
+            }
+            
+        };
+
+        
         self.routes['/testSend'] = function(req, res) {
             self.sendGameResults({id:0, name:'test'});
             res.send('ok');
@@ -201,6 +216,7 @@ var ControllerApp = function(host,port) {
         self.app.post('/submit_game', upload.array(), function (req, res, next) {
             console.log(req.body);
             meta = JSON.parse(req.body.meta);//meta has id and score atleast
+            res.setHeader('Content-Type', 'application/json');
             if (meta.id && meta.score && req.body.gdl && req.body.hlgdl)
             {
                 var err=self.gameCord.enqueue(meta);
@@ -210,6 +226,21 @@ var ControllerApp = function(host,port) {
             else
             {
                 res.json({status:'malformed'});
+            }
+        });
+        
+        self.app.post('/gameScored', upload.array(), function (req, res, next) {
+            
+            res.setHeader('Content-Type', 'application/json');
+            res.json({id:'evaluator',status:'ok'});
+            if (req.body.status=='ok') {
+                var err;
+                self.database.storeScore(req.body.gameId,req.body.score,function(pe){err=pe;});
+                if (err!='ok')
+                    console.log(err);        
+                err=self.sendGameScore(req.body.gameId,req.body.score);
+                if (err!='ok')
+                    console.log(err);
             }
         });
         
@@ -229,7 +260,7 @@ var ControllerApp = function(host,port) {
         // Create the express server and routes.
         self.initializeServer();
         
-        self.database=new Database();
+        self.database=new Database('localhost:8888');
         if (self.database.test!=='ok')
             console.log('ERROR: database failed to init');
         self.gameCord=new GameCord(self,self.database);
@@ -250,9 +281,9 @@ var ControllerApp = function(host,port) {
                         Date(Date.now() ), self.port);
             
             //TODO DEBUG init////
-            //self.sendConnect('localhost:8081',function(err){console.log(err);});
-            //self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
-            //self.gameCord.addPlayer('minimax','localhost',9147,'min1',1,1);
+            self.sendConnect('localhost:8081',function(err){console.log(err);});
+            self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
+            self.gameCord.addPlayer('minimax','localhost',9147,'min1',1,1);
             ////////////////////
         });
     };
@@ -260,8 +291,12 @@ var ControllerApp = function(host,port) {
     
     //////////////////////////////additional functions
     self.sendGameResults = function(results) {
-        //TODO save in database
         
+        database.storeGameResults(results,function(err) {
+            if (err!='ok') {
+                console.log('DB failed to save game results, game:'+results.gameId+' match:'+results.matchId);
+            }
+        });
         request.post(
             'http://'+self.evaluatorAddress+'/gameResults',
             { json: results },
@@ -283,10 +318,11 @@ var ControllerApp = function(host,port) {
             { json: results },
             function (error, response, body) {
                 if (!error && response.statusCode == 200) {
-                    //Do something with body?
+                    
                     if (body.status!=='recieved'&&body.status!=='ok') {
                         console.log('ERROR: match '+results.id+' didnt stick in evaluator');
                     }
+                    
                 }
             }
         );

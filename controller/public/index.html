@@ -51,6 +51,9 @@ function connect_eval() {
 </head>
 <body>
 <div id="add_player_box">
+    <h2>PEGGASUS: Parallel Evolutionary Game Generation and Simulation Unifying System</h2>
+    By Brian Davis and Lawrence Thatcher
+    <br>
     <h2>Add player</h2>
     Host: <input type="text" id="host"><br>
     Port: <input type="text" id="port"><br>
@@ -63,13 +66,13 @@ function connect_eval() {
     Name: <input type="text" id="name"><br>
     Skill level: <input type="text" id="skillLevel"><br>
     GDL Version: <input type="text" id="gdlVersion" value="1"><br>
-    <button type="button" onclick="submit_player()">Submit player</button><br>
+    <button type="button" onclick="submit_player()" id="submit_player_button">Submit player</button><br>
     Status: <div id="submit_show">not submitted</div>
 </div>
 <div id="connect_to_eval_box">
     <h2>Connect to</h2>
     Evaluator: <input type="text" id="eval"><br>
-    <button type="button" onclick="connect_eval()">Connect</button><br>
+    <button type="button" onclick="connect_eval()" id="connect_evaluator_button">Connect</button><br>
     Status: <div id="eval_show">not connected</div>
 </div>
 </body>

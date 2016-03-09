@@ -148,14 +148,14 @@ module.exports =  function() {
         
         
         var self = this;
-        function allCombinationsOfPlayerTypes(owner,count,startclock,playclock,gameId,gdlVersion,ret,depth,allPlayerTypes,soFar) {
+        function allCombinationsOfPlayerTypes(owner,count,startclock,playclock,maxSteps,gameId,gdlVersion,ret,depth,allPlayerTypes,soFar) {
             if (soFar === undefined)
                 soFar=[];
             for (var pn=0; pn<allPlayerTypes.length; pn++) {
                 var pType=allPlayerTypes[pn];
                 //if (soFar.indexOf(pid)==-1) {
                     if (depth>1) {
-                        allCombinationsOfPlayerTypes(owner,count,startclock,playclock,gameId,gdlVersion,ret,depth-1,allPlayerTypes.splice(pn+1),soFar.concat([pType]));
+                        allCombinationsOfPlayerTypes(owner,count,startclock,playclock,maxSteps,gameId,gdlVersion,ret,depth-1,allPlayerTypes.slice(pn+1),soFar.concat([pType]));
                     } else {
                         ret.push({
                                     id:(self.nextMatchId++), 
@@ -163,6 +163,7 @@ module.exports =  function() {
                                     playerTypes:soFar.concat([pType]),
                                     startclock:startclock,
                                     playclock:playclock,
+                                    maxSteps:maxSteps,
                                     gameId:gameId,
                                     gdlVersion:gdlVersion,
                                     beingPlayed:false,
@@ -182,28 +183,35 @@ module.exports =  function() {
                 var numOfRuns;//how many repitions of each scenario
                 var startclock;//how long to the players have to analyze the game before playing 
                 var playclock;//how long players have to make their move
+                var maxSteps;//maximum number of turns
+                var valid=true;
                 if ( gameMeta.testLength==='short' || 
                      gameMeta.testLength==='s' ||
                      gameMeta.testLength==='quick') {
                     numOfRuns=1;
                     startclock=60;
-                    playclock=20;
+                    playclock=15;
+                    maxSteps=120;
                 } else if (gameMeta.testLength==='med' || 
                            gameMeta.testLength==='medium' || 
                            gameMeta.testLength==='m') {
                     numOfRuns=5;
                     startclock=75;
                     playclock=25;
+                    maxSteps=160;
                 } else if (gameMeta.testLength==='long' || 
                            gameMeta.testLength==='l' || 
                            gameMeta.testLength==='full') {
                     numOfRuns=10;
                     startclock=100;
                     playclock=30;
+                    maxSteps=200;
                 } else {
                     console.log('ERROR: game '+gameMeta.id+' '+gameMeta.name+' has an invalid testLength: '+gameMeta.testLength);
+                    valid = false;
                 }
-                allCombinationsOfPlayerTypes(this,numOfRuns,startclock,playclock,gameMeta.id,gameMeta.gdlVersion,this.matches,gameMeta.numPlayers,self.allPlayerTypes);///match has a boolean played and a list playerTypes
+                if (valid)
+                    allCombinationsOfPlayerTypes(this,numOfRuns,startclock,playclock,maxSteps,gameMeta.id,gameMeta.gdlVersion,this.matches,gameMeta.numPlayers,self.allPlayerTypes);///match has a boolean played and a list playerTypes
                 //console.log('matches');
                 //console.log(this.matches);
             }
@@ -236,7 +244,7 @@ module.exports =  function() {
     GameCord.prototype.enqueue = function(meta) {
         var err='ok';
         if (meta.testLength===undefined)
-            meta.testLength='long';
+            meta.testLength='med';
         else
             meta.testLength=meta.testLength.toLowerCase();
         if (meta.numPlayers===undefined) {
@@ -254,10 +262,30 @@ module.exports =  function() {
             console.log(err);
             return err;
         }
+        if (meta.numPlayers > this.allPlayerTypes.length) {
+            err = 'ERROR: game requires more player types ('+meta.numPlayers+') than are connected ('+this.allPlayerTypes.length+')';
+            console.log(err);
+            return err;
+        }
+        if ( meta.testLength!=='short' && 
+             meta.testLength!=='s' &&
+             meta.testLength!=='quick' &&
+             meta.testLength!=='med' &&
+             meta.testLength!=='medium' && 
+             meta.testLength!=='m' && 
+             meta.testLength!=='long' && 
+             meta.testLength!=='l' && 
+             meta.testLength!=='full') {
+            err = 'ERROR: game '+meta.id+' '+meta.name+' has an invalid testLength: '+meta.testLength;
+            console.log(err);
+            return err;
+        }
+        
         if (meta.gdlVersion===undefined) {
             console.log('WARNING: gdlVersion not included in game '+meta.id+' '+meta.name+', assuming 1');
             meta.gdlVersion=1;
         }
+        
         
         if (this.curGame === null) {
             console.log('Set current game '+meta.id+': '+meta.name);
@@ -313,10 +341,12 @@ module.exports =  function() {
                 self.playMatch(m,allOrders,gameFileLocation);
             });
             
-            
+            return true;
         }
-        else
-            console.log("ERROR? trying to beginMatch() for match being played?");
+        else {
+            console.log("ERROR? trying to beginMatch() for match ("+m.id+") being played?");
+            return false;
+        }
     }
     
     GameCord.prototype.playMatch = function (m,allOrders,gameLoc,leftToPlayWith,thesePlayers) {
@@ -330,7 +360,7 @@ module.exports =  function() {
         }
         var rep=(m.numToPlay-leftToPlayWith);
         var matchId = (m.id)+'_'+allOrders.length+'_'+rep;
-        var startGameControllerCommand = 'java -jar ./gamecontroller/gamecontroller-cli.jar '+matchId+' '+gameLoc+' '+m.startclock+' '+m.playclock+' '+m.gdlVersion;
+        var startGameControllerCommand = 'java -jar ./gamecontroller/gamecontroller-cli.jar '+matchId+' '+gameLoc+' '+m.startclock+' '+m.playclock+' '+m.maxSteps+' '+m.gdlVersion;
         //startGameControllerCommand += ' -printxml '+OUTPUTDIR+' '+XSLT;//TODO possibly
         for (var roleIndex=1; roleIndex<=thisGamePlayers.length; roleIndex++) {
             if (self.players[thisGamePlayers[roleIndex-1]].type==='random')
@@ -378,7 +408,7 @@ module.exports =  function() {
             }
         }
         
-        //TODO inform evaluator? 
+        //inform evaluator
         if (m.owner.allDone())
             this.owner.sendGameDone({gameId:m.gameId});
         
@@ -428,8 +458,7 @@ module.exports =  function() {
                 }
                 m = this.getNextMatch(nextGame.schedule,playerTypes);
                 if (m != null) {
-                    this.beginMatch(m,nextGame);
-                    return true;
+                    return this.beginMatch(m,nextGame);;
                 }
             } else {
                 console.log('no match found for game '+this.curGame.id);
@@ -437,8 +466,7 @@ module.exports =  function() {
             }
         }
         else {
-            this.beginMatch(m,this.curGame);
-            return true;
+            return this.beginMatch(m,this.curGame);;
         }
         
         
