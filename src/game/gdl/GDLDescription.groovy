@@ -107,7 +107,7 @@ class GDLDescription
 			result += l.toGDLString(context) + "\n"
 		result += GOAL_HEADER
 		for (def g : goal)
-			result += g.toGDLString(context) + "\n"
+			result += g.toGDLString(context)
 		result += TERMINAL_HEADER
 		for (def t : terminal)
 			result += t.toGDLString(context) + "\n"

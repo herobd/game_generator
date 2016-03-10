@@ -22,6 +22,7 @@ import game.gdl.statement.GameToken
  */
 class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 {
+	private exclusiveWin = true
 	private List<TerminalConditional> conditions
 	private Board board
 	EndGameConditions(List<TerminalConditional> conditions, Board board)
@@ -118,6 +119,16 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 		return true
 	}
 
+	protected boolean hasDrawCondition()
+	{
+		for (Conditional c : supportedConditionals)
+		{
+			if (c.consequent == EndGameResult.Draw)
+				return true
+		}
+		return false
+	}
+
 	private TerminalClause generateTerminalStatements()
 	{
 		def T = []
@@ -128,15 +139,15 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 			if (sig instanceof GString)
 			{
 				s = GString.EMPTY
-				s += "(<= terminal\n("
+				s += "(<= terminal\n\t("
 				s += c.antecedent.GDL_Signature
-				s += "))"
+				s += "))\n"
 			}
 			else
 			{
-				s = "(<= terminal\n("
+				s = "(<= terminal\n\t("
 				s += c.antecedent.GDL_Signature
-				s += "))"
+				s += "))\n"
 			}
 			if (s instanceof GString)
 				T.add(new GeneratorStatement(s))
@@ -149,15 +160,50 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 	private GoalClause generateGoalStatements()
 	{
 		def T = []
+
+		// Score 100 for win
+		String g = "(<= (goal ?p 100)\n"
+		g += "\t(role ?p)\n"
+		g += "\t(Win ?p))\n"
+		T.add(new SimpleStatement(g))
+
+		// Score 50 for draw (if applicable)
+		// TODO: divide 100 by # of players?
+		if (hasDrawCondition())
+		{
+			g = "(<= (goal ?p 50)\n"
+			g += "\t(role ?p)\n"
+			g += "\t(Draw ?p))\n"
+			T.add(new SimpleStatement(g))
+		}
+
+		// Score 0 for lose
+		g = "(<= (goal ?p 0)\n"
+		g += "\t(role ?p)\n"
+		g += "\t(Lose ?p))\n"
+		T.add(new SimpleStatement(g))
+
+		// Exclusive-Win premise
+		if (exclusiveWin)
+		{
+			g = "(<= (Lose ?p)\n"
+			g += "\t(role ?p)\n"
+			g += "\t(role ?q)\n"
+			g += "\t(distinct ?p ?q)\n"
+			g += "\t(not (Win ?p))\n"
+			g += "\t(Win ?q))\n"
+			T.add(new SimpleStatement(g))
+		}
+
 		for (Conditional c : supportedConditionals)
 		{
 			switch (c.consequent)
 			{
 				case EndGameResult.Win:
-					GString s = "(<= (goal ${GameToken.PLAYER} 100)\n"
-					s += "("
+					GString s = "(<= (Win ${GameToken.PLAYER})\n"
+					s += "\t("
 					s += c.antecedent.GDL_Signature
-					s += "))"
+					s += "))\n"
 					T.add(new GeneratorStatement(s))
 					break
 			}
