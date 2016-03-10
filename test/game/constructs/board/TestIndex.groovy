@@ -46,6 +46,24 @@ class TestIndex
 	}
 
 	@Test
+	void test_plus()
+	{
+		def x = new Index("x")
+		def x3 = x + 3
+		assert x.toString() == "?x"
+		assert x3.toString() == "?x3"
+	}
+
+	@Test
+	void test_minus()
+	{
+		def y = new Index("y",3)
+		def y2 = y-1
+		assert y.toString() == "?y3"
+		assert y2.toString() == "?y2"
+	}
+
+	@Test
 	void test_GString()
 	{
 		def x = new Index("x")
@@ -54,7 +72,9 @@ class TestIndex
 		result += "\nvalue 1: ${x}"
 		x++
 		result += "\nvalue 2: ${x}"
+		result += "\nvalue 3: ${++x}"
+		result += "\nvalue 4: ${x-1}\nvalue 5: ${x}"
 		println result
-		assert result == "value 0: ?x\nvalue 1: ?x1\nvalue 2: ?x2"
+		assert result == "value 0: ?x\nvalue 1: ?x1\nvalue 2: ?x2\nvalue 3: ?x3\nvalue 4: ?x2\nvalue 5: ?x3"
 	}
 }

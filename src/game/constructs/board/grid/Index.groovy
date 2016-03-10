@@ -37,6 +37,21 @@ class Index
 		return this
 	}
 
+	Index plus(int i)
+	{
+		return new Index(var, idx + i)
+	}
+
+	Index minus(int i)
+	{
+		return new Index(var, idx - i)
+	}
+
+	int getValue()
+	{
+		return this.idx
+	}
+
 	String toString()
 	{
 		String result = PREFIX + var
