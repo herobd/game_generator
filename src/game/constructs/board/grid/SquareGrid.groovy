@@ -69,7 +69,7 @@ class SquareGrid extends Grid implements
 		String name = Integer.toString(n) + "inARow"
 
 		def s = []
-		s.add(line_gen(n))
+		s.add(line_row(n))
 		s.add(line_column(n))
 		if (this.i_nbors)
 		{
@@ -134,93 +134,59 @@ class SquareGrid extends Grid implements
 		return new InitClause(cells)
 	}
 
-	//TODO: remove code duplication in these somehow?
 	private static SimpleStatement line_row(int n)
 	{
-		String result = ""
-		result += "(<= (row ?x ?y ?w)\n"
-		for (int i = 1; i <= n; i++)
-		{
-			result += "(true (cell " + addSuccessors("?x", i) + " ?y ?w))"
-			if (i < n)
-				result += "\n"
-		}
-		result += ")"
-		return new SimpleStatement(result)
+		return line_gen("row", n, Increment.Ascending, Increment.None)
 	}
 
 	private static SimpleStatement line_column(int n)
 	{
-		String result = ""
-		result += "(<= (column ?x ?y ?w)\n"
-		for (int i = 1; i <= n; i++)
-		{
-			result += "(true (cell ?x " + addSuccessors("?y", i) + " ?w))"
-			if (i < n)
-				result += "\n"
-		}
-		result += ")"
-		return new SimpleStatement(result)
+		return line_gen("column",n, Increment.None, Increment.Ascending)
 	}
 
 	private static SimpleStatement line_diag_desc(int n)
 	{
-		String result = ""
-		result += "(<= (diagonal ?x ?y ?w)\n"
-		for (int i = 1; i <= n; i++)
-		{
-			result += "(true (cell " + addSuccessors("?x", i) + " " + addSuccessors("?y", i) + " ?w))"
-			if (i < n)
-				result += "\n"
-		}
-		result += ")"
-		return new SimpleStatement(result)
+		return line_gen("diagonal", n, Increment.Ascending, Increment.Ascending)
 	}
 
 	private static SimpleStatement line_diag_asc(int n)
 	{
-		String result = ""
-		result += "(<= (diagonal ?x ?y ?w)\n"
-		for (int i = 1; i <= n; i++)
-		{
-			result += "(true (cell " + addSuccessors("?x", i) + " " + addSuccessors("?y", n-i+1) + " ?w))"
-			if (i < n)
-				result += "\n"
-		}
-		result += ")"
-		return new SimpleStatement(result)
+		return line_gen("diagonal", n, Increment.Ascending, Increment.Descending)
 	}
 
-	private static SimpleStatement line_gen(int n)
+	private static SimpleStatement line_gen(String name, int n, Increment xInc, Increment yInc)
 	{
 		String result = ""
-		result += "(<= (row ?x ?y ?w)\n"
+		result += "(<= (${name} ?x ?y ?w)\n"
 		def x = new Index("x")
+		if (xInc == Increment.Descending)
+			x = new Index("x", n-1)
 		def y = new Index("y")
+		if (yInc == Increment.Descending)
+			y = new Index("y", n-1)
+		String xSucc = ""
+		String ySucc = ""
 		String s = ""
 		for (int i = 1; i <= n; i++)
 		{
 			if (x.value > 0)
 			{
-				result += "(succ ${x-1} ${x})\n"
+				xSucc += "(succ ${x-1} ${x})\n"
 			}
-			s += "(true (cell  ${x} ?y ?w))"
+			if (y.value > 0)
+			{
+				ySucc += "(succ ${y-1} ${y})\n"
+			}
+			s += "(true (cell  ${x} ${y} ?w))"
 			if (i < n)
 				s += "\n"
-			x++
+			xInc(x)
+			yInc(y)
 		}
+		result += xSucc
+		result += ySucc
 		result += s
-		result += ")"
+		result += ")\n"
 		return new SimpleStatement(result)
-	}
-
-	private static String addSuccessors(String var, int i)
-	{
-		String result = var
-		for (int j = 0; j < i-1; j++)
-		{
-			result = "succ(" + result + ")"
-		}
-		return result
 	}
 }
