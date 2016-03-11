@@ -200,11 +200,20 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 			switch (c.consequent)
 			{
 				case EndGameResult.Win:
-					GString s = "(<= (Win ${GameToken.PLAYER})\n"
-					s += "\t("
-					s += c.antecedent.GDL_Signature
-					s += "))\n"
-					T.add(new GeneratorStatement(s))
+					GString w = "(<= (Win ${GameToken.PLAYER})\n"
+					w += "\t("
+					w += c.antecedent.GDL_Signature
+					w += "))\n"
+					T.add(new GeneratorStatement(w))
+					break
+				case EndGameResult.Draw:
+					GString d = "(<= (Draw ${GameToken.PLAYER})\n"
+					d += "\t(not (Win ${GameToken.PLAYER}))\n"
+					d += "${"\t(not (Win ${GameToken.OTHER_PLAYER}))\n"}"
+					d += "\t("
+					d += c.antecedent.GDL_Signature
+					d += "))\n"
+					T.add(new GeneratorStatement(d))
 					break
 			}
 		}
