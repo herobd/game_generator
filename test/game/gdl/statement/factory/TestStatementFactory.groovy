@@ -20,6 +20,7 @@ class TestStatementFactory implements TokenUser
 	String str3
 	GString gStr1
 	GString gStr2
+	GString gStr3
 	Players players
 	GameContextInfo contextInfo
 
@@ -44,6 +45,11 @@ class TestStatementFactory implements TokenUser
 
 		gStr2 = "(<= (legal ${GameToken.PLAYER} noop)\n" +
 				"(true (control ${GameToken.OTHER_PLAYER})))"
+
+		gStr3 = "(<= (Draw ${GameToken.PLAYER})\n" +
+				"(not (Win ${GameToken.PLAYER}))\n" +
+				"${"(not (Win ${GameToken.OTHER_PLAYER}))\n"}" +
+				"(not open))"
 
 		players = new Players(["White", "Black", "Red", "Robot"])
 		contextInfo = new GameContextInfo(players)
@@ -112,5 +118,19 @@ class TestStatementFactory implements TokenUser
 		assert result[4].toString() == "(<= (next (control Robot))\n(true control Red)))"
 		assert result[5].toString() == "(<= (next (control White))\n(true control Robot)))"
 		assert result[6].toString() == str3
+	}
+
+	@Test
+	void test_inline()
+	{
+		def statements = [new GeneratorStatement(gStr3)]
+		def result = StatementFactory.interpolateStatements(statements, contextInfo)
+		assert result[0].toString() ==
+				"(<= (Draw White)\n" +
+				"(not (Win White))\n" +
+				"(not (Win Black))\n" +
+				"(not (Win Red))\n" +
+				"(not (Win Robot))\n" +
+				"(not open))"
 	}
 }

@@ -6,6 +6,7 @@ import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.statement.TokenUser
 import game.gdl.statement.GameToken
+import org.codehaus.groovy.runtime.GStringImpl
 
 
 /**
@@ -54,15 +55,12 @@ class GeneratorFactory implements TokenUser
 		def result = []
 		for (idx = 0; idx < contextInfo.players.size(); idx++)
 		{
-			for (int j = 0; j < contextInfo.players.size(); j++)
+			for (int j in otherPlayers)
 			{
-				if (j != idx)
-				{
-					GString gString = statement.text
-					rewriteString(gString, j)
-					def s = new SimpleStatement(gString)
-					result.add(s)
-				}
+				GString gString = statement.text
+				rewriteString(gString, j)
+				def s = new SimpleStatement(gString)
+				result.add(s)
 			}
 		}
 		idx = 0
@@ -82,6 +80,21 @@ class GeneratorFactory implements TokenUser
 			if (vals[i] instanceof GameToken)
 			{
 				vals[i] = replaceToken(vals[i] as GameToken, otherPlayerID)
+			}
+			else if (vals[i] instanceof GString && otherPlayerID == -1)
+			{
+				GString line = vals[i] as GString
+				if (line.values.contains(GameToken.OTHER_PLAYER) || line.values.contains(GameToken.OTHER_PLAYER_MARK))
+				{
+					GString result = GString.EMPTY
+					for (int j in otherPlayers)
+					{
+						GString line_j = new GStringImpl(line.values.clone(), line.strings)
+						rewriteString(line_j, j)
+						result += line_j
+					}
+					vals[i] = result
+				}
 			}
 		}
 	}
@@ -108,6 +121,17 @@ class GeneratorFactory implements TokenUser
 				return t
 		}
 		return t
+	}
+
+	List<Integer> getOtherPlayers()
+	{
+		def result = []
+		for (int i = 0; i < contextInfo.players.size(); i++)
+		{
+			if (i != idx)
+				result.add(i)
+		}
+		return result
 	}
 
 	@Override
