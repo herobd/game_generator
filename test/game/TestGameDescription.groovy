@@ -20,9 +20,10 @@ class TestGameDescription
 	@Test
 	void test_convertToGDL()
 	{
-		def board = new SquareGrid(3, true)
+		def board = new SquareGrid(5, true)
 		def end = []
-		end.add(new TerminalConditional(GameFunction.N_inARow(3), EndGameResult.Win))
+		end.add(new TerminalConditional(GameFunction.N_inARow(3), EndGameResult.Lose))
+		end.add(new TerminalConditional(GameFunction.N_inARow(4), EndGameResult.Win))
 		end.add(new TerminalConditional(new NegatedCondition(GameFunction.Open), EndGameResult.Draw))
 		def players = new Players(["White", "Black", "Green"])
 		Game ticTacToe = new Game(players, board, TurnOrder.Alternating, [], end)

@@ -76,10 +76,10 @@ class SquareGrid extends Grid implements
 			s.add(line_diag_desc(n))
 			s.add(line_diag_asc(n))
 		}
-		s.add(new SimpleStatement("(<= (" + name + " ?w) (row ?x ?y ?w))"))
-		s.add(new SimpleStatement("(<= (" + name + " ?w) (column ?x ?y ?w))"))
+		s.add(new SimpleStatement("(<= (" + name + " ?w) (row${n} ?x ?y ?w))"))
+		s.add(new SimpleStatement("(<= (" + name + " ?w) (column${n} ?x ?y ?w))"))
 		if (this.i_nbors)
-			s.add(new SimpleStatement("(<= (" + name + " ?w) (diagonal ?x ?y ?w))"))
+			s.add(new SimpleStatement("(<= (" + name + " ?w) (diagonal${n} ?x ?y ?w))"))
 
 		return new DynamicComponentsClause(s)
 	}
@@ -157,7 +157,7 @@ class SquareGrid extends Grid implements
 	private static SimpleStatement line_gen(String name, int n, Increment xInc, Increment yInc)
 	{
 		String result = ""
-		result += "(<= (${name} ?x ?y ?w)\n"
+		result += "(<= (${name + Integer.toString(n)} ?x ?y ?w)\n"
 		def x = new Index("x")
 		if (xInc == Increment.Descending)
 			x = new Index("x", n-1)

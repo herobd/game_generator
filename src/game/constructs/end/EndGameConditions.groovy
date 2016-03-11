@@ -129,6 +129,16 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 		return false
 	}
 
+	protected boolean hasLoseCondition()
+	{
+		for (Conditional c : supportedConditionals)
+		{
+			if (c.consequent == EndGameResult.Lose)
+				return true
+		}
+		return false
+	}
+
 	private TerminalClause generateTerminalStatements()
 	{
 		def T = []
@@ -177,6 +187,17 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 			T.add(new SimpleStatement(g))
 		}
 
+		if (hasLoseCondition())
+		{
+			// implicitly have Exclusive-Lose premise
+			g = "(<= (goal ?p 50)\n"
+			g += "\t(role ?p)\n"
+			g += "\t(role ?q)\n"
+			g += "\t(Lose ?q)\n"
+			g += "\t(not (Lose ?p)))\n"
+			T.add(new SimpleStatement(g))
+		}
+
 		// Score 0 for lose
 		g = "(<= (goal ?p 0)\n"
 		g += "\t(role ?p)\n"
@@ -214,6 +235,13 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 					d += c.antecedent.GDL_Signature
 					d += "))\n"
 					T.add(new GeneratorStatement(d))
+					break
+				case EndGameResult.Lose:
+					GString w = "(<= (Lose ${GameToken.PLAYER})\n"
+					w += "\t("
+					w += c.antecedent.GDL_Signature
+					w += "))\n"
+					T.add(new GeneratorStatement(w))
 					break
 			}
 		}
