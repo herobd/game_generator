@@ -4,6 +4,8 @@ import game.GameContextInfo
 import game.gdl.statement.GDLStatement
 import game.gdl.statement.GenerationStrategy
 import game.gdl.statement.GeneratorStatement
+import game.gdl.statement.SubstitutionStatement
+
 import static game.gdl.statement.StatementType.*
 
 /**
@@ -36,7 +38,9 @@ class StatementFactory
 			}
 			else if (statement.type == Substitution)
 			{
-
+				def factory = new SubstitutionFactory(contextInfo)
+				def s = factory.substitute(statement as SubstitutionStatement)
+				result.add(s)
 			}
 		}
 		return result

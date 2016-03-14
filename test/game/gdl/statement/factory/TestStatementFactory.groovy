@@ -5,6 +5,7 @@ import game.constructs.player.Players
 import game.gdl.statement.GenerationStrategy
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
+import game.gdl.statement.SubstitutionStatement
 import game.gdl.statement.TokenUser
 import game.gdl.statement.GameToken
 import org.junit.Before
@@ -21,6 +22,8 @@ class TestStatementFactory implements TokenUser
 	GString gStr1
 	GString gStr2
 	GString gStr3
+	GString gStr4
+	GString gStr5
 	Players players
 	GameContextInfo contextInfo
 
@@ -50,6 +53,10 @@ class TestStatementFactory implements TokenUser
 				"(not (Win ${GameToken.PLAYER}))\n" +
 				"${"(not (Win ${GameToken.OTHER_PLAYER}))\n"}" +
 				"(not open))"
+
+		gStr4 = "(init (control ${GameToken.FIRST_PLAYER}))"
+
+		gStr5 = "(init (control ${GameToken.LAST_PLAYER}))"
 
 		players = new Players(["White", "Black", "Red", "Robot"])
 		contextInfo = new GameContextInfo(players)
@@ -132,5 +139,14 @@ class TestStatementFactory implements TokenUser
 				"(not (Win Red))\n" +
 				"(not (Win Robot))\n" +
 				"(not open))"
+	}
+
+	@Test
+	void test_substitution()
+	{
+		def statements = [new SubstitutionStatement(gStr4), new SubstitutionStatement(gStr5)]
+		def result = StatementFactory.interpolateStatements(statements, contextInfo)
+		assert result[0].toString() == "(init (control White))"
+		assert result[1].toString() == "(init (control Robot))"
 	}
 }

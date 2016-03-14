@@ -13,8 +13,6 @@ import org.codehaus.groovy.runtime.GStringImpl
  * @author Lawrence Thatcher
  *
  * Class used for generating generator-statement statements.
- * An individual class was needed to override the TokenUser interface to use the correct values,
- * rather than the default values.
  */
 class GeneratorFactory implements TokenUser
 {
