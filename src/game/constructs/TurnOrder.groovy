@@ -14,6 +14,7 @@ import game.gdl.statement.GDLStatement
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.statement.GameToken
+import game.gdl.statement.SubstitutionStatement
 
 /**
  * @author Lawrence Thatcher
@@ -52,9 +53,9 @@ enum TurnOrder implements HasClauses, HasLegalClause, HasDynCompClause, HasBaseC
 		return new SimpleStatement("(<= (base (control ?p)) (role ?p))")
 	}
 
-	private static final SimpleStatement getControl_init()
+	private static final SubstitutionStatement getControl_init()
 	{
-		return new SimpleStatement("(init (control White))")
+		return new SubstitutionStatement("(init (control ${GameToken.FIRST_PLAYER}))")
 	}
 
 	private LegalClause legal
