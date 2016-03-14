@@ -4,7 +4,7 @@ import game.GameContextInfo
 import game.gdl.statement.GDLStatement
 import game.gdl.statement.GenerationStrategy
 import game.gdl.statement.GeneratorStatement
-import game.gdl.statement.factory.GeneratorFactory
+import static game.gdl.statement.StatementType.*
 
 /**
  * @author Lawrence Thatcher
@@ -19,11 +19,11 @@ class StatementFactory
 		def result = []
 		for (GDLStatement statement : statements)
 		{
-			if (!statement.generator)
+			if (statement.type == Simple)
 			{
 				result.add(statement)
 			}
-			else
+			else if (statement.type == Generator)
 			{
 				GeneratorStatement gs = statement as GeneratorStatement
 				def generator = new GeneratorFactory(contextInfo)
@@ -33,6 +33,10 @@ class StatementFactory
 				else if (gs.strategy == GenerationStrategy.PerOtherPlayer)
 					simples = generator.generateForOtherPlayers(gs)
 				result.addAll(simples)
+			}
+			else if (statement.type == Substitution)
+			{
+
 			}
 		}
 		return result

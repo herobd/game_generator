@@ -9,7 +9,6 @@ package game.gdl.statement
 class SimpleStatement implements GDLStatement
 {
 	protected String statement
-	//TODO: add support for generic/dynamic statements (ex: for player loop, etc...)
 
 	SimpleStatement(String statement)
 	{
@@ -22,9 +21,9 @@ class SimpleStatement implements GDLStatement
 	}
 
 	@Override
-	boolean isGenerator()
+	StatementType getType()
 	{
-		return false
+		return StatementType.Simple
 	}
 
 	@Override

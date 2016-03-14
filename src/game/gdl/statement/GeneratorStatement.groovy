@@ -6,20 +6,19 @@ import org.codehaus.groovy.runtime.GStringImpl
  * A GDL Statement that generates multiple statements
  * @author Lawrence Thatcher
  */
-class GeneratorStatement implements GDLStatement
+class GeneratorStatement extends InterpolatedStatement implements GDLStatement
 {
-	private GString statement
 	private GenerationStrategy strategy
 
 	GeneratorStatement(GString statement)
 	{
-		this.statement = statement
+		super(statement)
 		this.strategy = GenerationStrategy.PerPlayer
 	}
 
 	GeneratorStatement(GString statement, GenerationStrategy strategy)
 	{
-		this.statement = statement
+		super(statement)
 		this.strategy = strategy
 	}
 
@@ -29,23 +28,8 @@ class GeneratorStatement implements GDLStatement
 	}
 
 	@Override
-	GString getText()
+	StatementType getType()
 	{
-		def values = statement.values.clone()
-		return new GStringImpl(values, statement.strings)
+		return StatementType.Generator
 	}
-
-	@Override
-	boolean isGenerator()
-	{
-		return true
-	}
-
-	@Override
-	String toString()
-	{
-		return this.statement
-	}
-
-
 }

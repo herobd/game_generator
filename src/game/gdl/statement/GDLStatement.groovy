@@ -9,5 +9,5 @@ interface GDLStatement
 {
 	def getText()
 
-	boolean isGenerator()
+	StatementType getType()
 }
