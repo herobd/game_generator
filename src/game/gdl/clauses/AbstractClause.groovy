@@ -1,6 +1,9 @@
 package game.gdl.clauses
 
-import game.gdl.GDLStatement
+import game.GameContextInfo
+import game.gdl.statement.GDLStatement
+import game.gdl.statement.SimpleStatement
+import game.gdl.statement.factory.StatementFactory
 
 /**
  * @author Lawrence Thatcher
@@ -29,10 +32,11 @@ abstract class AbstractClause implements GDLClause
 	}
 
 	@Override
-	String toGDLString()
+	String toGDLString(GameContextInfo contextInfo)
 	{
+		def allStatements = StatementFactory.interpolateStatements(statements, contextInfo)
 		String result = ""
-		for (def s : statementList)
+		for (def s : allStatements)
 		{
 			result += s.toString()
 			result += "\n"
@@ -52,7 +56,7 @@ abstract class AbstractClause implements GDLClause
 
 	boolean contains(String statement)
 	{
-		return this.contains(new GDLStatement(statement))
+		return this.contains(new SimpleStatement(statement))
 	}
 
 	void join(GDLClause c)

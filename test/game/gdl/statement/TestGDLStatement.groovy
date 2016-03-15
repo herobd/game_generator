@@ -1,5 +1,6 @@
-package game.gdl
+package game.gdl.statement
 
+import game.gdl.statement.SimpleStatement
 import org.junit.Test
 
 /**
@@ -7,24 +8,24 @@ import org.junit.Test
  */
 class TestGDLStatement
 {
-	private static final GDLStatement gdl_singleLine = new GDLStatement("(<= (input ?p noop) (role ?p))")
+	private static final SimpleStatement gdl_singleLine = new SimpleStatement("(<= (input ?p noop) (role ?p))")
 
 
-	private static final GDLStatement gdl_multiLine = new GDLStatement(
+	private static final SimpleStatement gdl_multiLine = new SimpleStatement(
 			"(<= (next (control Black))\n" +
 			"(true (control White)))")
 
 	@Test
 	void testText()
 	{
-		GDLStatement foo = new GDLStatement("(<= (input ?p noop) (role ?p))")
+		SimpleStatement foo = new SimpleStatement("(<= (input ?p noop) (role ?p))")
 		assert foo.text == "(<= (input ?p noop) (role ?p))"
 	}
 
 	@Test
 	void testText_multiLine()
 	{
-		GDLStatement foo = new GDLStatement(
+		SimpleStatement foo = new SimpleStatement(
 				"(<= (next (control Black))\n" +
 				"(true (control White)))")
 		assert foo.text == "(<= (next (control Black))\n(true (control White)))"
@@ -40,7 +41,7 @@ class TestGDLStatement
 	@Test
 	void testToString()
 	{
-		GDLStatement foo = new GDLStatement("(<= (input ?p noop) (role ?p))")
+		SimpleStatement foo = new SimpleStatement("(<= (input ?p noop) (role ?p))")
 		assert foo.toString() == "(<= (input ?p noop) (role ?p))"
 	}
 

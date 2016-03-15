@@ -1,10 +1,10 @@
 package game.constructs.player
 
-import game.gdl.GDLStatement
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.role.HasRolesClause
 import game.gdl.clauses.role.RolesClause
+import game.gdl.statement.SimpleStatement
 import generator.CrossOver
 import generator.Gene
 import generator.Mutation
@@ -15,7 +15,7 @@ import generator.Mutation
  * Stores information concerning the Players construct,
  * including number of players and the players' names.
  */
-class Players implements HasClauses, HasRolesClause, Gene
+class Players implements HasClauses, HasRolesClause, Gene, Iterable<Player>
 {
 	private List<Player> players = []
 
@@ -79,10 +79,10 @@ class Players implements HasClauses, HasRolesClause, Gene
 	RolesClause getRolesClause()
 	{
 		//TODO: Replace with GDL-statement generator
-		List<GDLStatement> playerDefs = []
+		List<SimpleStatement> playerDefs = []
 		for (String name : this.playerNames)
 		{
-			def statement = new GDLStatement("(role " + name + ")")
+			def statement = new SimpleStatement("(role " + name + ")")
 			playerDefs.add(statement)
 		}
 		return new RolesClause(playerDefs)
@@ -265,5 +265,20 @@ class Players implements HasClauses, HasRolesClause, Gene
 	int hashCode()
 	{
 		return players.hashCode()
+	}
+
+	@Override
+	Iterator<Player> iterator()
+	{
+		return this.players.iterator()
+	}
+
+	Player next(Player player)
+	{
+		int idx = players.indexOf(player)
+		idx++
+		if (idx == size())
+			return players[0]
+		return players[idx]
 	}
 }

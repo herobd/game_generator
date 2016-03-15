@@ -1,6 +1,7 @@
 package game.gdl.clauses
 
-import game.gdl.GDLStatement
+import game.GameContextInfo
+import game.gdl.statement.GDLStatement
 
 /**
  * @author Lawrence Thatcher
@@ -14,5 +15,5 @@ interface GDLClause
 
 	List<GDLStatement> getStatements()
 
-	String toGDLString()
+	String toGDLString(GameContextInfo context)
 }

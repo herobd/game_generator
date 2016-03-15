@@ -10,6 +10,7 @@ class ParametrizedFunction implements Function
 	private String name = "default"
 	private def args
 	private def func
+	private GString signature = null
 	private GameFunction parent
 
 	ParametrizedFunction(String name, GameFunction parent)
@@ -20,6 +21,13 @@ class ParametrizedFunction implements Function
 
 	ParametrizedFunction(Closure c, GameFunction parent)
 	{
+		this.func = c
+		this.parent = parent
+	}
+
+	ParametrizedFunction(Closure c, GameFunction parent, GString signature)
+	{
+		this.signature = signature
 		this.func = c
 		this.parent = parent
 	}
@@ -36,6 +44,19 @@ class ParametrizedFunction implements Function
 		if (name == "default")
 			return parent.toString()
 		return this.name
+	}
+
+	@Override
+	def getGDL_Signature()
+	{
+		if (signature == null)
+			return this.name
+		else
+		{
+			GString result = "${ -> name} "
+			result += signature
+			return result
+		}
 	}
 
 	@Override
