@@ -19,7 +19,7 @@ GET
 
 POST
 * `/submit_game` with:    (this is open to modification, depending on what's easier for you to send over)
-  * meta:json with elements: id,score,testLength[short,med,long],gdlVersion[1,2],numPlayers,name(optional)
+  * json  {meta:{id,intrinsicScore,testLength[short,med,long],gdlVersion[1,2],numPlayers,name(optional)} gdl:[GDL code], hlgdl:[HAGDL code]}
     * the id is expected to be unique for each submission. If submitting different versions of the same game (eg fine tuning), be sure the id's are different (perhaps use a version number after it, eg "ticTacToe1.2"). 
   * gdl: text of gdl file
   * hlgdl: text of high-level gdl file (I have these two separate for convenience for now)

@@ -4,7 +4,7 @@
  *Controller for CS673 game creator project
  */
 
-//curl -d 'meta={"id":"0","score":1.0,"testLength":"s","name":"ttt","numPlayers":2}' -d gdl=sssss -d hlgdl=sdfdd localhost:8080/submit_game
+//curl -d 'meta={"id":"0","intrinsicScore":1.0,"testLength":"s","name":"ttt","numPlayers":2}' -d gdl=sssss -d hlgdl=sdfdd localhost:8080/submit_game
 
 var express = require('express');
 var fs      = require('fs');
@@ -121,7 +121,7 @@ var ControllerApp = function(host,port) {
         };
         
         self.routes['/connect'] = function(req, res) {
-            //console.log(req.query.id + ' is connecting.');
+            console.log(req.query.id + ' is connecting.');
             
             res.setHeader('Content-Type', 'application/json');
             if (req.query.id === 'generator') {
@@ -214,14 +214,17 @@ var ControllerApp = function(host,port) {
         }
         
         self.app.post('/submit_game', upload.array(), function (req, res, next) {
-            console.log(req.body);
-            meta = JSON.parse(req.body.meta);//meta has id and score atleast
+            //console.log(req.body);
+            //meta = JSON.parse(req.body.meta);//meta has id and score atleast
             res.setHeader('Content-Type', 'application/json');
-            if (meta.id && meta.score && req.body.gdl && req.body.hlgdl)
+            if (req.body.meta.id && req.body.meta.intrinsicScore && req.body.gdl && req.body.hlgdl)
             {
-                var err=self.gameCord.enqueue(meta);
-                self.database.storeGame(meta,req.body.gdl,req.body.hlgdl);
-                res.json({id:meta.id, status:err});
+                self.database.storeGame(req.body.meta,req.body.gdl,req.body.hlgdl, function(err) {
+                    var err=self.gameCord.enqueue(req.body.meta);
+                
+                    res.json({id:req.body.meta.id, status:err});
+                });
+                
             }
             else
             {
@@ -260,7 +263,7 @@ var ControllerApp = function(host,port) {
         // Create the express server and routes.
         self.initializeServer();
         
-        self.database=new Database('localhost:8888');
+        self.database=new Database('localhost:27017');
         if (self.database.test!=='ok')
             console.log('ERROR: database failed to init');
         self.gameCord=new GameCord(self,self.database);
@@ -268,6 +271,8 @@ var ControllerApp = function(host,port) {
             console.log('ERROR: gameCord failed to init');
         self.evaluatorAddress=null;
         self.generatorAddress=null;
+        
+        
     };
 
 
@@ -280,11 +285,22 @@ var ControllerApp = function(host,port) {
             console.log('%s: Node server started on :%d ...',
                         Date(Date.now() ), self.port);
             
-            //TODO DEBUG init////
+            //TODO init////
             self.sendConnect('localhost:8081',function(err){console.log(err);});
             self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
             self.gameCord.addPlayer('minimax','localhost',9147,'min1',1,1);
             ////////////////////
+            
+            self.database.getAllUnscoredGames(function(unscoredGames,err) {
+                for (game of unscoredGames) {
+                    if (game.startedEval==false)
+                        self.gameCord.enqueue(game.meta);
+                    else {
+                        self.gameCord.enqueuePartail(game.meta,game.matches);
+                        //TODO retrieve all match results and pass to evaluator
+                    }
+                }
+            });
         });
     };
     
@@ -292,9 +308,9 @@ var ControllerApp = function(host,port) {
     //////////////////////////////additional functions
     self.sendGameResults = function(results) {
         
-        database.storeGameResults(results,function(err) {
+        self.database.storeGameResults(results,function(err) {
             if (err!='ok') {
-                console.log('DB failed to save game results, game:'+results.gameId+' match:'+results.matchId);
+                console.log('DB failed to save game results, game:'+results.gameId+' match:'+results.id+', err:'+err);
             }
         });
         request.post(

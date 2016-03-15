@@ -257,8 +257,8 @@ module.exports =  function() {
             console.log(err);
             return err;
         }
-        if (meta.score===undefined) {
-            err = 'ERROR: score not included in game '+meta.id+' '+meta.name;
+        if (meta.intrinsicScore===undefined) {
+            err = 'ERROR: intrinsicScore not included in game '+meta.id+' '+meta.name;
             console.log(err);
             return err;
         }
@@ -292,7 +292,7 @@ module.exports =  function() {
             this.curGame = meta;
         } else {
             console.log('Enqueued game '+meta.id+': '+meta.name);
-            this.queue.push(meta, meta.score);
+            this.queue.push(meta, meta.intrinsicScore);
         }
         
         if (this.queue.length() < 2) {

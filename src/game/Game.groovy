@@ -50,6 +50,26 @@ class Game implements Evolvable, GDLConvertable
 			this.pieces = pieces
 		this.end = new EndGameConditions(end, board)
 	}
+	
+	int getNumPlayers()
+	{
+	    return players.size()
+	}
+	
+	int getId()
+	{
+	    return 'no_id'
+	}
+	
+	int getName()
+	{
+	    return 'no_name'
+	}
+	
+	int getGDLVersion()
+	{
+	    return 1
+	}
 
 	@Override
 	GDLDescription convertToGDL()

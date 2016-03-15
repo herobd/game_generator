@@ -286,6 +286,9 @@ var EvaluatorServer = function(host,port) {
         var err='ok';
         //console.log(matchResults);
         var outcome = matchResults.printout.match(self.RE_outcome)[1].match(self.RE_numbers);
+        var finished = true;
+        if(matchResults.printout.match(self.RRE_outOfTime))
+            finished=false;
         //console.log(outcome);
         if (outcome.length !== matchResults.players.length) {
             err='ERROR: could not match scores ('+outcome.length+') to players ('+matchResults.players.length+') for match '+matchResults.matchId;
@@ -298,6 +301,7 @@ var EvaluatorServer = function(host,port) {
         //var stats = self.gameStats[matchResults.gameId];
         var matchInfo = {
                             outcome:outcome,
+                            finished:finished,
                             players:matchResults.players,
                             turns:turns
                         };
@@ -317,6 +321,8 @@ var EvaluatorServer = function(host,port) {
         var err='ok';
         var stats;// = self.gameStats[gameMeta.gameId];
         
+        var totalMatchesPlayed = 0.0+self.matches[gameMeta.gameId].length;
+        
         var total_weakVstrong=0;
         var wins_weakVstrong=0;
         var draws_weakVstrong=0;
@@ -324,7 +330,10 @@ var EvaluatorServer = function(host,port) {
         var drawsWeighted=0.0;
         var playsWeighted=0.0;
         
+        var winsByRandom=0;
+        
         var lengthDevSum=0;
+        var totalFinished=0;
         
         for (var matchInfo of self.matches[gameMeta.gameId]) {
             var minSkill=1000; var maxSkill=-1000;
@@ -375,6 +384,7 @@ var EvaluatorServer = function(host,port) {
             var skillDif=maxSkill-minSkill;
             var weight = (skillDif*self.params.skillDifWeight);
             
+            //drawish
             var draw = playersAtMaxScore.length>1;
             if (draw) {
                 drawsWeighted+=1+weight;
@@ -384,15 +394,16 @@ var EvaluatorServer = function(host,port) {
             }
             
             
+            //luck
             if (skillDif>1 || (minSkill==0 && maxSkill>0)) {
                 if (draw) {
                     if (playersAt2ndMaxScore.length==0)//always true for 2 player games
                         draws_weakVstrong+=1;
                     else {
                         if (matchInfo.players.length<3) {
-                            err = 'ERROR: draw with 2nd place players in 2 player game';
-                            console.log(err);
-                            return err;
+                            //err = 'WARNING: draw with 2nd place players in 2 player game';
+                            console.log('WARNING: draw with 2nd place players in 2 player game');
+                            //return err;
                         }
                         //In the event of a 3+ player game, a coalition could allow for a weak
                         //player to tie for first with a better player.
@@ -415,20 +426,45 @@ var EvaluatorServer = function(host,port) {
                 total_weakVstrong+=1;
             }
             
+            
+            //resilience
+            var winnerIsRandom=true;
+            for (player of playersAtMaxScore) {
+                if (player.skill!=0) {
+                    winnerIsRandom=false;
+                    break;
+                }
+            }
+            if (winnerIsRandom && maxSkill>0) {
+                winsByRandom+=1;
+            }
+            
+            //duration
             lengthDevSum += Math.abs(self.params.prefLength - matchInfo.turns.length)/(1.0*self.params.prefLength);
+            
+            //completion
+            if (matchInfo.finished)
+                totalFinished+=1;
+            
         }//end match evals
         
         retScore.drawish=(drawsWeighted)/(playsWeighted);
         
         retScore.luck=(wins_weakVstrong+draws_weakVstrong)/total_weakVstrong;
         
-        retScore.duration=lengthDevSum/self.matches[gameMeta.gameId].length;
+        retScore.duration=lengthDevSum/totalMatchesPlayed;
+        
+        retScore.resilience=winsByRandom/totalMatchesPlayed;
+        
+        retScore.completion=totalFinished/totalMatchesPlayed;
         
         console.log('Evaluation complete for game: '+gameMeta.gameId);
         console.log('Drawish: '+retScore.drawish);
         console.log('Luck: '+retScore.luck);
         console.log('Duration: '+retScore.duration);
-        //TODO
+        console.log('Resilience: '+retScore.resilience);
+        console.log('Completion: '+retScore.completion);
+        //TODO more
         return err;
     }
 };   /*  END EvaluatorServer.  */

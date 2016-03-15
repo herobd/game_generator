@@ -38,11 +38,19 @@ module.exports =  function() {
         this.test='ok';
     }
     
-    Database.prototype.storeGame = function (meta,gdl,hlgdl)  {
+    Database.prototype.storeGame = function (meta,gdl,hlgdl,callback)  {
         
-    
+        var self=this;
         self.gameCollection.insert(meta, {w:1}, function(err, result) {
-            self.gameCollection.update({id:meta.id}, {$set:{gdl:gdl, hlgdl:hlgdl}},{w:1}, function(err, result) {});
+            if (err) {
+                callback(err);
+            } else
+                self.gameCollection.update({id:meta.id}, {$set:{gdl:gdl, hlgdl:hlgdl}},{w:1}, function(err, result) {
+                    if (err)
+                        callback(err);
+                    else
+                        callback('ok');
+                });
         });
         //console.log('Database is stubbed. Would be storing game '+meta.id+': '+meta.name);
         
@@ -58,7 +66,7 @@ module.exports =  function() {
         //if it doesnt exist, create it
         var self=this;
         var filePath = self.gdlDir+'/'+gameId+'.gdl';
-        fs.access(path,fs.R_OK, function(err) {
+        fs.access(filePath,fs.R_OK, function(err) {
             if (err) {
                 if (self.writing[filePath]===undefined) {
                     self.writing[filePath]=true;
@@ -90,14 +98,24 @@ module.exports =  function() {
         //    callback('./example.kif');
     }
     
-    Database.prototype.storeScore = function (gameId,score) {
-        console.log('Database is stubbed. Soring score for '+gameId);
-        
+    Database.prototype.storeScore = function (gameId,score,callback) {
+        //console.log('Database is stubbed. Soring score for '+gameId);
+        self.gameCollection.update({id:gameId}, {$set:{score:gdlscore}},{w:1}, function(err, result) {
+            if (err)
+                callback(err);
+            else
+                callback('ok');
+        });
     }
     
     Database.prototype.storeGameResults = function (results,callback) {
-        console.log('Database is stubbed. Soring game results for game: '+results.gameId);
-        callback('ok');
+        //console.log('Database is stubbed. Soring game results for game: '+results.gameId);
+        self.gameCollection.update({id:results.gameId}, {$push:{match_simulation_results:result}},{w:1}, function(err, result) {
+            if (err)
+                callback(err);
+            else
+                callback('ok');
+        });
     }
     
     Database.prototype.getMaxMatchId = function (callback) {
@@ -115,6 +133,13 @@ module.exports =  function() {
                     skillDifWeight:0.3,
                     prefLength:60
                   });
+    }
+    
+    Database.prototype.getAllUnscoredGames = function (callback) {
+        console.log('Database is stubbed. Would be retrieving unscroed games');
+        
+        //expects games: {meta:the meta data, startedEval:boolean, matches:[{id,playerOrder,rep,players}] stored in database}
+        callback([]);
     }
     
     
