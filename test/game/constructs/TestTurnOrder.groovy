@@ -14,8 +14,7 @@ class TestTurnOrder
 		def clause = TurnOrder.Alternating.legalClause
 		assert clause.clauseType == ClauseType.Legal
 		def statements = clause.statements
-		assert statements[0].text == "(<= (legal White noop)\n(true (control Black)))"
-		assert statements[1].toString() == "(<= (legal Black noop)\n(true (control White)))"
+		assert statements[0].text.toString() == "(<= (legal PLAYER noop)\n(not (true (control PLAYER))))"
 	}
 
 	@Test
@@ -24,8 +23,7 @@ class TestTurnOrder
 		def clause = TurnOrder.Alternating.dynamicComponentClause
 		assert clause.clauseType == ClauseType.DynamicComponents
 		def statements = clause.statements
-		assert statements[0].text == "(<= (next (control White))\n(true (control Black)))"
-		assert statements[1].toString() == "(<= (next (control Black))\n(true (control White)))"
+		assert statements[0].text.toString() == "(<= (next (control NEXT_PLAYER))\n(true (control PLAYER)))"
 	}
 
 	@Test

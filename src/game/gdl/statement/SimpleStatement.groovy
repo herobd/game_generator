@@ -1,4 +1,4 @@
-package game.gdl
+package game.gdl.statement
 
 /**
  * @author Lawrence Thatcher
@@ -6,12 +6,11 @@ package game.gdl
  * A simple GDL Predicate or Implication
  * (Currently a placeholder class, may be replaced later?)
  */
-class GDLStatement
+class SimpleStatement implements GDLStatement
 {
-	private String statement
-	//TODO: add support for generic/dynamic statements (ex: for player loop, etc...)
+	protected String statement
 
-	GDLStatement(String statement)
+	SimpleStatement(String statement)
 	{
 		this.statement = statement
 	}
@@ -22,11 +21,18 @@ class GDLStatement
 	}
 
 	@Override
+	StatementType getType()
+	{
+		return StatementType.Simple
+	}
+
+	@Override
 	String toString()
 	{
 		return this.statement
 	}
 
+	@Override
 	boolean equals(o)
 	{
 		if (this.is(o))
@@ -36,12 +42,13 @@ class GDLStatement
 
 		GDLStatement that = (GDLStatement) o
 
-		if (statement != that.statement)
+		if (this.text != that.text)
 			return false
 
 		return true
 	}
 
+	@Override
 	int hashCode()
 	{
 		return statement.hashCode()

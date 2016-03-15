@@ -1,8 +1,8 @@
 package game.gdl.clauses.goal
 
-import game.gdl.GDLStatement
 import game.gdl.clauses.AbstractClause
 import game.gdl.clauses.ClauseType
+import game.gdl.statement.GDLStatement
 
 /**
  * @author Lawrence Thatcher

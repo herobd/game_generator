@@ -15,11 +15,11 @@ class GenerateGameMain
 {
 	public static void main(String[] args)
 	{
-		def board = new SquareGrid(3, true)
+		def board = new SquareGrid(4, true)
 		def end = []
 		end.add(new TerminalConditional(GameFunction.N_inARow(3), EndGameResult.Win))
 		end.add(new TerminalConditional(new NegatedCondition(GameFunction.Open), EndGameResult.Draw))
-		Game ticTacToe = new Game(new Players(["White", "Black"]), board, TurnOrder.Alternating, [], end)
+		Game ticTacToe = new Game(new Players(["Red", "Black", "Blue"]), board, TurnOrder.Alternating, [], end)
 		GDLDescription gdl = ticTacToe.convertToGDL()
 		println gdl.toString()
 	}

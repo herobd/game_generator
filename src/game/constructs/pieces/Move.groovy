@@ -1,6 +1,5 @@
 package game.constructs.pieces
 
-import game.gdl.GDLStatement
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.base.BaseClause
@@ -9,6 +8,7 @@ import game.gdl.clauses.dynamic.DynamicComponentsClause
 import game.gdl.clauses.dynamic.HasDynCompClause
 import game.gdl.clauses.legal.HasLegalClause
 import game.gdl.clauses.legal.LegalClause
+import game.gdl.statement.GDLStatement
 
 /**
  * @author Lawrence Thatcher

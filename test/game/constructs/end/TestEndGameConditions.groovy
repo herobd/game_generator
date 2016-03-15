@@ -1,5 +1,6 @@
 package game.constructs.end
 
+import game.constructs.board.Board
 import game.constructs.board.grid.SquareGrid
 import game.constructs.condition.Condition
 import game.constructs.condition.Conditional
@@ -20,7 +21,7 @@ class TestEndGameConditions
 {
 	Condition not_open
 	def E
-	def board
+	Board board
 	EndGameConditions end
 
 	@Before
@@ -51,5 +52,21 @@ class TestEndGameConditions
 		assert conditionals.contains(new TerminalConditional(not_open, EndGameResult.Draw))
 		assert conditionals.contains(new TerminalConditional(GameFunction.N_inARow(3), EndGameResult.Win))
 		assert conditionals.size() == 2
+	}
+
+	@Test
+	void test_hasDrawCondition()
+	{
+		assert end.hasDrawCondition()
+
+		end = new EndGameConditions([], board)
+		assert !end.hasDrawCondition()
+
+		def conditions = [new TerminalConditional(GameFunction.N_inARow(3), EndGameResult.Win),
+						  new TerminalConditional(GameFunction.N_inARow(4), EndGameResult.Lose),
+						  new TerminalConditional(GameFunction.N_inARow(5), EndGameResult.Win),
+						  new TerminalConditional(GameFunction.N_inARow(6), EndGameResult.Lose)]
+		end = new EndGameConditions(conditions, board)
+		assert !end.hasDrawCondition()
 	}
 }

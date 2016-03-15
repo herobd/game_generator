@@ -27,5 +27,5 @@ interface Condition
 	 * Converts the Condition string representation to a valid GDL format (since these might not always be the same)
 	 * @return A String representing the GDL encoding of the condition
 	 */
-	//String toGDLString()
+	def getGDL_Signature()
 }

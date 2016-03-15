@@ -1,7 +1,6 @@
 package game.constructs
 
 import game.gdl.clauses.GDLClause
-import game.gdl.GDLStatement
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.base.BaseClause
 import game.gdl.clauses.base.HasBaseClause
@@ -11,6 +10,11 @@ import game.gdl.clauses.init.HasInitClause
 import game.gdl.clauses.init.InitClause
 import game.gdl.clauses.legal.HasLegalClause
 import game.gdl.clauses.legal.LegalClause
+import game.gdl.statement.GDLStatement
+import game.gdl.statement.GeneratorStatement
+import game.gdl.statement.SimpleStatement
+import game.gdl.statement.GameToken
+import game.gdl.statement.SubstitutionStatement
 
 /**
  * @author Lawrence Thatcher
@@ -22,51 +26,36 @@ import game.gdl.clauses.legal.LegalClause
  */
 enum TurnOrder implements HasClauses, HasLegalClause, HasDynCompClause, HasBaseClause, HasInitClause
 {
-	Alternating([white_noop, black_noop], [white_next, black_next], [control_base, input_noop], [control_init])
+	Alternating([noopStatement], [nextStatement], [control_base, input_noop], [control_init])
 
 
-	//TODO: Replace these with generic form
-	private static final GDLStatement getWhite_noop()
+	private static final GeneratorStatement getNoopStatement()
 	{
-		return new GDLStatement(
-				"(<= (legal White noop)\n" +
-				"(true (control Black)))")
+		return new GeneratorStatement(
+				"(<= (legal ${GameToken.PLAYER} noop)\n" +
+				"(not (true (control ${GameToken.PLAYER}))))")
 	}
 
-	private static final GDLStatement getBlack_noop()
+	private static final GeneratorStatement getNextStatement()
 	{
-		return new GDLStatement(
-				"(<= (legal Black noop)\n" +
-				"(true (control White)))")
+		return new GeneratorStatement(
+				"(<= (next (control ${GameToken.NEXT_PLAYER}))\n" +
+				"(true (control ${GameToken.PLAYER})))")
 	}
 
-	private static final GDLStatement getWhite_next()
+	private static final SimpleStatement getInput_noop()
 	{
-		return new GDLStatement(
-				"(<= (next (control White))\n" +
-				"(true (control Black)))")
+		return new SimpleStatement("(<= (input ?p noop) (role ?p))")
 	}
 
-	private static final GDLStatement getBlack_next()
+	private static final SimpleStatement getControl_base()
 	{
-		return new GDLStatement(
-				"(<= (next (control Black))\n" +
-				"(true (control White)))")
+		return new SimpleStatement("(<= (base (control ?p)) (role ?p))")
 	}
 
-	private static final GDLStatement getInput_noop()
+	private static final SubstitutionStatement getControl_init()
 	{
-		return new GDLStatement("(<= (input ?p noop) (role ?p))")
-	}
-
-	private static final GDLStatement getControl_base()
-	{
-		return new GDLStatement("(<= (base (control ?p)) (role ?p))")
-	}
-
-	private static final GDLStatement getControl_init()
-	{
-		return new GDLStatement("(init (control White))")
+		return new SubstitutionStatement("(init (control ${GameToken.FIRST_PLAYER}))")
 	}
 
 	private LegalClause legal

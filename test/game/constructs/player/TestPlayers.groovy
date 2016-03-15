@@ -1,5 +1,6 @@
 package game.constructs.player
 
+import org.junit.Assert
 import org.junit.Test
 
 /**
@@ -226,5 +227,43 @@ class TestPlayers
 		assert (players + p).toString() == "White Black Blue Green "
 		assert players.size() == 3
 		assert players.toString() == "White Black Blue "
+	}
+
+	@Test
+	void test_iterable()
+	{
+		Players players = new Players(["White", "Black", "Red", "Robot"])
+		int i = 0
+		for (Player p : players)
+		{
+			switch (i)
+			{
+				case 0:
+					assert p.toString() == "White"
+					break
+				case 1:
+					assert p.toString() == "Black"
+					break
+				case 2:
+					assert p.toString() == "Red"
+					break
+				case 3:
+					assert p.toString() == "Robot"
+					break
+				default:
+					Assert.fail("Player " + Integer.toString(i) + " (" + p.toString() + ")should not exist")
+			}
+			i++
+		}
+	}
+
+	@Test
+	void test_next()
+	{
+		Players players = new Players(["White", "Black", "Red", "Robot"])
+		assert players.next(new Player("White")).toString() == "Black"
+		assert players.next(new Player("Black")).toString() == "Red"
+		assert players.next(new Player("Red")).toString() == "Robot"
+		assert players.next(new Player("Robot")).toString() == "White"
 	}
 }
