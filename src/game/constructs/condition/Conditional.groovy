@@ -1,7 +1,7 @@
 package game.constructs.condition
 
 import game.constructs.condition.functions.Function
-import game.constructs.condition.result.Result
+import game.constructs.condition.result.PostCondition
 
 /**
  * @author Lawrence Thatcher
@@ -11,9 +11,9 @@ import game.constructs.condition.result.Result
 class Conditional
 {
 	private PreCondition antecedent
-	private Result consequent
+	private PostCondition consequent
 
-	Conditional(PreCondition condition, Result result)
+	Conditional(PreCondition condition, PostCondition result)
 	{
 		this.antecedent = condition
 		this.consequent = result
@@ -30,9 +30,9 @@ class Conditional
 
 	/**
 	 * Retrieves the action or result that happens when the game state condition is met
-	 * @return a Result type
+	 * @return a PostCondition type
 	 */
-	Result getConsequent()
+	PostCondition getConsequent()
 	{
 		return consequent
 	}
