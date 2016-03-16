@@ -9,7 +9,7 @@ import game.constructs.condition.functions.Function
  * This can either be a logic conjunction, disjunction, or negation of a predicate (Function),
  * or can be a function in and of itself.
  */
-interface Condition
+interface PreCondition
 {
 	/**
 	 * Returns a collection of the Functions that are used in this condition.

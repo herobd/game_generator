@@ -1,12 +1,12 @@
 package game.constructs.condition.functions
 
-import game.constructs.condition.Condition
+import game.constructs.condition.PreCondition
 import game.gdl.clauses.GDLClause
 
 /**
  * @author Lawrence Thatcher
  */
-trait Function implements Condition
+trait Function implements PreCondition
 {
 	abstract GameFunction getType()
 

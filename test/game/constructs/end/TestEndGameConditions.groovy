@@ -2,9 +2,9 @@ package game.constructs.end
 
 import game.constructs.board.Board
 import game.constructs.board.grid.SquareGrid
-import game.constructs.condition.Condition
 import game.constructs.condition.Conditional
 import game.constructs.condition.NegatedCondition
+import game.constructs.condition.PreCondition
 import game.constructs.condition.TerminalConditional
 import game.constructs.condition.functions.GameFunction
 import game.constructs.condition.result.EndGameResult
@@ -19,7 +19,7 @@ import org.junit.Test
  */
 class TestEndGameConditions
 {
-	Condition not_open
+	PreCondition not_open
 	def E
 	Board board
 	EndGameConditions end

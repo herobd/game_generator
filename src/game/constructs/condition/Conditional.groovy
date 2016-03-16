@@ -10,10 +10,10 @@ import game.constructs.condition.result.Result
  */
 class Conditional
 {
-	private Condition antecedent
+	private PreCondition antecedent
 	private Result consequent
 
-	Conditional(Condition condition, Result result)
+	Conditional(PreCondition condition, Result result)
 	{
 		this.antecedent = condition
 		this.consequent = result
@@ -23,7 +23,7 @@ class Conditional
 	 * Retrieves the game state condition that this conditional rests upon
 	 * @return a Function type
 	 */
-	Condition getAntecedent()
+	PreCondition getAntecedent()
 	{
 		return antecedent
 	}
