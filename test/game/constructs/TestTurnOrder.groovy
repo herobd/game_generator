@@ -1,6 +1,10 @@
 package game.constructs
 
+import game.GameContextInfo
+import game.constructs.player.Players
 import game.gdl.clauses.ClauseType
+import game.gdl.statement.factory.StatementFactory
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -8,6 +12,16 @@ import org.junit.Test
  */
 class TestTurnOrder
 {
+	Players players
+	GameContextInfo contextInfo
+
+	@Before
+	void setup()
+	{
+		players = new Players(["Red", "Black", "Robot"])
+		contextInfo = new GameContextInfo(players)
+	}
+
 	@Test
 	void testAlternating_LegalClause()
 	{
@@ -42,6 +56,7 @@ class TestTurnOrder
 		def clause = TurnOrder.Alternating.initialStateClause
 		assert clause.clauseType == ClauseType.InitialState
 		def statements = clause.statements
-		assert statements[0].text == "(init (control White))"
+		statements = StatementFactory.interpolateStatements(statements, contextInfo)
+		assert statements[0].text == "(init (control Red))"
 	}
 }
