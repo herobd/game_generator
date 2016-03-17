@@ -68,7 +68,7 @@ function submit_game() {
     var url = '/submit_game'
     var meta = {  id:id,
                     name:name,
-                    score:score,
+                    intrinsicScore:score,
                     testLength:testLength,
                     numPlayers:numPlayers,
                     gdlVersion:gdlVersion
@@ -88,13 +88,37 @@ function connect_eval() {
         document.getElementById("eval_show").innerHTML = res;
     });
 }
+
+var nIntervId;
+function queueStatusKick() {
+    nIntervId = setInterval(queueStatus, 5000);
+}
+function queueStatus() {
+    httpGetAsync('/status',function(res) {
+        //console.log('rec: '+res);
+        var jres=JSON.parse(res);
+        document.getElementById("queueLength").innerHTML = jres.queueLength;
+        document.getElementById("numMatchesBeingPlayed").innerHTML = jres.numMatchesBeingPlayed;
+        document.getElementById("gameBeingEval1").innerHTML = jres.gameBeingEval1;
+        document.getElementById("gameBeingEval2").innerHTML = jres.gameBeingEval2;
+    });
+}
 </script>
 </head>
-<body>
-<div id="add_player_box">
+<body onload='queueStatusKick()'>
+<div>
     <h2>PEGGASUS: Parallel Evolutionary Game Generation and Simulation Unifying System</h2>
     By Brian Davis and Lawrence Thatcher
     <br>
+    <div>
+        <p>Number of games in queue: <label id="queueLength"></label></p>
+        <p>Number of matches being played: <label id="numMatchesBeingPlayed"></label></p>
+        <p>Game being evaluated: <label id="gameBeingEval1"></label></p>
+        <p>Game being evaluated: <label id="gameBeingEval2"></label></p>
+    </div>
+</div
+<div id="add_player_box">
+    
     <h2>Add player</h2>
     Host: <input type="text" id="host"><br>
     Port: <input type="text" id="port"><br>

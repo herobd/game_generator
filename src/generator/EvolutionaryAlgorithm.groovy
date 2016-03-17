@@ -20,6 +20,8 @@ class EvolutionaryAlgorithm
 	private List<Evolvable> population = []
 	private GeneratorClient client = null
 	private static final Random RANDOM = new Random()
+	private Boolean cont=true
+    private Boolean debug_sub=false
 
 	EvolutionaryAlgorithm(List<Evolvable> initialPop, String controllerAddress)
 	{
@@ -52,20 +54,20 @@ class EvolutionaryAlgorithm
 		int itersTillLongEval = 100
 		if (args.length > 2)
 			itersTillLongEval = new Integer(args[2])
-		double intrinsicScoreThresh = 50.0
+		double intrinsicScoreThresh = 0.5
 		if (args.length > 3)
 			intrinsicScoreThresh = new Integer(args[3])
 		println "Doing " + Integer.toString(iters) + " iterations."
 
-		//algorithm.run(iters,itersTillLongEval,intrinsicScoreThresh)
+		algorithm.run(iters,itersTillLongEval,intrinsicScoreThresh)
 
-		algorithm.printPopulationMembers()
+		//algorithm.printPopulationMembers()
 	}
 
 	//TODO: shouldn't have to specify number of iterations...
 	def run(int iterations, int tillLong, double intrinsicScoreThresh)
 	{
-	    def cont=true
+	    int idGen=0
 		for (int i = 0; i < iterations && cont; i++)
 		{
 		    for (int j = 0; j < tillLong && cont; j++)
@@ -79,21 +81,25 @@ class EvolutionaryAlgorithm
 			    //Cross-Over and Mutation
 			    def p3 = p1.crossOver(p2)
 			    p3.mutate()
+			    
+			    //christen
+			    p3.setId("testGame_"+(idGen++))
 
 			    //Evaluation
 			    // TODO: cull inbreds
-			    // TODO: add controller hook here
+			    //controller hook here
 			    def intrinsicScore = instrinsicEvaluation(p3)
 			    if (intrinsicScore>intrinsicScoreThresh)
 			    {
+			        debug_sub=true
 			        def resp = client.doShortEvalAndFineTune(p3,intrinsicScore)
 		        }
-			    client.getControllerResponses()
+			    updateScores(client.getControllerResponses())
 
 			    //Add to population
 			    population.add(p3)
 		    }
-		    client.doLongEval(topXFromPopulation())
+		    //client.doLongEval(topXFromPopulation())
 		}
 	}
 
@@ -112,5 +118,36 @@ class EvolutionaryAlgorithm
 		//TODO: Use stochastic universal sampling to select fitter individuals more often
 		int idx = RANDOM.nextInt(population.size())
 		return population[idx]
+	}
+	
+	private double instrinsicEvaluation(Game g)
+	{
+	    //TODO
+	    if (debug_sub)
+	        sleep(10000)
+	    if (g.getNumPlayers()>3)
+	        return 0
+	    return 0.51
+	}
+	
+	private void updateScores(List toUpdate)
+	{
+	    
+	    for (def i=0; i<toUpdate.size(); i++)
+	    {
+	        def gameId = toUpdate[i].id
+	        def score = toUpdate[i].score.evalScore
+	        //You can access the elements of the score (for changing search strat) in the ${it}.score object
+	        //also ${it}.score.id holds the identifier for the parameters used to create this score
+	        
+	        
+	        //TODO, something with these
+	        
+	        //debugging
+	        println 'Got score '+score+' for game '+gameId
+	        cont=false
+	        
+	        
+	    }
 	}
 }

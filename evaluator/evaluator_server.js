@@ -162,7 +162,7 @@ var EvaluatorServer = function(host,port) {
         self.app.post('/gameDone', upload.array(), function (req, res, next) {
             console.log('Recieved DONE for game id: '+req.body.gameId+'.');
             res.setHeader('Content-Type', 'application/json');
-            res.json({id:'evaluator',status:status,score:score});
+            res.json({id:'evaluator',status:'ok',score:score});
             
             
             var score = {};
@@ -196,7 +196,12 @@ var EvaluatorServer = function(host,port) {
         self.params = {
                         id:0,
                         skillDifWeight:0.3,
-                        prefLength:60
+                        prefLength:60,
+                        drawishWeight:-0.2,
+                        luckWeight:-0.2,
+                        durationWeight:0.4,
+                        resilienceWeight:0.4,
+                        completionWeight:0.4
                       };
     };
 
@@ -246,7 +251,7 @@ var EvaluatorServer = function(host,port) {
     
     self.requestLastParams = function () {
         if (self.controllerAddress !== null) {
-            request.get('http://'+address+'/lastParams?id=evaluator', function (error, response, body) {
+            request.get('http://'+self.controllerAddress+'/lastParams?id=evaluator', function (error, response, body) {
               if (!error && response.statusCode == 200) {
                 var resj=JSON.parse(body);
                 if (resj.status!=='ok') {
@@ -264,7 +269,7 @@ var EvaluatorServer = function(host,port) {
     self.returnScore = function(gameId,score,status) {
         request.post(
             'http://'+self.controllerAddress+'/gameScored',
-            { json: {gameId:gameId, score:score, status:status},
+            { json: {gameId:gameId, score:score, status:status} },
             function (error, response, body) {
                 if (!error && response.statusCode == 200) {
                     //Do something with body?
@@ -287,8 +292,11 @@ var EvaluatorServer = function(host,port) {
         //console.log(matchResults);
         var outcome = matchResults.printout.match(self.RE_outcome)[1].match(self.RE_numbers);
         var finished = true;
-        if(matchResults.printout.match(self.RRE_outOfTime))
+        if(matchResults.printout.match(self.RE_outOfTime))
+        {
+            console.log('Out of time marker found: '+matchResults.printout.match(self.RRE_outOfTime)[0]);
             finished=false;
+        }
         //console.log(outcome);
         if (outcome.length !== matchResults.players.length) {
             err='ERROR: could not match scores ('+outcome.length+') to players ('+matchResults.players.length+') for match '+matchResults.matchId;
@@ -374,9 +382,9 @@ var EvaluatorServer = function(host,port) {
                     }
                 } else if (maxScore2nd==-1) {
                     maxScore2nd=pScore;
-                    playersAt2ndMaxScore[matchInfo.players[i]];
+                    playersAt2ndMaxScore[matchInfo.players[pIdx]];
                 } else if (maxScore2nd==pScore) {
-                    playersAt2ndMaxScore.push(matchInfo.players[i]);
+                    playersAt2ndMaxScore.push(matchInfo.players[pIdx]);
                 }   
                 if (pScore<minScore) 
                     minScore=pScore;
@@ -450,20 +458,34 @@ var EvaluatorServer = function(host,port) {
         
         retScore.drawish=(drawsWeighted)/(playsWeighted);
         
-        retScore.luck=(wins_weakVstrong+draws_weakVstrong)/total_weakVstrong;
+        if (total_weakVstrong!=0)
+            retScore.luck=(wins_weakVstrong+draws_weakVstrong)/total_weakVstrong;
+        else
+            retScore.luck=0;
         
         retScore.duration=lengthDevSum/totalMatchesPlayed;
         
-        retScore.resilience=winsByRandom/totalMatchesPlayed;
+        retScore.resilience=(totalMatchesPlayed-winsByRandom)/totalMatchesPlayed;
         
         retScore.completion=totalFinished/totalMatchesPlayed;
         
+        //retScore.favorsPosition
+        
+        retScore.evalScore= self.params.drawishWeight * retScore.drawish +
+                            self.params.luckWeight * retScore.luck +
+                            self.params.durationWeight * retScore.duration +
+                            self.params.resilienceWeight * retScore.resilience +
+                            self.params.completionWeight * retScore.completion;
+        
+        retScore.id = self.params.id;
+        
         console.log('Evaluation complete for game: '+gameMeta.gameId);
-        console.log('Drawish: '+retScore.drawish);
-        console.log('Luck: '+retScore.luck);
-        console.log('Duration: '+retScore.duration);
-        console.log('Resilience: '+retScore.resilience);
-        console.log('Completion: '+retScore.completion);
+        console.log('  Drawish: '+retScore.drawish);
+        console.log('  Luck: '+retScore.luck);
+        console.log('  Duration: '+retScore.duration);
+        console.log('  Resilience: '+retScore.resilience);
+        console.log('  Completion: '+retScore.completion);
+        console.log('Combined: '+retScore.evalScore);
         //TODO more
         return err;
     }

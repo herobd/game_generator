@@ -41,16 +41,36 @@ module.exports =  function() {
     Database.prototype.storeGame = function (meta,gdl,hlgdl,callback)  {
         
         var self=this;
-        self.gameCollection.insert(meta, {w:1}, function(err, result) {
+        //Be sure we don't overlap
+        self.gameCollection.deleteMany({id:meta.id}, {w:1}, function(err, result) {
             if (err) {
                 callback(err);
-            } else
-                self.gameCollection.update({id:meta.id}, {$set:{gdl:gdl, hlgdl:hlgdl}},{w:1}, function(err, result) {
-                    if (err)
+            } else {
+                
+                if (JSON.parse(result).n>0) {
+                    var filePath = self.gdlDir+'/'+meta.id+'.gdl';
+                    fs.access(filePath,fs.R_OK, function(err) {
+                        if(!err) {
+                            console.log('gdl file already exists. Deleting it.');
+                            fs.unlink(filePath,function(err){
+                                if (err)
+                                    console.log('Could not remove prev existing gdl file '+filePath+': '+err);
+                            });
+                        }
+                    });
+                }
+                self.gameCollection.insert(meta, {w:1}, function(err, result) {
+                    if (err) {
                         callback(err);
-                    else
-                        callback('ok');
+                    } else
+                        self.gameCollection.update({id:meta.id}, {$set:{gdl:gdl, hlgdl:hlgdl}},{w:1}, function(err, result) {
+                            if (err)
+                                callback(err);
+                            else
+                                callback('ok');
+                        });
                 });
+            }
         });
         //console.log('Database is stubbed. Would be storing game '+meta.id+': '+meta.name);
         
@@ -100,7 +120,7 @@ module.exports =  function() {
     
     Database.prototype.storeScore = function (gameId,score,callback) {
         //console.log('Database is stubbed. Soring score for '+gameId);
-        self.gameCollection.update({id:gameId}, {$set:{score:gdlscore}},{w:1}, function(err, result) {
+        this.gameCollection.update({id:gameId}, {$set:{score:score}},{w:1}, function(err, result) {
             if (err)
                 callback(err);
             else
@@ -110,7 +130,7 @@ module.exports =  function() {
     
     Database.prototype.storeGameResults = function (results,callback) {
         //console.log('Database is stubbed. Soring game results for game: '+results.gameId);
-        self.gameCollection.update({id:results.gameId}, {$push:{match_simulation_results:result}},{w:1}, function(err, result) {
+        this.gameCollection.update({id:results.gameId}, {$push:{match_simulation_results:results}},{w:1}, function(err, result) {
             if (err)
                 callback(err);
             else
@@ -129,10 +149,15 @@ module.exports =  function() {
         
         
         callback('ok', {
-                    id:0,
-                    skillDifWeight:0.3,
-                    prefLength:60
-                  });
+                        id:0,
+                        skillDifWeight:0.3,
+                        prefLength:60,
+                        drawishWeight:-0.2,
+                        luckWeight:-0.2,
+                        durationWeight:0.4,
+                        resilienceWeight:0.4,
+                        completionWeight:0.4
+                      });
     }
     
     Database.prototype.getAllUnscoredGames = function (callback) {

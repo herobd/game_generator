@@ -112,16 +112,38 @@ var ControllerApp = function(host,port) {
             res.setHeader('Content-Type', 'text/html');
             res.send(self.cache_get('index.html') );
         };*/
-        self.routes['/a-page'] = function(req, res) {
+        
+    };
+
+
+    /**
+     *  Initialize the server (express) and create the routes and register
+     *  the handlers.
+     */
+    self.initializeServer = function() {
+        self.createRoutes();
+        self.app = express();//.createServer();
+        self.app.use(express.static('public'));
+        self.app.use(bodyParser.json());
+        
+        //self.app.use(bodyParser.json()); // for parsing application/json
+        //self.app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
+        //  Add handlers for the app (from the routes).
+        for (var r in self.routes) {
+            self.app.get(r, self.routes[r]);
+        }
+        //GET
+        self.app.get('/a-page', function(req, res) {
             res.setHeader('Content-Type', 'text/html');
             res.send(self.cache_get('a-page.html') );
-        };
-        self.routes['/redir'] = function(req, res) {
+        });
+        self.app.get('/redir', function(req, res) {
             res.redirect('https://somewhere');
-        };
+        });
         
-        self.routes['/connect'] = function(req, res) {
-            console.log(req.query.id + ' is connecting.');
+        self.app.get('/connect', function(req, res) {
+            //console.log(req.query.id + ' is connecting.');
             
             res.setHeader('Content-Type', 'application/json');
             if (req.query.id === 'generator') {
@@ -137,8 +159,8 @@ var ControllerApp = function(host,port) {
             }
             
             
-        };
-        self.routes['/disconnect'] = function(req, res) {
+        });
+        self.app.get('/disconnect', function(req, res) {
             //console.log(req.query.id + ' is disconnecting.');
         
             res.setHeader('Content-Type', 'application/json');
@@ -153,9 +175,9 @@ var ControllerApp = function(host,port) {
             } else {
                 res.send('{"id":"controller","status":"id not recognized"}');
             }
-        };
+        });
         
-        self.routes['/addPlayer'] = function(req, res) {
+        self.app.get('/addPlayer', function(req, res) {
             //console.log(req.query.id + ' is connecting.');
             
             res.setHeader('Content-Type', 'application/json');
@@ -163,9 +185,9 @@ var ControllerApp = function(host,port) {
             res.send('{"id":"controller","status":"'+err+'","player":"'+req.query.name+'"}');
             
             
-        };
+        });
         
-        self.routes['/executeConnect'] = function(req, res) {
+        self.app.get('/executeConnect', function(req, res) {
             //console.log(req.query.id + ' is connecting.');
             
             res.setHeader('Content-Type', 'application/json');
@@ -174,47 +196,59 @@ var ControllerApp = function(host,port) {
             
             
             
-        };
+        });
         
-        self.routes['/lastParams'] = function(req, res) {
+        self.app.get('/lastParams', function(req, res) {
             //console.log(req.query.id + ' is connecting.');
             
             res.setHeader('Content-Type', 'application/json');
             if (req.query.id === 'evaluator') {
-                database.getLastParams(req.query.id,function(err,params) {
+                self.database.getLastParams(req.query.id,function(err,params) {
                     res.json({id:"controller",status:err, params:params});
                 });
             } else {
                 res.json({id:"controller",status:"id not recognized"});
             }
             
-        };
+        });
+        
+        self.app.get('/asking_for_updates', function(req, res) {
+            
+            
+            res.setHeader('Content-Type', 'application/json');
+            if (req.query.id === 'generator') {
+                res.json({id:"controller",status:'ok', scores:self.returnToGenerator});
+                self.returnToGenerator=[];
+            } else {
+                res.json({id:"controller",status:"id not recognized"});
+            }
+            
+            
+        });
+        
+        self.app.get('/status', function(req, res) {
+
+            res.setHeader('Content-Type', 'application/json');
+            res.json({queueLength:self.gameCord.queueLength(),
+                      numMatchesBeingPlayed:self.gameCord.numMatchesBeingPlayed,
+                      numPlayers:self.gameCord.numPlayers(),
+                      numPlayerTypes:self.gameCord.numPlayerTypes(),
+                      gameBeingEval1:self.gameCord.gameBeingEval1(),
+                      gameBeingEval2:self.gameCord.gameBeingEval2(),});
+        });
 
         
-        self.routes['/testSend'] = function(req, res) {
+        self.app.get('/testSend', function(req, res) {
             self.sendGameResults({id:0, name:'test'});
             res.send('ok');
-        }
-    };
-
-
-    /**
-     *  Initialize the server (express) and create the routes and register
-     *  the handlers.
-     */
-    self.initializeServer = function() {
-        self.createRoutes();
-        self.app = express();//.createServer();
-        self.app.use(bodyParser.json()); // for parsing application/json
-        self.app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-
-        //  Add handlers for the app (from the routes).
-        for (var r in self.routes) {
-            self.app.get(r, self.routes[r]);
-        }
+        });
         
-        self.app.post('/submit_game', upload.array(), function (req, res, next) {
-            //console.log(req.body);
+        
+        
+        //POST
+        
+        self.app.post('/submit_game',/* upload.array(),*/ function (req, res, next) {
+            //console.log(req.body.meta);
             //meta = JSON.parse(req.body.meta);//meta has id and score atleast
             res.setHeader('Content-Type', 'application/json');
             if (req.body.meta.id && req.body.meta.intrinsicScore && req.body.gdl && req.body.hlgdl)
@@ -229,7 +263,9 @@ var ControllerApp = function(host,port) {
             else
             {
                 res.json({status:'malformed'});
+                
             }
+            //console.log(req.body);
         });
         
         self.app.post('/gameScored', upload.array(), function (req, res, next) {
@@ -237,18 +273,14 @@ var ControllerApp = function(host,port) {
             res.setHeader('Content-Type', 'application/json');
             res.json({id:'evaluator',status:'ok'});
             if (req.body.status=='ok') {
-                var err;
-                self.database.storeScore(req.body.gameId,req.body.score,function(pe){err=pe;});
-                if (err!='ok')
-                    console.log(err);        
-                err=self.sendGameScore(req.body.gameId,req.body.score);
-                if (err!='ok')
-                    console.log(err);
+                self.returnToGenerator.push({id:req.body.gameId,score:req.body.score});
+                self.database.storeScore(req.body.gameId,req.body.score,function(err){console.log(err);});
+                    
             }
         });
         
-        // Static file (images, css, etc)
-        self.app.use(express.static('public'));
+        
+        
     };
 
 
@@ -271,7 +303,7 @@ var ControllerApp = function(host,port) {
             console.log('ERROR: gameCord failed to init');
         self.evaluatorAddress=null;
         self.generatorAddress=null;
-        
+        self.returnToGenerator=[];
         
     };
 
@@ -287,8 +319,12 @@ var ControllerApp = function(host,port) {
             
             //TODO init////
             self.sendConnect('localhost:8081',function(err){console.log(err);});
-            self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
-            self.gameCord.addPlayer('minimax','localhost',9147,'min1',1,1);
+            
+            //self.gameCord.addPlayer('minimax','localhost',9147,'min1',1,1);
+            //self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
+            self.gameCord.addPlayer('l1','localhost',9149,'l1',0,1);
+            self.gameCord.addPlayer('l2','localhost',9150,'l2',0,1);
+            //self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
             ////////////////////
             
             self.database.getAllUnscoredGames(function(unscoredGames,err) {
@@ -320,7 +356,7 @@ var ControllerApp = function(host,port) {
                 if (!error && response.statusCode == 200) {
                     //Do something with body?
                     if (body.status!=='recieved'&&body.status!=='ok') {
-                        console.log('ERROR: match '+results.id+' didnt stick in evaluator');
+                        console.log('ERROR: match '+results.id+' didnt stick in evaluator: '+body.status);
                     }
                 }
             }
@@ -336,7 +372,7 @@ var ControllerApp = function(host,port) {
                 if (!error && response.statusCode == 200) {
                     
                     if (body.status!=='recieved'&&body.status!=='ok') {
-                        console.log('ERROR: match '+results.id+' didnt stick in evaluator');
+                        console.log('ERROR: DONE for '+results.gameId+' didnt stick in evaluator');
                     }
                     
                 }
@@ -387,8 +423,10 @@ var ControllerApp = function(host,port) {
             request.get('http://'+address+'/disconnect?id=controller', function (error, response, body) {
               if (!error && response.statusCode == 200) {
                 console.log('Disconnected: '+body);
+              } else if (error){
+                console.log('get ERROR: '+error);
               } else {
-                console.log('get ERROR: '+error+' code:'+response.statusCode);
+                console.log('get resp code:'+response.statusCode);
               }
               callback();
             });
