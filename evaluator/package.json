@@ -1,0 +1,12 @@
+{
+  "name": "evaluator_server",
+  "version": "0.0.1",
+  "description": "Evaluator Server for PEGGASUS",
+  "dependencies": {
+  	"express": "*",
+  	"body-parser": "*",
+  	"multer": "*",
+  	"request": "*"
+   },
+  "engine": "node >=0.12.x"
+}

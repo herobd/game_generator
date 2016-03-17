@@ -9,7 +9,7 @@ Controller server for our General Rudimentary Evolutionary Game Generator (GREGG
   - multer
   - mongodb
 
-Just `npm install [ ]` them
+Just `npm install` them from package.json
 
 Accepts
 
