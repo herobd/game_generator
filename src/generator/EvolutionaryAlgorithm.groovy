@@ -1,5 +1,7 @@
 package generator
 
+//@Grab(group='com.google.guava', module='guava', version='14.0')
+
 import game.constructs.TurnOrder
 import game.constructs.board.grid.SquareGrid
 import game.constructs.condition.NegatedCondition
@@ -9,6 +11,9 @@ import game.constructs.condition.result.EndGameResult
 import game.constructs.player.Players
 import game.Game
 import generator.GeneratorClient
+import generator.InstrinsicEvaluator
+
+
 
 /**
  * A class that does an evolutionary algorithm.
@@ -22,11 +27,15 @@ class EvolutionaryAlgorithm
 	private static final Random RANDOM = new Random()
 	private Boolean cont=true
     private Boolean debug_sub=false
+    private Object params //This currently only holds the wieghts for insrinsic evaulation and an id (for the params), but will hold things like the probabilities for gene selection and so forth
+    private InstrinsicEvaluator instrinsicEvaluator
 
 	EvolutionaryAlgorithm(List<Evolvable> initialPop, String controllerAddress)
 	{
 		population = initialPop
 		client = new GeneratorClient(controllerAddress)
+		params = client.getLastParams()
+		instrinsicEvaluator = new InstrinsicEvaluator(params)
 	}
 
 	public static void main(String[] args)
@@ -51,12 +60,15 @@ class EvolutionaryAlgorithm
 		int iters = 50
 		if (args.length > 1)
 			iters = new Integer(args[1])
+			
 		int itersTillLongEval = 100
 		if (args.length > 2)
 			itersTillLongEval = new Integer(args[2])
-		double intrinsicScoreThresh = 0.5
+			
+		double intrinsicScoreThresh = 0.0
 		if (args.length > 3)
 			intrinsicScoreThresh = new Integer(args[3])
+			
 		println "Doing " + Integer.toString(iters) + " iterations."
 
 		algorithm.run(iters,itersTillLongEval,intrinsicScoreThresh)
@@ -88,7 +100,7 @@ class EvolutionaryAlgorithm
 			    //Evaluation
 			    // TODO: cull inbreds
 			    //controller hook here
-			    def intrinsicScore = instrinsicEvaluation(p3)
+			    def intrinsicScore = instrinsicEvaluator.evaluate(p3)
 			    if (intrinsicScore>intrinsicScoreThresh)
 			    {
 			        debug_sub=true
@@ -120,15 +132,6 @@ class EvolutionaryAlgorithm
 		return population[idx]
 	}
 	
-	private double instrinsicEvaluation(Game g)
-	{
-	    //TODO
-	    if (debug_sub)
-	        sleep(10000)
-	    if (g.getNumPlayers()>3)
-	        return 0
-	    return 0.51
-	}
 	
 	private void updateScores(List toUpdate)
 	{

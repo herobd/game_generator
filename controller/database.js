@@ -147,17 +147,27 @@ module.exports =  function() {
     Database.prototype.getLastParams = function (componentId,callback) {
         console.log('Database is stubbed. Would be retrieving params');
         
-        
-        callback('ok', {
-                        id:0,
-                        skillDifWeight:0.3,
-                        prefLength:60,
-                        drawishWeight:-0.2,
-                        luckWeight:-0.2,
-                        durationWeight:0.4,
-                        resilienceWeight:0.4,
-                        completionWeight:0.4
-                      });
+        if (componentId== 'evaluator') {
+            callback('ok', {
+                            id:0,
+                            skillDifWeight:0.3,
+                            prefLength:60,
+                            drawishWeight:-0.2,
+                            luckWeight:-0.2,
+                            durationWeight:0.4,
+                            resilienceWeight:0.4,
+                            completionWeight:0.4
+                          });
+        } else {
+            callback('ok', {
+                            id:0,
+                            idealNumPlayers:2,
+                            numPlayersDrop:0.4,
+                            invalidWeight:-100.0,
+                            numPlayersWeight:1.0,
+                            complexityWeight:-0.3
+                          });
+        }
     }
     
     Database.prototype.getAllUnscoredGames = function (callback) {

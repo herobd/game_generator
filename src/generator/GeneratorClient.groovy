@@ -48,28 +48,6 @@ class GeneratorClient
 	GeneratorClient(String controllerAddress)
 	{
 	    this.controllerAddress=controllerAddress;
-		/*//send connect request   new URL("http://stackoverflow.com").getText()
-		def resp = new URL(controllerAddress+"/connect?id=generator>&address=blocked").getText()
-		def jsonSlurper = new JsonSlurper()
-		def jresp = jsonSlurper.parseText(resp)
-		if (jresp.status != 'ok')
-		{
-		    connected=false
-		    println "ERROR: could not connect to controller: " + controllerAddrress
-		}
-		else
-		{
-		    connected=true
-		    http = new HTTPBuilder(controllerAddrress)
-	    }*/
-	    //////////////////
-	    
-	    /*print "connecting to http://"+controllerAddress
-	    http = new HTTPBuilder("http://"+controllerAddress)
-	    def (response, responseStatus) = http.get(path:"/connect", contentType: ContentType.JSON, query: [ id:'generator', address: 'blocked' ]) { resp, json ->
-            [${json.status},resp.status]
-        }
-        print "Response: "+reponse*/
         
         def status=''
         def tries=36 //try for an hour
@@ -159,7 +137,7 @@ class GeneratorClient
             {
                 println 'Failed to get update from Controller: '+status
                 tries--
-                sleep(500) //1 seconds
+                sleep(500) //.5 seconds
             }
             else
                 break
@@ -179,6 +157,37 @@ class GeneratorClient
                 }
             }
         }
+        
+        return ret
+	}
+	
+	Object getLastParams()
+	{
+        def status=''
+        def tries=4
+        def ret
+        while(true)
+        {               
+	        http.request(Method.GET,ContentType.JSON) {
+	            uri.path="/lastParams"
+	            uri.query= [ id:'generator' ]
+	            response.success = { resp, json ->
+                    status=json.status
+                    ret=json.params
+                }
+            }
+            
+            if (status!="ok" && tries>0)
+            {
+                println 'Failed to get params from Controller: '+status
+                tries--
+                sleep(500) //.5 seconds
+            }
+            else
+                break
+        }
+        
+        
         
         return ret
 	}

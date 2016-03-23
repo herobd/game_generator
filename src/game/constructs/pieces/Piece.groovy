@@ -42,4 +42,15 @@ class Piece implements HasClauses
 	{
 		return new Piece(name, placement, new ArrayList<Move>(moves))
 	}
+
+    int complexityCount()
+    {
+        int ret=0
+        for (Move move : moves)
+        {
+            ret+=1
+            ret += move.complexityCount()
+        }
+        return ret
+    }
 }

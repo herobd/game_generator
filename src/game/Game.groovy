@@ -154,4 +154,19 @@ class Game implements Evolvable, GDLConvertable
 		}
 		return result
 	}
+
+    int complexityCount_piece()
+    {
+        int ret=0
+        for (Piece p : pieces)
+            ret += 1 + p.complexityCount()
+        return ret
+    }
+    int complexityCount_end()
+    {
+        int ret=0
+        for (Conditional c : end.conditionals)
+            ret += 1 + c.complexityCount()
+        return ret
+    }
 }

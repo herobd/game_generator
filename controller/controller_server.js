@@ -202,7 +202,7 @@ var ControllerApp = function(host,port) {
             //console.log(req.query.id + ' is connecting.');
             
             res.setHeader('Content-Type', 'application/json');
-            if (req.query.id === 'evaluator') {
+            if (req.query.id === 'evaluator' || req.query.id === 'generator') {
                 self.database.getLastParams(req.query.id,function(err,params) {
                     res.json({id:"controller",status:err, params:params});
                 });
@@ -322,8 +322,10 @@ var ControllerApp = function(host,port) {
             
             //self.gameCord.addPlayer('minimax','localhost',9147,'min1',1,1);
             //self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
-            self.gameCord.addPlayer('l1','localhost',9149,'l1',0,1);
-            self.gameCord.addPlayer('l2','localhost',9150,'l2',0,1);
+            self.gameCord.addPlayer('l1','localhost',9147,'l1',0,1);
+            self.gameCord.addPlayer('l2','localhost',9148,'l2',0,1);
+            self.gameCord.addPlayer('l3','localhost',9149,'l3',0,1);
+            self.gameCord.addPlayer('l4','localhost',9150,'l4',0,1);
             //self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
             ////////////////////
             

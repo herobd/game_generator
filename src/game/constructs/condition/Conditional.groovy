@@ -86,4 +86,10 @@ class Conditional
 	{
 		return new Conditional(antecedent, consequent)
 	}
+
+    int complexityCount()
+    {
+        //TODO
+        return 1
+    }
 }
