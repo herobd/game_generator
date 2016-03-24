@@ -101,4 +101,17 @@ class ParametrizedFunction implements Function
 		result = 31 * result + parent.hashCode()
 		return result
 	}
+	
+	@Override
+	int getNumParams()
+	{
+	    //TODO
+	    return 0
+	}
+	
+	@Override
+    void changeParam(int param, int amount)
+    {
+        //TODO
+    }
 }

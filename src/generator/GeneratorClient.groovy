@@ -76,7 +76,7 @@ class GeneratorClient
         assert status=='ok'
 	}
 	
-	String doShortEvalAndFineTune(Game game, double intrinsicScore)
+	String doShortEval(Game game, double intrinsicScore)
 	{
 	    def meta = [    id:game.getId(), 
 	                    name:game.getName(),

@@ -75,4 +75,16 @@ class NegatedCondition implements Condition
 	{
 		return new NegatedCondition(condition)
 	}
+	
+	@Override
+	int getNumParams()
+	{
+	    return condition.getNumParams()
+    }
+    
+    @Override
+    void changeParam(int param, int amount)
+    {
+        condition.changeParam(param,amount)
+    }
 }

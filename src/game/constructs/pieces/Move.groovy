@@ -68,4 +68,10 @@ class Move implements HasClauses, HasDynCompClause, HasBaseClause, HasLegalClaus
         //TODO fill this is
         return 1
     }
+    
+    int getNumParams()
+	{
+	    //TODO fill this is
+        return 0
+	}
 }

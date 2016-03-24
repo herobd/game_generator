@@ -17,4 +17,13 @@ trait Function implements Condition {
 	{
 		return [this]
 	}
+	
+	@Override
+	int getNumParams()
+	{
+	    return 0
+	}
+	
+	@Override
+    void changeParam(int param, int amount){}
 }

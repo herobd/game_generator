@@ -92,4 +92,13 @@ class Conditional
         //TODO
         return 1
     }
+    
+    int getNumParams()
+	{
+	    
+	    int ret=0
+	    ret+=antecedent.getNumParams()
+	    //ret+=consequent.getNumParams() //TODO will this just reference somthing else I'll already see?
+        return ret
+	}
 }

@@ -52,4 +52,10 @@ class Board implements HasClauses, Supports
 			return false
 		}
 	}
+	
+	int getNumParams()
+	{
+	    //TODO
+	    return 0;
+	}
 }

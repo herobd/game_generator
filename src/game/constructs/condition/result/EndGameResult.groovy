@@ -9,3 +9,4 @@ enum EndGameResult implements Result
 	Lose,
 	Draw
 }
+

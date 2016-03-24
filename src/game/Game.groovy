@@ -19,7 +19,7 @@ import generator.Gene
  *
  * A class holding an abstract game description of a particular game.
  */
-class Game implements Evolvable, GDLConvertable
+class Game implements Evolvable, GDLConvertable, FineTunable
 {
 	private static final double DEFAULT_CROSS_OVER_PROBABILITY = 0.1
 
@@ -168,5 +168,51 @@ class Game implements Evolvable, GDLConvertable
         for (Conditional c : end.conditionals)
             ret += 1 + c.complexityCount()
         return ret
+    }
+    
+    @Override
+    int getNumParams()
+    {
+        def ret=0
+        ret+=players.getNumParams();
+        ret+=board.getNumParams();
+        ret+=turnOrder.getNumParams();
+        for (Piece p : pieces)
+            ret+=p.getNumParams();
+        ret+=end.getNumParams();
+        return ret
+    }
+    
+    @Override
+    void changeParam(int param, int amount)
+    {
+        int sofar=param
+        if (sofar-players.getNumParams()<0)
+            players.changeParam(sofar,amount)
+        else
+            sofar-=players.getNumParams()
+        
+        if (sofar-board.getNumParams()<0)
+            board.changeParam(sofar,amount)
+        else
+            sofar-=board.getNumParams()
+            
+        if (sofar-turnOrder.getNumParams()<0)
+            turnOrder.changeParam(sofar,amount)
+        else
+            sofar-=turnOrder.getNumParams()
+        
+        for (Piece p : pieces)
+        {
+            if (sofar-p.getNumParams()<0)
+                p.changeParam(sofar,amount)
+            else
+                sofar-=p.getNumParams()
+        }
+        
+        if (sofar-end.getNumParams()<0)
+            end.changeParam(sofar,amount)
+        else
+            sofar-=end.getNumParams()
     }
 }

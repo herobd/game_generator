@@ -99,4 +99,9 @@ enum TurnOrder implements HasClauses, HasLegalClause, HasDynCompClause, HasBaseC
 	{
 		return this.initState
 	}
+	
+	int getNumParams()
+	{
+	    return 0;
+	}
 }

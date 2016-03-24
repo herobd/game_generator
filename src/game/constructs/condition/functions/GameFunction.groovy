@@ -47,7 +47,8 @@ enum GameFunction implements Function, Condition
 		f(args)
 		return f
 	}
-
+    
+    @Override
 	int getNumParams()
 	{
 		if (this.fn == null)

@@ -53,4 +53,17 @@ class Piece implements HasClauses
         }
         return ret
     }
+    
+    int getNumParams()
+	{
+	    
+	    int ret=0
+	    //TODO, initail position?
+	    
+        for (Move move : moves)
+        {
+            ret += move.getNumParams()
+        }
+        return ret
+	}
 }

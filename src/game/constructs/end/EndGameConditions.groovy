@@ -269,4 +269,17 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 //			"(line x))"
 		return new GoalClause(T)
 	}
+	
+	int getNumParams()
+	{
+	    
+	    int ret=0
+	    //TODO...?
+	    
+        for (Conditional cond : conditions)
+        {
+            ret += cond.getNumParams()
+        }
+        return ret
+	}
 }

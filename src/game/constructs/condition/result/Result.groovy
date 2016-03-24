@@ -7,5 +7,10 @@ package game.constructs.condition.result
  */
 interface Result
 {
-
+    /*int getNumParams()
+    {
+        return 0
+    }*/
 }
+
+

@@ -161,6 +161,13 @@ module.exports =  function() {
         } else {
             callback('ok', {
                             id:0,
+                            
+                            //Fine tune
+                            shortFineTuneLimit:3,
+                            shortFineTuneThresh:0.0,
+                            fineTuneFamineLimit:7,
+                            
+                            //Instrinsic eval
                             idealNumPlayers:2,
                             numPlayersDrop:0.4,
                             invalidWeight:-100.0,
