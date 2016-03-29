@@ -6,7 +6,8 @@
   	"express": "*",
   	"body-parser": "*",
   	"multer": "*",
-  	"request": "*"
+  	"request": "*",
+  	"hierarchical-clustering": "*"
    },
   "engine": "node >=0.12.x"
 }

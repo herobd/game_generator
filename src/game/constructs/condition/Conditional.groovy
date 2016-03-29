@@ -2,13 +2,14 @@ package game.constructs.condition
 
 import game.constructs.condition.functions.Function
 import game.constructs.condition.result.Result
+import generator.FineTunable
 
 /**
  * @author Lawrence Thatcher
  *
  * A class for representing game state conditionals, that consist of a condition (antecedent), and a result (consequent)
  */
-class Conditional
+class Conditional implements FineTunable
 {
 	private Condition antecedent
 	private Result consequent
@@ -93,6 +94,7 @@ class Conditional
         return 1
     }
     
+    @Override
     int getNumParams()
 	{
 	    
@@ -101,4 +103,26 @@ class Conditional
 	    //ret+=consequent.getNumParams() //TODO will this just reference somthing else I'll already see?
         return ret
 	}
+	
+    @Override
+    void changeParam(int param, int amount)
+    {
+        int sofar=param
+        if (sofar-antecedent.getNumParams()<0)
+        {
+            antecedent.changeParam(sofar,amount)
+            return
+        }
+        else
+            sofar-=antecedent.getNumParams()
+        
+        //if (sofar-consequent.getNumParams()<0)
+        //{
+        //    consequent.changeParam(sofar,amount)
+        //    return
+        //}
+        //else
+        //    sofar-=consequent.getNumParams()
+            
+    }
 }

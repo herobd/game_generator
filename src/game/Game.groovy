@@ -13,6 +13,7 @@ import game.gdl.GDLConvertable
 import game.gdl.GDLDescription
 import generator.Evolvable
 import generator.Gene
+import generator.FineTunable
 
 /**
  * @author Lawrence Thatcher
@@ -30,6 +31,8 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 	private TurnOrder turnOrder
 	private List<Piece> pieces
 	private EndGameConditions end
+	
+	private List<Evolvable> parents = []
 
 	/**
 	 *
@@ -100,6 +103,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 	Evolvable crossOver(Evolvable mate)
 	{
 		Game child = this.clone()
+		child.setParents(this,mate)
 		List<List<Gene>> matchableGenes = [child.genes, mate.genes].transpose()
 		for (def pair : matchableGenes)
 		{
@@ -108,6 +112,18 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 			m.crossOver(f)
 		}
 		return child
+	}
+	
+	void setParents(Evolvable temp, Evolvable other)
+	{
+	    parents.add(temp)
+	    parents.add(other)
+	}
+	
+	@Override
+	List<Evolvable> getParents()
+	{
+	    return parents
 	}
 
 	@Override
@@ -188,30 +204,45 @@ class Game implements Evolvable, GDLConvertable, FineTunable
     {
         int sofar=param
         if (sofar-players.getNumParams()<0)
+        {
             players.changeParam(sofar,amount)
+            return
+        }
         else
             sofar-=players.getNumParams()
         
         if (sofar-board.getNumParams()<0)
+        {
             board.changeParam(sofar,amount)
+            return
+        }
         else
             sofar-=board.getNumParams()
             
         if (sofar-turnOrder.getNumParams()<0)
+        {
             turnOrder.changeParam(sofar,amount)
+            return
+        }
         else
             sofar-=turnOrder.getNumParams()
         
         for (Piece p : pieces)
         {
             if (sofar-p.getNumParams()<0)
+            {
                 p.changeParam(sofar,amount)
+                return
+            }
             else
                 sofar-=p.getNumParams()
         }
         
         if (sofar-end.getNumParams()<0)
+        {
             end.changeParam(sofar,amount)
+            return
+        }
         else
             sofar-=end.getNumParams()
     }

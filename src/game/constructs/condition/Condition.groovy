@@ -1,6 +1,7 @@
 package game.constructs.condition
 
 import game.constructs.condition.functions.Function
+import generator.FineTunable
 
 /**
  * @author Lawrence Thatcher
@@ -9,7 +10,7 @@ import game.constructs.condition.functions.Function
  * This can either be a logic conjunction, disjunction, or negation of a predicate (Function),
  * or can be a function in and of itself.
  */
-interface Condition implements FuneTunable
+interface Condition extends FineTunable
 {
 	/**
 	 * Returns a collection of the Functions that are used in this condition.

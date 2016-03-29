@@ -27,7 +27,7 @@ class ParametrizedFunction implements Function
 
 	ParametrizedFunction(Closure c, GameFunction parent, GString signature)
 	{
-		this.signature = signature
+		this.signature = signature //WHat is signature?
 		this.func = c
 		this.parent = parent
 	}
@@ -106,12 +106,15 @@ class ParametrizedFunction implements Function
 	int getNumParams()
 	{
 	    //TODO
-	    return 0
+	    //return func.maximumNumberOfParameters
+	    return args.size()
 	}
 	
 	@Override
     void changeParam(int param, int amount)
     {
         //TODO
+        args[param]+=amount
+        name = func(args)
     }
 }

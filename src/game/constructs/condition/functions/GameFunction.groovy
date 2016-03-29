@@ -10,6 +10,7 @@ import game.gdl.statement.GameToken
 enum GameFunction implements Function, Condition
 {
 	N_inARow("in_a_row", {n -> n.toString() + "inARow"}, "${GameToken.PLAYER_MARK}"),
+	N_M_test("test", {n -> n[0].toString()+'_'+n[1].toString() + "test"}, "${GameToken.PLAYER_MARK}"),
 	Open("open");
 
 	private Closure fn
@@ -47,6 +48,7 @@ enum GameFunction implements Function, Condition
 		f(args)
 		return f
 	}
+	
     
     @Override
 	int getNumParams()

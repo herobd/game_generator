@@ -326,6 +326,10 @@ var ControllerApp = function(host,port) {
             self.gameCord.addPlayer('l2','localhost',9148,'l2',0,1);
             self.gameCord.addPlayer('l3','localhost',9149,'l3',0,1);
             self.gameCord.addPlayer('l4','localhost',9150,'l4',0,1);
+            self.gameCord.addPlayer('l1','localhost',9151,'l5',0,1);
+            self.gameCord.addPlayer('l2','localhost',9152,'l6',0,1);
+            self.gameCord.addPlayer('l3','localhost',9153,'l7',0,1);
+            self.gameCord.addPlayer('l4','localhost',9154,'l8',0,1);
             //self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
             ////////////////////
             
@@ -365,21 +369,26 @@ var ControllerApp = function(host,port) {
         );
     };
     
-    self.sendGameDone = function(results) {
-        
-        request.post(
-            'http://'+self.evaluatorAddress+'/gameDone',
-            { json: results },
-            function (error, response, body) {
-                if (!error && response.statusCode == 200) {
-                    
-                    if (body.status!=='recieved'&&body.status!=='ok') {
-                        console.log('ERROR: DONE for '+results.gameId+' didnt stick in evaluator');
+    self.sendGameDone = function(gameId) {
+        self.database.getMetaForEval(gameId, function(err,res) {
+            if (!err) {
+                request.post(
+                    'http://'+self.evaluatorAddress+'/gameDone',
+                    { json: res },
+                    function (error, response, body) {
+                        if (!error && response.statusCode == 200) {
+                            
+                            if (body.status!=='recieved'&&body.status!=='ok') {
+                                console.log('ERROR: DONE for '+appendedResults.gameId+' didnt stick in evaluator');
+                            }
+                            
+                        }
                     }
-                    
-                }
+                );
+            } else {
+                console.log('ERROR: failed to retrieve gdl and hlgdl: '+err);
             }
-        );
+        }
     };
     
     //localhost:8081/connect?id=controller&address=localhost:8080
@@ -436,6 +445,14 @@ var ControllerApp = function(host,port) {
             callback();
         }
     };
+
+    self.savePlayerTypeSkills = function(skillMap) {
+        self.database.savePlayerTypeSkills(skillMap,function(err) {if (err) console.log('ERROR saving skills: '+err);});
+    }
+
+    self.getPlayerTypeSkill = function(type,callback) {
+        self.database.getPlayerTypeSkill(type,callback);
+    }
 };   /*  END Controller Application.  */
 
 

@@ -9,13 +9,14 @@ import game.gdl.clauses.dynamic.HasDynCompClause
 import game.gdl.clauses.legal.HasLegalClause
 import game.gdl.clauses.legal.LegalClause
 import game.gdl.statement.GDLStatement
+import generator.FineTunable
 
 /**
  * @author Lawrence Thatcher
  *
  * Contains the GDL descriptions of a legal move that can be performed by a piece
  */
-class Move implements HasClauses, HasDynCompClause, HasBaseClause, HasLegalClause
+class Move implements HasClauses, HasDynCompClause, HasBaseClause, HasLegalClause, FineTunable
 {
 	private def inputs = []
 	private DynamicComponentsClause dynComp
@@ -69,9 +70,17 @@ class Move implements HasClauses, HasDynCompClause, HasBaseClause, HasLegalClaus
         return 1
     }
     
+    @Override
     int getNumParams()
 	{
 	    //TODO fill this is
         return 0
 	}
+	
+	@Override
+    void changeParam(int param, int amount)
+    {
+        //TODO
+        
+    }
 }

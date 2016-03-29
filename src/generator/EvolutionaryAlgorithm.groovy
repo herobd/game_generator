@@ -13,6 +13,8 @@ import game.Game
 import generator.GeneratorClient
 import generator.InstrinsicEvaluator
 
+import game.constructs.condition.functions.Function
+import game.constructs.condition.functions.ParametrizedFunction
 
 /**
  * A class that does an evolutionary algorithm.
@@ -28,7 +30,7 @@ class EvolutionaryAlgorithm
     private Boolean debug_sub=false
     private Object params = null //This holds the wieghts for insrinsic evaulation and an id (for the params version), as well things like the probabilities for gene selection and so forth
     private InstrinsicEvaluator instrinsicEvaluator = null
-    private Map fineTUning = [:]
+    private Map fineTuning = [:]
 
 	EvolutionaryAlgorithm(List<Evolvable> initialPop, String controllerAddress)
 	{
@@ -40,6 +42,18 @@ class EvolutionaryAlgorithm
 
 	public static void main(String[] args)
 	{
+        //ParametrizedFunction ttt = GameFunction.N_inARow(3)
+        //println ttt.getNumParams()
+        Function tttt = GameFunction.Open
+        println tttt.getNumParams()
+        ParametrizedFunction t3 = GameFunction.N_M_test([1,2])
+        println t3.getNumParams()
+        
+        println t3.toString()
+        t3.changeParam(0, 1)
+        println t3.toString()
+        return
+        
 		//For now using a hard-coded initial population...
 		def players = new Players(["White", "Black", "Salmon", "Pink"])
 		def board = new SquareGrid(3, true)
@@ -105,7 +119,8 @@ class EvolutionaryAlgorithm
 			    if (intrinsicScore>intrinsicScoreThresh)
 			    {
 			        debug_sub=true
-			        fineTuneInit(p3,intrinsicScore,params.id);
+			        fineTuneInit(p3,intrinsicScore);
+			        sleep(10000);
 		        }
 		        def controllerResScores = client.getControllerResponses()
 			    updateScores(controllerResScores)
@@ -120,7 +135,7 @@ class EvolutionaryAlgorithm
 	
 	void fineTuneInit(Game g, double intrinsicScore)
 	{
-	    def resp = client.doShortEval(g,intrinsicScore)
+	    def resp = client.doShortEval(g,intrinsicScore,params.id)
 	    def ft = [
 	                origId:g.getId(),
 	                lastScore:-99999, //so the first run is always gets accepted
@@ -154,28 +169,30 @@ class EvolutionaryAlgorithm
 	            //do next step of finetuning
 	            def ft = fineTuning.remove(gameId)
 	            def numParams=ft.currentVersion.getNumParams()
-	            if (score <= ft.lastScores)
+	            println 'finetuning game '+ft.currentVersion.getId()+' which has '+numParams+' params'
+	            if (score <= ft.lastScore)
 	            {
-	                if (ft.iters>params.shortFineTuneLimit && ft.scores.last()<params.shortFineTuneThresh ||
+	                if (ft.iters>params.shortFineTuneLimit && ft.lastScore<params.shortFineTuneThresh ||
 	                    ft.iters-ft.iterOfLastImprovement>params.fineTuneFamineLimit ||
-	                    (ft.iters>=2 && numParams==1)
+	                    (ft.iters>=2 && numParams==1) )
 	                {
 	                    if (ft.iters>2)//this is different enough
 	                        population.add(ft.lastVersion)
+                        println 'actually, done finetuning'
 	                    continue;//we're done fine tuning this game
 	                }
-	                ft.currentVersion=ft.lastVersion
+	                ft.currentVersion=ft.lastVersion.clone()
 	                
 	                def nextParam=ft.lastParam
 	                def plus
 	                if (ft.tried=='-')
 	                {
-	                    plus=false
+	                    plus=true
 	                    
 	                }
 	                else if (ft.tried=='+')
 	                {
-	                    plus=true
+	                    plus=false
 	                }
 	                else
 	                {
@@ -199,7 +216,7 @@ class EvolutionaryAlgorithm
                             
                         
 	                }
-	                ft.paramMap[nextParam]=plus
+	                //ft.paramMap[nextParam]=plus
 	                if (plus)
 	                {
 	                    ft.tried+='+'
@@ -211,6 +228,7 @@ class EvolutionaryAlgorithm
                         ft.currentVersion.changeParam(nextParam,-1)
                     }
                     ft.lastParam=nextParam
+                    println "Worse: I'm going to tweak param "+nextParam+" up:"+plus
 	            }
 	            else
 	            {
@@ -219,20 +237,22 @@ class EvolutionaryAlgorithm
 	                ft.lastVersions=ft.currentVersion.clone()
 	                ft.lastScore=score
 	                
+	                if (ft.tried.length>0)
+	                    ft.paramMap[ft.lastParam]=ft.tried[-1]
 	                
                     //select a param
                     def nextParam=RANDOM.nextInt(numParams)
                     def plus
-                    if (ft.paramMap.containsKey(nextParam))
+                    if (ft.paramMap.containsKey(nextParam) && ft.paramMap[nextParam]!=null)
                     {
-                        plus=ft.paramMap[nextParam]
+                        plus=ft.paramMap[nextParam]=='+'
                     }
                     else
                     {
                         plus = (RANDOM.nextInt(2)==0)
                     }
                     
-	                ft.paramMap[nextParam]=plus
+	                
 	                if (plus)
 	                {
 	                    ft.tried='+'
@@ -244,12 +264,13 @@ class EvolutionaryAlgorithm
                         ft.currentVersion.changeParam(nextParam,-1);
                     }
                     ft.lastParam=nextParam
+                    println "Better: I'm going to tweak param "+nextParam+" up:"+plus
 	            }
 	            
 	            //
 	            ft.iters++
-	            ft.currentVersion.setId(ft.origId+'_$'+ft.iters+'$')
-	            client.doShortEval(ft.currentVersion,ft.scores.last())
+	            ft.currentVersion.setId(ft.origId+'_#'+ft.iters+'#')
+	            client.doShortEval(ft.currentVersion,ft.lastScore,params.id)
 	            fineTuning[ft.currentVersion.getId()]=ft
 	            //
 	        }
@@ -289,7 +310,7 @@ class EvolutionaryAlgorithm
 	        
 	        //debugging
 	        println 'Got score '+score+' for game '+gameId
-	        cont=false
+	        //cont=false
 	        
 	        
 	    }

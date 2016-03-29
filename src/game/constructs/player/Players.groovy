@@ -8,6 +8,7 @@ import game.gdl.statement.SimpleStatement
 import generator.CrossOver
 import generator.Gene
 import generator.Mutation
+import generator.FineTunable
 
 /**
  * @author Lawrence Thatcher
@@ -290,7 +291,7 @@ class Players implements HasClauses, HasRolesClause, Gene, Iterable<Player>, Fin
 	}
 	
 	@Override
-	int changeParam(int param, int amount)
+	void changeParam(int param, int amount)
 	{
 	    //TODO
 	}

@@ -8,6 +8,8 @@ var multer = require('multer'); // v1.0.5
 var upload = multer();
 
 
+
+var learnPositionStrength = require('./strengthEval')();
 /**
  *  Define the sample application.
  */
@@ -160,14 +162,14 @@ var EvaluatorServer = function(host,port) {
         });
         
         self.app.post('/gameDone', upload.array(), function (req, res, next) {
-            console.log('Recieved DONE for game id: '+req.body.gameId+'.');
+            console.log('Recieved DONE for game id: '+req.body.id+'.');
             res.setHeader('Content-Type', 'application/json');
             res.json({id:'evaluator',status:'ok',score:score});
             
             
             var score = {};
             var status = self.evalGame(req.body,score);
-            self.returnScore(req.body.gameId,score,status);
+            self.returnScore(req.body.id,score,status);
         });
         
         // Static file (images, css, etc)
@@ -201,7 +203,9 @@ var EvaluatorServer = function(host,port) {
                         luckWeight:-0.2,
                         durationWeight:0.4,
                         resilienceWeight:0.4,
-                        completionWeight:0.4
+                        completionWeight:0.4,
+                        clusteringKCoef:0.4, //multiply avg num of turns to have that many clusters
+                        strengthEvalDrawWeight:0.5 //should be < 1.0
                       };
     };
 
@@ -285,7 +289,9 @@ var EvaluatorServer = function(host,port) {
     self.RE_outcome = /INFO\([0-9.:]+\): Game over! results: ([0-9. ]+)/;
     self.RE_numbers = /[0-9.]+/g;
     self.RE_outOfTime = /match too long/;
-    self.RE_state = /INFO\([0-9.:]+\): current state:\((\([a-zA-Z0-9_ ]*\))*\)/g;
+    self.RE_states = /INFO\([0-9.:]+\): current state:\((\([a-zA-Z0-9_ ]*\))*\)/g;
+    self.RE_state =  /INFO\([0-9.:]+\): current state:\((\([a-zA-Z0-9_ ]*\))*\)/;
+    
     
     self.evalRes = function(matchResults) {
         var err='ok';
@@ -304,7 +310,12 @@ var EvaluatorServer = function(host,port) {
             return err
         }
         
-        var turns = matchResults.printout.match(self.RE_state);
+        var turnsLines = matchResults.printout.match(self.RE_states);
+        var turns = [];
+        for (var s of turnsLines) {
+            turns.push(s.match(self.RE_state)[1]);
+        }
+        
         
         //var stats = self.gameStats[matchResults.gameId];
         var matchInfo = {
@@ -329,7 +340,7 @@ var EvaluatorServer = function(host,port) {
         var err='ok';
         var stats;// = self.gameStats[gameMeta.gameId];
         
-        var totalMatchesPlayed = 0.0+self.matches[gameMeta.gameId].length;
+        var totalMatchesPlayed = 0.0+self.matches[gameMeta.id].length;
         
         var total_weakVstrong=0;
         var wins_weakVstrong=0;
@@ -343,7 +354,8 @@ var EvaluatorServer = function(host,port) {
         var lengthDevSum=0;
         var totalFinished=0;
         
-        for (var matchInfo of self.matches[gameMeta.gameId]) {
+        
+        for (var matchInfo of self.matches[gameMeta.id]) {
             var minSkill=1000; var maxSkill=-1000;
             var idMinSkill=[];   var idMaxSkill=[];
             
@@ -454,7 +466,21 @@ var EvaluatorServer = function(host,port) {
             if (matchInfo.finished)
                 totalFinished+=1;
             
+            
         }//end match evals
+        
+        learnPositionStrength(turnsScores,gameMeta.hlgdl,self.matches[gameMeta.id],gameMeta.numPlayers);
+        
+        //evaluate dynamics of gameplay
+        for (var matchInfo of self.matches[gameMeta.id]) {
+            
+            //TODO
+            for (turn of matchInfo.turnsStrengthScored) {
+                //TODO turn.strengthScored
+            }
+        }
+        
+        //Caclulate scores
         
         retScore.drawish=(drawsWeighted)/(playsWeighted);
         
@@ -479,7 +505,7 @@ var EvaluatorServer = function(host,port) {
         
         retScore.id = self.params.id;
         
-        console.log('Evaluation complete for game: '+gameMeta.gameId);
+        console.log('Evaluation complete for game: '+gameMeta.id);
         console.log('  Drawish: '+retScore.drawish);
         console.log('  Luck: '+retScore.luck);
         console.log('  Duration: '+retScore.duration);
@@ -489,6 +515,8 @@ var EvaluatorServer = function(host,port) {
         //TODO more
         return err;
     }
+    
+    
 };   /*  END EvaluatorServer.  */
 
 

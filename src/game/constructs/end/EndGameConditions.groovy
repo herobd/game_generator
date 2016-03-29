@@ -14,13 +14,14 @@ import game.gdl.clauses.terminal.TerminalClause
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.statement.GameToken
+import generator.FineTunable
 
 /**
  * @author Lawrence Thatcher
  *
  * A class used to store and represent the ending conditions for a game.
  */
-class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
+class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause, FineTunable
 {
 	private exclusiveWin = true
 	private List<TerminalConditional> conditions
@@ -270,6 +271,7 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
 		return new GoalClause(T)
 	}
 	
+	@Override
 	int getNumParams()
 	{
 	    
@@ -282,4 +284,20 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause
         }
         return ret
 	}
+	
+	@Override
+    void changeParam(int param, int amount)
+    {
+        int sofar=param
+        for (Conditional cond : conditions)
+        {
+            if (sofar-cond.getNumParams()<0)
+            {
+                cond.changeParam(sofar,amount)
+                return
+            }
+            else
+                sofar-=cond.getNumParams()
+        }
+    }
 }

@@ -189,4 +189,19 @@ class SquareGrid extends Grid implements
 		result += ")\n"
 		return new SimpleStatement(result)
 	}
+	
+	@Override
+	int getNumParams()
+	{
+	    return 2
+	}
+	
+	@Override
+    void changeParam(int param, int amount)
+    {
+        if (param==0)
+            size+=amount
+        else
+            i_nbors=!i_nbors
+    }
 }

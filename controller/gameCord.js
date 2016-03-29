@@ -77,6 +77,13 @@ module.exports =  function() {
         // returns true if node i is higher priority than j
         // I'm assuming higher score = higher priority
         isHigherPriority: function(i,j) {
+            if (i>=this.heap.length)
+                return false
+            else if (this.heap[i]==undefined)
+                console.log('ERROR in PriorityQueue, this.heap['+i+'] is undef, i')
+            else if (this.heap[j]==undefined)
+                console.log('ERROR in PriorityQueue, this.heap['+j+'] is undef, j')
+            
             return this.heap[i].priority > this.heap[j].priority;
         }
     }
@@ -100,6 +107,7 @@ module.exports =  function() {
         this.nextMatchId = null;
         this.database.getMaxMatchId(function(matchId){self.nextMatchId=matchId;});
         this.numMatchesBeingPlayed=0;
+	this.rankMode=false;
     }
     
     GameCord.prototype.queueLength = function () {
@@ -140,8 +148,14 @@ module.exports =  function() {
             readjust=true;
         if (name===undefined)
             name='unnamed';
-        if (skillLevel===undefined)
-            skillLevel=1;
+        if (skillLevel===undefined || skillLevel<0) {
+            this.owner.getPlayerTypeSkill(method,function (err,skill) {
+                if (!err & skill!=null && skill>=0)
+		    skillLevel=skill;
+	        else
+	            skillLevel=1;
+	    }
+	}
         if (gdlVersion===undefined)
             gdlVersion=1;
         this.players.push({
@@ -450,7 +464,10 @@ module.exports =  function() {
                                             type:self.players[playerId].type
                                          });
                 }
-                self.owner.sendGameResults({matchId:m.id, playerOrder:allOrders.length, rep:rep, players:thisGamePlayerInfo, gameId:m.gameId,printout:stdout});
+                if (self.rankMode==false)
+		    self.owner.sendGameResults({matchId:m.id, playerOrder:allOrders.length, rep:rep, players:thisGamePlayerInfo, gameId:m.gameId,printout:stdout});
+	        else
+		    self.evalWin(thisGamePlayerInfo,stdout);
             }
             if (allOrders.length>0 || leftToPlayWith>1)
                 self.playMatch(m,allOrders,gameLoc,leftToPlayWith-1,thisGamePlayers);
@@ -470,8 +487,8 @@ module.exports =  function() {
         }
         
         //inform evaluator
-        if (m.owner.allDone())
-            this.owner.sendGameDone({gameId:m.gameId});
+        if (m.owner.allDone() && this.rankMode==false)
+            this.owner.sendGameDone(m.gameId);
         
         //The second term is just a catch-all in case we hit a funny case
         if (this.findNextMatchUp(m.playerTypes) || this.numMatchesBeingPlayed==0)
@@ -580,6 +597,54 @@ module.exports =  function() {
         else
             return null;
     };
+
     
+    GameCord.prototype.rankPlayersStart = function () {
+        this.rankMode=true;
+	this.wins={};
+	for (t of this.allPlayerTypes)
+	    this.wins[t]=0;
+    }
+    GameCord.prototype.rankPlayersEnd = function () {
+        this.rankMode=false;
+	//TODO
+        var toSort = [];
+	for (var t of this.allPlayerTypes) {
+            toSort.push({type:t, wins:this.wins[t]});
+	}
+	toSort.sort(function (a,b) {return a.wins-b.wins});
+        var curSkill=0;
+	var ret={};
+	for (rankPair of toSort) {
+            console.log('player type ['+rankPair.type+'] is skill '+curSkill);
+            ret[rankPair.type]=curSkill;
+	    for (p of this.players) {
+                p.skill=curSkill;
+	    }
+	    if ((curSkill==0 && rankPair.type=='random') || curSkill>0) {
+                curSkill++;
+	    } 
+	}
+	this.owner.savePlayerTypeSkills(ret);
+    }
+    GameCord.prototype.evalWin = function (playerInfo,printout) {
+        var RE_outcome = /INFO\([0-9.:]+\): Game over! results: ([0-9. ]+)/;
+        var RE_numbers = /[0-9.]+/g;
+        var outcome = printout.match(RE_outcome)[1].match(RE_numbers);
+	var highScore=-999;
+	var winI=-1;
+	for (var i=0; i<outcome.length; i++) {
+            if (outcome[i]>highScore) {
+		    highScore=outcome[i];
+		    winI=i;
+	    } else if (outcome[i]==highScore){
+		    winI=-1;
+	    }
+
+	}
+	if (winI!=-1) {
+		this.wins[playerInfo[winI].type]++
+	}
+    }
     return GameCord;
 };

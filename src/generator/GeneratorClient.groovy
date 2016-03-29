@@ -53,34 +53,44 @@ class GeneratorClient
         def tries=36 //try for an hour
         while(true)
         {
-            println "connecting to http://"+controllerAddress
-	        http = new HTTPBuilder("http://"+controllerAddress)
-	        http.request(Method.GET,ContentType.JSON) {
-	            uri.path="/connect"
-	            uri.query= [ id:'generator', address: 'blocked' ]
-	            response.success = { resp, json ->
-                    status=json.status
-                }
-            }
-            
-            if (status!="ok" && tries>0)
+            try
             {
-                println 'Failed to connect to Controller: '+status
-                tries--
-                sleep(10000) //10 seconds
+                println "connecting to http://"+controllerAddress
+	            http = new HTTPBuilder("http://"+controllerAddress)
+	            http.request(Method.GET,ContentType.JSON) {
+	                uri.path="/connect"
+	                uri.query= [ id:'generator', address: 'blocked' ]
+	                response.success = { resp, json ->
+                        status=json.status
+                    }
+                }
+                
+                if (status!="ok" && tries>0)
+                {
+                    println 'Failed to connect to Controller: '+status
+                    tries--
+                    sleep(10000) //10 seconds
+                }
+                else
+                    break
             }
-            else
-                break
+            catch (org.apache.http.NoHttpResponseException | org.apache.http.conn.HttpHostConnectException e)
+            {
+                println 'Failed to get connect Controller: '+e.toString()
+                tries--
+                sleep(20000) //20 seconds
+            }
         }
         
         assert status=='ok'
 	}
 	
-	String doShortEval(Game game, double intrinsicScore)
+	String doShortEval(Game game, double intrinsicScore, int paramId)
 	{
 	    def meta = [    id:game.getId(), 
 	                    name:game.getName(),
-	                    intrinsicScore:intrinsicScore, 
+	                    intrinsicScore:intrinsicScore,
+	                    generatorParamId:paramId, 
                         numPlayers:game.getNumPlayers(), 
                         gdlVersion:game.getGDLVersion(),
                         testLength:'short'
@@ -123,24 +133,33 @@ class GeneratorClient
         def tries=2
         List ret=[]
         while(true)
-        {               
-	        http.request(Method.GET,ContentType.JSON) {
-	            uri.path="/asking_for_updates"
-	            uri.query= [ id:'generator' ]
-	            response.success = { resp, json ->
-                    status=json.status
-                    ret=json.scores
+        {   
+            try
+            {            
+	            http.request(Method.GET,ContentType.JSON) {
+	                uri.path="/asking_for_updates"
+	                uri.query= [ id:'generator' ]
+	                response.success = { resp, json ->
+                        status=json.status
+                        ret=json.scores
+                    }
                 }
+                
+                if (status!="ok" && tries>0)
+                {
+                    println 'Failed to get update from Controller: '+status
+                    tries--
+                    sleep(500) //.5 seconds
+                }
+                else
+                    break
             }
-            
-            if (status!="ok" && tries>0)
+            catch (org.apache.http.NoHttpResponseException | org.apache.http.conn.HttpHostConnectException e)
             {
-                println 'Failed to get update from Controller: '+status
+                println 'Failed to get response from Controller: '+e.toString()
                 tries--
-                sleep(500) //.5 seconds
+                sleep(20000) //20 seconds
             }
-            else
-                break
         }
         
         assert ret instanceof List

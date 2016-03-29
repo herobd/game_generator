@@ -4,13 +4,14 @@ import game.constructs.condition.functions.Function
 import game.constructs.condition.functions.Supports
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
+import generator.FineTunable
 
 /**
  * @author Lawrence Thatcher
  *
  * Stores information about the game board.
  */
-class Board implements HasClauses, Supports
+abstract class Board implements HasClauses, Supports, FineTunable
 {
 	/**
 	 * Retrieves the GDL-description and implementation of a particular function
@@ -53,9 +54,5 @@ class Board implements HasClauses, Supports
 		}
 	}
 	
-	int getNumParams()
-	{
-	    //TODO
-	    return 0;
-	}
+	
 }

@@ -2,13 +2,14 @@ package game.constructs.pieces
 
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
+import generator.FineTunable
 
 /**
  * @author Lawrence Thatcher
  *
  * An abstract representation of a game piece.
  */
-class Piece implements HasClauses
+class Piece implements HasClauses, FineTunable
 {
 	private String name = ""	//perhaps change to type later..?
 	private Placement placement
@@ -54,6 +55,7 @@ class Piece implements HasClauses
         return ret
     }
     
+    @Override
     int getNumParams()
 	{
 	    
@@ -66,4 +68,20 @@ class Piece implements HasClauses
         }
         return ret
 	}
+	
+	@Override
+    void changeParam(int param, int amount)
+    {
+        int sofar=param
+        for (Move move : moves)
+        {
+            if (sofar-move.getNumParams()<0)
+            {
+                move.changeParam(sofar,amount)
+                return
+            }
+            else
+                sofar-=move.getNumParams()
+        }
+    }
 }

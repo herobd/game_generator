@@ -81,6 +81,12 @@ module.exports =  function() {
         callback('(role none)');
     }*/
     
+    Database.prototype.getMetaForEval = function (gameId,callback) {
+        self.gameCollection.findOne({id:gameId},{id:1,gdl:1,hlgdl:1,numPlayers:1}, function(err, item) {
+            callback(err,item);//this returns an extra '_id' field, but oh well
+        });
+    };
+    
     Database.prototype.gdlFileLocation = function (gameId,callback) {
         //console.log('Database is stubbed. Would be retrieving gdl file location for '+gameId);
         //if it doesnt exist, create it
@@ -116,7 +122,7 @@ module.exports =  function() {
         //callback('./gamecontroller/ticTacToe.kif');
         //else
         //    callback('./example.kif');
-    }
+    };
     
     Database.prototype.storeScore = function (gameId,score,callback) {
         //console.log('Database is stubbed. Soring score for '+gameId);
@@ -136,13 +142,13 @@ module.exports =  function() {
             else
                 callback('ok');
         });
-    }
+    };
     
     Database.prototype.getMaxMatchId = function (callback) {
         console.log('Database is stubbed. Would be retrieving max match id');
         //if it doesnt exist, create it
         callback(0);
-    }
+    };
     
     Database.prototype.getLastParams = function (componentId,callback) {
         console.log('Database is stubbed. Would be retrieving params');
@@ -152,11 +158,13 @@ module.exports =  function() {
                             id:0,
                             skillDifWeight:0.3,
                             prefLength:60,
-                            drawishWeight:-0.2,
+                            drawishWeight:-0.5,
                             luckWeight:-0.2,
                             durationWeight:0.4,
                             resilienceWeight:0.4,
-                            completionWeight:0.4
+                            completionWeight:0.4,
+                            clusteringKCoef:0.4,
+                            strengthEvalDrawWeight:0.5
                           });
         } else {
             callback('ok', {
@@ -175,15 +183,30 @@ module.exports =  function() {
                             complexityWeight:-0.3
                           });
         }
-    }
+    };
     
     Database.prototype.getAllUnscoredGames = function (callback) {
         console.log('Database is stubbed. Would be retrieving unscroed games');
         
         //expects games: {meta:the meta data, startedEval:boolean, matches:[{id,playerOrder,rep,players}] stored in database}
         callback([]);
+    };
+    
+    Database.prototype.savePlayerTypeSkills = function (skillMap,callback) {
+        var self=this;
+	skillMap.skillMap=1;
+	self.gameCollection.insert(skillMap, {w:1}, function(err, result) {
+		callback(err);
+	}
     }
-    
-    
+
+    Database.prototype.getPlayerTypeSkill = function (type,callback) {
+        self.gameCollection.findOne({skillMap:1}, function(err, item) {
+            if (item != null)
+                callback(err,item[type]);
+	    else
+                callback(err,null);
+        });
+    } 
     return Database
 };
