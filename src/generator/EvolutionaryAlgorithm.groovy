@@ -23,7 +23,7 @@ import game.constructs.condition.functions.ParametrizedFunction
  */
 class EvolutionaryAlgorithm
 {
-	private List<Evolvable> population = []
+	private Map<String,Evolvable> population = [:]
 	private GeneratorClient client = null
 	private static final Random RANDOM = new Random()
 	private Boolean cont=true
@@ -31,8 +31,10 @@ class EvolutionaryAlgorithm
     private Object params = null //This holds the wieghts for insrinsic evaulation and an id (for the params version), as well things like the probabilities for gene selection and so forth
     private InstrinsicEvaluator instrinsicEvaluator = null
     private Map fineTuning = [:]
+    private double maxScore=0
+    private double minScore=0
 
-	EvolutionaryAlgorithm(List<Evolvable> initialPop, String controllerAddress)
+	EvolutionaryAlgorithm(Map<String,Evolvable> initialPop, String controllerAddress)
 	{
 		population = initialPop
 		client = new GeneratorClient(controllerAddress)
@@ -69,7 +71,7 @@ class EvolutionaryAlgorithm
         if (args.length > 0)
             controllerAddress = args[0]
             
-		EvolutionaryAlgorithm algorithm = new EvolutionaryAlgorithm([p1, p2],controllerAddress)
+		EvolutionaryAlgorithm algorithm = new EvolutionaryAlgorithm([p1.getId():p1, p2.getId()::p2],controllerAddress)
 
 		int iters = 50
 		if (args.length > 1)
@@ -116,6 +118,10 @@ class EvolutionaryAlgorithm
 			    // TODO: cull inbreds
 			    //controller hook here
 			    def intrinsicScore = instrinsicEvaluator.evaluate(p3)
+			    if (intrinsicScore>maxScore)
+	                maxScore=intrinsicScore
+                if (intrinsicScore<minScore)
+                    minScore=intrinsicScore	
 			    if (intrinsicScore>intrinsicScoreThresh)
 			    {
 			        debug_sub=true
@@ -127,7 +133,7 @@ class EvolutionaryAlgorithm
 			    fineTuneNext(controllerResScores)
 
 			    //Add to population
-			    population.add(p3)
+			    population[p3.getId()]=p3
 		    }
 		    //client.doLongEval(topXFromPopulation())
 		}
@@ -177,7 +183,7 @@ class EvolutionaryAlgorithm
 	                    (ft.iters>=2 && numParams==1) )
 	                {
 	                    if (ft.iters>2)//this is different enough
-	                        population.add(ft.lastVersion)
+	                        population[ft.lastVersion.getId()]=ft.lastVersion
                         println 'actually, done finetuning'
 	                    continue;//we're done fine tuning this game
 	                }
@@ -280,18 +286,30 @@ class EvolutionaryAlgorithm
 	//Helper Methods
 	void printPopulationMembers()
 	{
-		for (Evolvable member : population)
+		for (String id : population.keys())
 		{
-			println member.toString()
+			println population[id].toString()
 			println "\n"
 		}
 	}
 
 	private Evolvable getRandomMember()
 	{
-		//TODO: Use stochastic universal sampling to select fitter individuals more often
-		int idx = RANDOM.nextInt(population.size())
-		return population[idx]
+		//Use stochastic universal sampling to select fitter individuals more often
+		for (int i=0; i<1000; i++)
+		{
+		    double lowerBound = RANDOM.next(minScore,maxScore);
+		    for (int i=0; i<10000; i++)
+		    {
+		        String id = population.keys()[RANDOM.nextInt(population.size())]
+		        if (population[id].getScore()>=lowerBound)
+		            return population[id];
+		    }
+		    
+		    
+	    }
+	    println 'ERROR, unable to randomly sample from population'
+	    return population[population.keys()[0]];
 	}
 	
 	
@@ -302,6 +320,11 @@ class EvolutionaryAlgorithm
 	    {
 	        def gameId = toUpdate[i].id
 	        def score = toUpdate[i].score.evalScore
+	        population[gameId].setScore(score)
+	        if (score>maxScore)
+	            maxScore=score
+            if (score<minScore)
+                minScore=score	            
 	        //You can access the elements of the score (for changing search strat) in the ${it}.score object
 	        //also ${it}.score.id holds the identifier for the parameters used to create this score
 	        

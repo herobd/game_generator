@@ -31,6 +31,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 	private TurnOrder turnOrder
 	private List<Piece> pieces
 	private EndGameConditions end
+	private double score=0
 	
 	private List<Evolvable> parents = []
 
@@ -54,6 +55,19 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		else
 			this.pieces = pieces
 		this.end = new EndGameConditions(end, board)
+	}
+	
+	Game(Players players, Board board, TurnOrder turnOrder, List<Piece> pieces, List<TerminalConditional> end, double score)
+	{
+		this.players = players
+		this.board = board
+		this.turnOrder = turnOrder
+		if (pieces == null || pieces == [])
+			this.pieces = [NamedPieces.DEFAULT_PIECE]
+		else
+			this.pieces = pieces
+		this.end = new EndGameConditions(end, board)
+		this.score=score
 	}
 	
 	int getNumPlayers()
@@ -146,7 +160,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 			c_pieces.add(p.clone())
 		for (Conditional c : end.conditionals)
 			c_end.add(c.clone())
-		return new Game(c_players, c_board, turnOrder, c_pieces, c_end)
+		return new Game(c_players, c_board, turnOrder, c_pieces, c_end,score)
 	}
 
 	@Override
@@ -184,6 +198,18 @@ class Game implements Evolvable, GDLConvertable, FineTunable
         for (Conditional c : end.conditionals)
             ret += 1 + c.complexityCount()
         return ret
+    }
+    
+    @Override
+    double getScore()
+    {
+        return score
+    }
+    
+    @Override
+    void setScore(double score)
+    {
+        this.score=score
     }
     
     @Override

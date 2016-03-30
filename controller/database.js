@@ -1,7 +1,7 @@
 module.exports =  function() {
     
    var fs = require('fs');
-    function Database(address,gdlDir) {
+    function Database(address,gdlDir, callback) {
         //TODO...
         // Retrieve
         var self=this;
@@ -26,6 +26,7 @@ module.exports =  function() {
             db.collection('GAMES', function(err, collection) {
                 if(!err) {
                     self.gameCollection=collection;
+                    callback();
                 } else {
                     console.log('ERROR: conencting to MongoDB colection GAMES: '+err);
                 }
@@ -82,7 +83,7 @@ module.exports =  function() {
     }*/
     
     Database.prototype.getMetaForEval = function (gameId,callback) {
-        self.gameCollection.findOne({id:gameId},{id:1,gdl:1,hlgdl:1,numPlayers:1}, function(err, item) {
+        this.gameCollection.findOne({id:gameId},{id:1,gdl:1,hlgdl:1,numPlayers:1}, function(err, item) {
             callback(err,item);//this returns an extra '_id' field, but oh well
         });
     };
@@ -187,24 +188,49 @@ module.exports =  function() {
     
     Database.prototype.getAllUnscoredGames = function (callback) {
         console.log('Database is stubbed. Would be retrieving unscroed games');
-        
+        /*this.gameCollection.find({/*does not have score},{id:1, name:1, intrinsicScore:1, testLength:1, numPlayers:1, gdlVersion:1}, function(err, item) {
+            if (item != null){
+                var ret = [];
+                for (meta of item) {
+                    ret.push({meta:meta, startedEval:false});
+                }
+                callback(err,ret);
+	        } else
+                callback(err,null);
+        });*/
         //expects games: {meta:the meta data, startedEval:boolean, matches:[{id,playerOrder,rep,players}] stored in database}
-        callback([]);
+        callback(null,[]);
+    };
+    
+    Database.prototype.getTopGames = function (num,callback) {
+        console.log('Database is stubbed. Would be retrieving top games');
+        /*this.gameCollection.find({/*ordered by score},{id:1, name:1, gdlVersion:1, hlgdl:1, gdl:1}, function(err, item) {
+            if (item != null){
+                var ret = [];
+                for (meta of item) {
+                    ret.push({meta:meta, startedEval:false});
+                }
+                callback(err,ret);
+	        } else
+                callback(err,null);
+        });*/
+        //expects games: {meta:the meta data, startedEval:boolean, matches:[{id,playerOrder,rep,players}] stored in database}
+        callback(null,[]);
     };
     
     Database.prototype.savePlayerTypeSkills = function (skillMap,callback) {
         var self=this;
-	skillMap.skillMap=1;
-	self.gameCollection.insert(skillMap, {w:1}, function(err, result) {
-		callback(err);
-	}
+	    skillMap.skillMap=1;
+	    self.gameCollection.insert(skillMap, {w:1}, function(err, result) {
+		    callback(err);
+	    });
     }
 
     Database.prototype.getPlayerTypeSkill = function (type,callback) {
-        self.gameCollection.findOne({skillMap:1}, function(err, item) {
+        this.gameCollection.findOne({skillMap:1}, function(err, item) {
             if (item != null)
                 callback(err,item[type]);
-	    else
+	        else
                 callback(err,null);
         });
     } 

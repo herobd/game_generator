@@ -38,4 +38,7 @@ interface Evolvable
 	 * @return a list of parents of this instance
 	 */
 	List<Evolvable> getParents()
+	
+	double getScore()
+	void setScore(double score)
 }
