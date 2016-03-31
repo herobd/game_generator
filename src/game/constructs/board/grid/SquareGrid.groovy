@@ -64,22 +64,22 @@ class SquareGrid extends Grid implements
 	}
 
 	@Override
-	GDLClause in_a_row(int n)
+	GDLClause in_a_row(List n)
 	{
-		String name = Integer.toString(n) + "inARow"
+		String name = Integer.toString(n[0]) + "inARow"
 
 		def s = []
-		s.add(line_row(n))
-		s.add(line_column(n))
+		s.add(line_row(n[0]))
+		s.add(line_column(n[0]))
 		if (this.i_nbors)
 		{
-			s.add(line_diag_desc(n))
-			s.add(line_diag_asc(n))
+			s.add(line_diag_desc(n[0]))
+			s.add(line_diag_asc(n[0]))
 		}
-		s.add(new SimpleStatement("(<= (" + name + " ?w) (row${n} ?x ?y ?w))"))
-		s.add(new SimpleStatement("(<= (" + name + " ?w) (column${n} ?x ?y ?w))"))
+		s.add(new SimpleStatement("(<= (" + name + " ?w) (row${n[0]} ?x ?y ?w))"))
+		s.add(new SimpleStatement("(<= (" + name + " ?w) (column${n[0]} ?x ?y ?w))"))
 		if (this.i_nbors)
-			s.add(new SimpleStatement("(<= (" + name + " ?w) (diagonal${n} ?x ?y ?w))"))
+			s.add(new SimpleStatement("(<= (" + name + " ?w) (diagonal${n[0]} ?x ?y ?w))"))
 
 		return new DynamicComponentsClause(s)
 	}
@@ -193,15 +193,16 @@ class SquareGrid extends Grid implements
 	@Override
 	int getNumParams()
 	{
-	    return 2
+	    return 1
 	}
 	
 	@Override
     void changeParam(int param, int amount)
     {
-        if (param==0)
+        size+=amount
+        /*if (param==0)
             size+=amount
         else
-            i_nbors=!i_nbors
+            i_nbors=!i_nbors*/
     }
 }

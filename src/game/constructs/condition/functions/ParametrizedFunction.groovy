@@ -27,7 +27,7 @@ class ParametrizedFunction implements Function
 
 	ParametrizedFunction(Closure c, GameFunction parent, GString signature)
 	{
-		this.signature = signature //WHat is signature?
+		this.signature = signature
 		this.func = c
 		this.parent = parent
 	}

@@ -469,7 +469,7 @@ var EvaluatorServer = function(host,port) {
             
         }//end match evals
         
-        learnPositionStrength(turnsScores,gameMeta.hlgdl,self.matches[gameMeta.id],gameMeta.numPlayers);
+        learnPositionStrength(gameMeta.hlgdl,self.matches[gameMeta.id],gameMeta.numPlayers);
         
         //evaluate dynamics of gameplay
         for (var matchInfo of self.matches[gameMeta.id]) {
