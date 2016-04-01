@@ -22,6 +22,9 @@ class Move implements HasClauses, HasDynCompClause, HasBaseClause, HasLegalClaus
 	private DynamicComponentsClause dynComp
 	private BaseClause base
 	private LegalClause legal
+	
+	private Condition precondition
+	Private List<Action> postconditions
 
 	/**
 	 * Defines the Move

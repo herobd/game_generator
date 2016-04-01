@@ -2,54 +2,59 @@ module.exports = function() {
 
     var cluster = require('hierarchical-clustering');
     
-    function pieceCounter(i0,i1,board) {
+    function pieceCounter(i0,i1,board,players) {
         this.RE_piece = /(\w+)_(\w+)/;
-        this.thisPlayer = p.match(RE_piece)[1];
-        this.allies={total:0};
-        this.enemies={total:0};
+        //this.player = p.match(RE_piece)[1];
+        //this.piece = p.match(RE_piece)[2];
+        //this.allies={total:0};
+        //this.enemies={total:0};
+        this.players={};
+        //console.log(players);
+        for (var p of players) {
+            this.players[p.toLowerCase()]={total:0};
+        }
         this.board=board;
         this.i0=i0;
         this.i1=i1;
+        
     }
-    pieceCounter.protoype.add = function(pos) {
+    pieceCounter.prototype.add = function(pos) {
         var toAdd;
         var pp=this.getPlayer(pos);
         if (pp!=null){
-            if (pp==this.thisPlayer)
-                toAdd=this.allies;
-            else
-                toAdd=this.enemies;
+            
+            toAdd=this.players[pp];
             var pieceType = getPiece(pos);
             if (toAdd.hasOwnProperty(pieceType))
                 toAdd[pieceType]+=1;
             else
                 toAdd[pieceType]=1;
             toAdd.total+=1;
+        }
     }
-    pieceCounter.protoype.getPiece = function(dir) {
+    pieceCounter.prototype.getPiece = function(dir) {
         if (this.board.length>this.i0+dir[0] && this.i0+dir[0]>=0 &&
             this.board[this.i0+dir[0]].length>this.i1+dir[1] && this.i1+dir[1]>=0) {
             var m= this.board[this.i0+dir[0]][this.i1+dir[1]].match(this.RE_piece);
             if (m!=null)
-                return m[2];
+                return m[2].toLowerCase();
         }
         return null;
     }
-    pieceCounter.protoype.getPlayer = function(dir) {
+    pieceCounter.prototype.getPlayer = function(dir) {
         if (this.board.length>this.i0+dir[0] && this.i0+dir[0]>=0 &&
             this.board[this.i0+dir[0]].length>this.i1+dir[1] && this.i1+dir[1]>=0) {
             var m= this.board[this.i0+dir[0]][this.i1+dir[1]].match(this.RE_piece);
             if (m!=null)
-                return m[1];
+                return m[1].toLowerCase();
         }
         return null;
     }
-    pieceCounter.protoype.sqDistancePart = function(countedA,countedB)
-    {
+    pieceCounter.prototype.sqDistancePart = function(countedA,countedB) {
         var ret=0;
         for (var prop in countedA) {
             if (countedA.hasOwnProperty(prop)) {
-                if (countedB.hasOwnProperty(prop)) {
+                if (countedB.hasOwnProperty(prop))
                     ret += Math.pow(countedA[prop]-countedB[prop],2);
                 else
                     ret += Math.pow(countedA[prop],2);
@@ -57,33 +62,42 @@ module.exports = function() {
         }
         for (var prop in countedB) {
             if (countedB.hasOwnProperty(prop)) {
-                if (!countedA.hasOwnProperty(prop)) {
+                if (!countedA.hasOwnProperty(prop))
                     ret += Math.pow(countedB[prop],2);
             }
         }
         return ret;
     }
-    pieceCounter.protoype.sqDistance = function(other) {
-        var ret=0;
+    pieceCounter.prototype.sqDistance = function(other) {
+        if (this.player!==other.player) {
+            return 0;
+        }
         
-        ret+=this.sqDistancePart(this.allies,other.allies);
-        ret+=this.sqDistancePart(this.enemies,other.enemies);
+        var ret=0;
+        //ret+=this.sqDistancePart(this.allies,other.allies);
+        //ret+=this.sqDistancePart(this.enemies,other.enemies);
+        for (var i=0; i<this.players.length; i++) {
+            ret+=this.sqDistancePart(this.players[i],other.players[i]);
+        }
         
         return ret;
     }
     
-    function Description(i0,i1,board,hlgdl) {
+    function Description(i0,i1,p,board,hlgdl) {
         
         this.i0=i0;
         this.i1=i1;
+        var RE_piece = /(\w+)_(\w+)/;
+        this.player = p.match(RE_piece)[1].toLowerCase();
+        this.piece = p.match(RE_piece)[2].toLowerCase();
         function makePieceCounter() {
-            return new pieceCounter(i0,i1,board);
+            return new pieceCounter(i0,i1,board,hlgdl.players);
         }
         
         
-        var thisPiece=makePieceCounter();
-        thisPiece.add([0,0]);
-        this.descAllOr=[thisPiece];//A graph will only have one orientation
+        //var thisPiece=makePieceCounter();
+        //thisPiece.add([0,0]);
+        this.descAllOr=[];//A graph will only have one orientation
         if (hlgdl.board.macroType=='Grid') {
             var orientations;
             if (hlgdl.board.tileType=='Square') {
@@ -140,7 +154,7 @@ module.exports = function() {
                     var count=makePieceCounter();
                     var curPos=[i0+dir[0],i1+dir[1]];
                     while (curPos[0]>=0 && curPos[0]<board.length &&
-                           curPos[1]>=0 && curPos[1]<board[curPos[0].length) {
+                           curPos[1]>=0 && curPos[1]<board[curPos[0]].length) {
                         count.add(curPos);
                         curPos[0]+=dir[0];
                         curPos[1]+=dir[1];
@@ -160,7 +174,10 @@ module.exports = function() {
             return;
         }
     }
-    Description.prototype.sqDistance(other) {
+    Description.prototype.sqDistance = function(other) {
+        if (this.player!==other.player) {
+            return 99999; //don't compare pieces of other players
+        }
         var minDist=999999;
         for (descThis of this.descAllOr) {
             for (descOther of other.descAllOr) {
@@ -169,22 +186,34 @@ module.exports = function() {
                     for (var i=0; i<descThis.length; i++) {
                         dist+=descThis[i].sqDistance(descOther[i]);
                     }
-                    if (
+                    if (dist<minDist)
+                        minDist=dist;
                 } else {
-                    console.log("ERROR, descs are different lengths (this shouldn't happen.)");
+                    console.log("ERROR, descs are different lengths (this shouldn't happen)");
                     return null;
                 }
             }
         }
+        minDist *= this.piece===other.piece?1:1.5;
+        
         //TODO, this is rather ill-formed, only works for square tile
-        minDist *= 1/(1+Math.sqrt(Math.pow(descThis.i0-descOther.i0,2) + Math.pow(descThis.i1-descOther.i1,2)))
+        var boardSize;
+        if (hlgdl.board.layoutShape==='Square') {
+            boardSize=hlgdg.board.size;
+        } else if (hlgdl.board.layoutShape==='Rectangle') {
+            boardSize=Math.sqrt(hlgdg.board.size*hlgdg.board.size2);
+        } else {
+            console.log('ERROR, layoutShape '+hlgdl.board.layoutShape+' not implemented for Description');
+            return null;
+        }
+        minDist *= Math.sqrt(Math.pow(descThis.i0-descOther.i0,2) + Math.pow(descThis.i1-descOther.i1,2))/boardSize;
         return minDist;
     }
     
     //This returns an array of the pieces' local descriptions
     function parseState(hlgdl,state) {
-        var RE_cells = /\(CELL ([0-9]+) ([0-9]+) (\w+)\)/g;
-        var RE_cell =  /\(CELL ([0-9]+) ([0-9]+) (\w+)\)/;
+        var RE_cells = /\(CELL [0-9]+ [0-9]+ \w+\)/ig;
+        var RE_cell =  /\(CELL ([0-9]+) ([0-9]+) (\w+)\)/i;
         var board=null;
         var ret=[];
         //TODO other board types
@@ -192,14 +221,14 @@ module.exports = function() {
             if (hlgdl.board.tileType=='Square') {
                 
                 if (hlgdl.board.layoutShape=='Square') {
-                    board=new Array(gameType.size);
-                    for (var i = 0; i < gameType.size; i++) {
-                        board[i] = new Array(gameType.size);
+                    board=new Array(hlgdl.board.size);
+                    for (var i = 0; i < hlgdl.board.size; i++) {
+                        board[i] = new Array(hlgdl.board.size);
                     }
                 } else if (hlgdl.board.layoutShape=='Rectangle') {
-                    board=new Array(gameType.size);
-                    for (var i = 0; i < gameType.size; i++) {
-                        board[i] = new Array(gameType.size2);
+                    board=new Array(hlgdl.board.size);
+                    for (var i = 0; i < hlgdl.board.size; i++) {
+                        board[i] = new Array(hlgdl.board.size2);
                     }
                 } else {
                     console.log('ERROR, unknown layoutShape: '+hlgdl.board.layoutShape);
@@ -208,23 +237,24 @@ module.exports = function() {
                 
                 
             }
-            
+            //console.log(state);
             var cellsStr = state.match(RE_cells);
+            //console.log(cellsStr);
             for (s of cellsStr) {
                 var m = s.match(RE_cell);
-                var i0 = +(m[1]);
-                var i1 = +(m[2]);
+                var i0 = +(m[1])-1;
+                var i1 = +(m[2])-1;
                 var p = m[3];
                 board[i0][i1]=p;
             }
             
             for (s of cellsStr) {
                 var m = s.match(RE_cell);
-                var i0 = +(m[1]);
-                var i1 = +(m[2]);
+                var i0 = +(m[1])-1;
+                var i1 = +(m[2])-1;
                 var p = m[3];
                 if (p != 'b')
-                    ret.push(new Description(i0,i1,board,hlgdl));
+                    ret.push(new Description(i0,i1,p,board,hlgdl));
             }
             
         }
@@ -237,16 +267,60 @@ module.exports = function() {
             
             
             if (a.stateParsed==null)
-                a.stateParsed=parseState(boardType,a.state);
+                a.stateParsed=parseState(hlgdl,a.state);
             if (b.stateParsed==null)
-                b.stateParsed=parseState(boardType,b.state);
+                b.stateParsed=parseState(hlgdl,b.state);
             
-            var sumDist=0;
-            for (pieceA of a.stateParsed) {
-                for (pieceB of b.stateParsed) {
-                    sumDist += pieceA.sqDistance(pieceB);
+            function findNearest(piece,otherPieces,matched,unmatched) {
+                var minDist=null;
+                for (var i=0; i<otherPieces.length; i++) {
+                    var pieceB=otherPieces[i];
+                    if (piece.player===pieceB.player) {
+                        var dist = piece.sqDistance(pieceB);
+                        if ((minDist==null||dist<minDist) && (matched[i]===undefined || matched[i].dist>dist)) {
+                            minDist=dist;
+                            var doAgain=null;
+                            if (matched[i]!==undefined)
+                                doAgain=matched[i].piece;
+                            matched[i]={piece:piece, dist:dist};
+                            if (doAgain!==null)
+                                findNearest(doAgain,otherPieces,matched,unmatched);
+                        }
+                    }
+                }
+                if (minDist===null) {
+                    unmatched.push(piece);
                 }
             }
+            
+            function stateDistOneWay (piecesA, piecesB) {
+                var ret=0;
+                var matched={};
+                var unmatched=[];
+                for (pieceA of piecesA) {
+                    findNearest(pieceA,piecesB,matched,unmatched);
+                }
+                for (m of matched) {
+                    ret += m.dist;
+                }
+                
+                //This gives a heavy penalty to having an uneven number of pieces
+                //But given that the other direction won't have the penalty, it should work out.
+                for (u of unmatched) {
+                    var sum=0;
+                    for (pieceB of piecesB) {
+                        if (u.player===pieceB.player) {
+                            count++;
+                            sum+=u.sqDistance(pieceB);
+                        }
+                    }
+                    ret += sun/(0.0+count);
+                }
+                return ret;
+            }
+            
+            var sumDist=stateDistOneWay(a.stateParsed,b.stateParsed) + stateDistOneWay(b.stateParsed,a.stateParsed);
+            
             
             return Math.sqrt(sumDist + Math.pow(a.step-b.step,2)*params.stepDifWeight);
         };
@@ -286,7 +360,7 @@ module.exports = function() {
                     sum+=d;
                 return sum/(0.0+distances.length);
             },
-            minClusters: params.clusteringKCoef*avgNumTurnsPerGame
+            minClusters: params.clusteringKCoef*avgNumTurnsPerMatch
         });
         var clusters = levels[levels.length - 1].clusters;
         for (cluster of clusters) {
@@ -308,6 +382,6 @@ module.exports = function() {
     }
     
     return learnPositionStrength;
-}
+};
     
     

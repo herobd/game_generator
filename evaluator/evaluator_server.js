@@ -290,7 +290,7 @@ var EvaluatorServer = function(host,port) {
     self.RE_numbers = /[0-9.]+/g;
     self.RE_outOfTime = /match too long/;
     self.RE_states = /INFO\([0-9.:]+\): current state:\((\([a-zA-Z0-9_ ]*\))*\)/g;
-    self.RE_state =  /INFO\([0-9.:]+\): current state:\((\([a-zA-Z0-9_ ]*\))*\)/;
+    self.RE_state =  /INFO\([0-9.:]+\): current state:\(((\([a-zA-Z0-9_ ]*\))*)\)/;
     
     
     self.evalRes = function(matchResults) {
@@ -469,7 +469,7 @@ var EvaluatorServer = function(host,port) {
             
         }//end match evals
         
-        learnPositionStrength(gameMeta.hlgdl,self.matches[gameMeta.id],gameMeta.numPlayers);
+        learnPositionStrength(JSON.parse(gameMeta.hlgdl),self.matches[gameMeta.id],gameMeta.numPlayers,self.params);
         
         //evaluate dynamics of gameplay
         for (var matchInfo of self.matches[gameMeta.id]) {

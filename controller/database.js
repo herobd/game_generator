@@ -165,7 +165,8 @@ module.exports =  function() {
                             resilienceWeight:0.4,
                             completionWeight:0.4,
                             clusteringKCoef:0.4,
-                            strengthEvalDrawWeight:0.5
+                            strengthEvalDrawWeight:0.5,
+                            stepDifWeight:1.0
                           });
         } else {
             callback('ok', {

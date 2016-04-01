@@ -240,8 +240,8 @@ function get_games() {
 
 (index 1) (index 2) (index 3)
 (<= (base (cell ?x ?y b)) (index ?x) (index ?y))
-(<= (base (cell ?x ?y x)) (index ?x) (index ?y))
-(<= (base (cell ?x ?y o)) (index ?x) (index ?y))
+(<= (base (cell ?x ?y xplayer_0)) (index ?x) (index ?y))
+(<= (base (cell ?x ?y oplayer_0)) (index ?x) (index ?y))
 (<= (base (control ?p)) (role ?p))
 
 (<= (input ?p (mark ?x ?y)) (index ?x) (index ?y) (role ?p))
@@ -268,11 +268,11 @@ function get_games() {
 
 ;; Cell
 
-(<= (next (cell ?m ?n x))
+(<= (next (cell ?m ?n xplayer_0))
 (does xplayer (mark ?m ?n))
 (true (cell ?m ?n b)))
 
-(<= (next (cell ?m ?n o))
+(<= (next (cell ?m ?n oplayer_0))
 (does oplayer (mark ?m ?n))
 (true (cell ?m ?n b)))
 
@@ -336,39 +336,49 @@ function get_games() {
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (<= (goal xplayer 100)
-(line x))
+(line xplayer_0))
 
 (<= (goal xplayer 50)
-(not (line x))
-(not (line o))
+(not (line xplayer_0))
+(not (line oplayer_0))
 (not open))
 
 (<= (goal xplayer 0)
-(line o))
+(line oplayer_0))
 
 (<= (goal oplayer 100)
-(line o))
+(line oplayer_0))
 
 (<= (goal oplayer 50)
-(not (line x))
-(not (line o))
+(not (line xplayer_0))
+(not (line oplayer_0))
 (not open))
 
 (<= (goal oplayer 0)
-(line x))
+(line xplayer_0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (<= terminal
-(line x))
+(line xplayer_0))
 
 (<= terminal
-(line o))
+(line oplayer_0))
 
 (<= terminal
 (not open))
     </textarea> <br>
-    HAGDL: <br><textarea rows="30" cols="70" id="hlgdl"> NO HAGDL </textarea> <br>
+    HAGDL: <br><textarea rows="30" cols="70" id="hlgdl"> 
+    {
+        "players": ["xplayer","oplayer"],
+        "board": {
+                    "macroType":"Grid",
+                    "tileType":"Square",
+                    "layoutShape":"Square",
+                    "size":3
+                 }
+    }
+    </textarea> <br>
     <button type="button" onclick="submit_game()" id="submit_game_button">Submit</button><br>
     Status: <label id="game_submit_show">---</label>
 </div>
