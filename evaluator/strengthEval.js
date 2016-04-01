@@ -14,8 +14,8 @@ module.exports = function() {
             this.players[p.toLowerCase()]={total:0};
         }
         this.board=board;
-        this.i0=i0;
-        this.i1=i1;
+        this.i0=+i0;
+        this.i1=+i1;
         
     }
     pieceCounter.prototype.add = function(pos) {
@@ -24,7 +24,7 @@ module.exports = function() {
         if (pp!=null){
             
             toAdd=this.players[pp];
-            var pieceType = getPiece(pos);
+            var pieceType = this.getPiece(pos);
             if (toAdd.hasOwnProperty(pieceType))
                 toAdd[pieceType]+=1;
             else
@@ -35,18 +35,24 @@ module.exports = function() {
     pieceCounter.prototype.getPiece = function(dir) {
         if (this.board.length>this.i0+dir[0] && this.i0+dir[0]>=0 &&
             this.board[this.i0+dir[0]].length>this.i1+dir[1] && this.i1+dir[1]>=0) {
-            var m= this.board[this.i0+dir[0]][this.i1+dir[1]].match(this.RE_piece);
+            var p=this.board[this.i0+dir[0]][this.i1+dir[1]];
+            if (p===undefined)
+                console.log('ERROR p==undefined, '+this.i0+dir[0]+' '+this.i1+dir[1]);
+            var m= p.match(this.RE_piece);
             if (m!=null)
-                return m[2].toLowerCase();
+                return m[2];//.toLowerCase();
         }
         return null;
     }
     pieceCounter.prototype.getPlayer = function(dir) {
         if (this.board.length>this.i0+dir[0] && this.i0+dir[0]>=0 &&
             this.board[this.i0+dir[0]].length>this.i1+dir[1] && this.i1+dir[1]>=0) {
-            var m= this.board[this.i0+dir[0]][this.i1+dir[1]].match(this.RE_piece);
+            var p=this.board[this.i0+dir[0]][this.i1+dir[1]];
+            if (p===undefined)
+                console.log('ERROR p==undefined, '+this.i0+dir[0]+' '+this.i1+dir[1]);
+            var m= p.match(this.RE_piece);
             if (m!=null)
-                return m[1].toLowerCase();
+                return m[1];//.toLowerCase();
         }
         return null;
     }
@@ -85,11 +91,13 @@ module.exports = function() {
     
     function Description(i0,i1,p,board,hlgdl) {
         
+        this.hlgdl=hlgdl;
         this.i0=i0;
         this.i1=i1;
         var RE_piece = /(\w+)_(\w+)/;
-        this.player = p.match(RE_piece)[1].toLowerCase();
-        this.piece = p.match(RE_piece)[2].toLowerCase();
+        //console.log(p);
+        this.player = p.match(RE_piece)[1];
+        this.piece = p.match(RE_piece)[2];
         function makePieceCounter() {
             return new pieceCounter(i0,i1,board,hlgdl.players);
         }
@@ -165,7 +173,7 @@ module.exports = function() {
                 //TODO have these defined by what move types are found in the hlgdl
                 
                 
-                descAllOr.push(desc);
+                this.descAllOr.push(desc);
             }
         
         } else {
@@ -198,12 +206,12 @@ module.exports = function() {
         
         //TODO, this is rather ill-formed, only works for square tile
         var boardSize;
-        if (hlgdl.board.layoutShape==='Square') {
-            boardSize=hlgdg.board.size;
-        } else if (hlgdl.board.layoutShape==='Rectangle') {
-            boardSize=Math.sqrt(hlgdg.board.size*hlgdg.board.size2);
+        if (this.hlgdl.board.layoutShape==='Square') {
+            boardSize=this.hlgdl.board.size;
+        } else if (this.hlgdl.board.layoutShape==='Rectangle') {
+            boardSize=Math.sqrt(this.hlgdl.board.size*this.hlgdl.board.size2);
         } else {
-            console.log('ERROR, layoutShape '+hlgdl.board.layoutShape+' not implemented for Description');
+            console.log('ERROR, layoutShape '+this.hlgdl.board.layoutShape+' not implemented for Description');
             return null;
         }
         minDist *= Math.sqrt(Math.pow(descThis.i0-descOther.i0,2) + Math.pow(descThis.i1-descOther.i1,2))/boardSize;
@@ -244,15 +252,17 @@ module.exports = function() {
                 var m = s.match(RE_cell);
                 var i0 = +(m[1])-1;
                 var i1 = +(m[2])-1;
-                var p = m[3];
+                var p = m[3].toLowerCase();
+                if (p===undefined)
+                    console.log('ERROR p==undefined, '+s);
                 board[i0][i1]=p;
             }
             
             for (s of cellsStr) {
                 var m = s.match(RE_cell);
-                var i0 = +(m[1])-1;
-                var i1 = +(m[2])-1;
-                var p = m[3];
+                var i0 = (+m[1])-1;
+                var i1 = (+m[2])-1;
+                var p = m[3].toLowerCase();
                 if (p != 'b')
                     ret.push(new Description(i0,i1,p,board,hlgdl));
             }
@@ -297,24 +307,28 @@ module.exports = function() {
                 var ret=0;
                 var matched={};
                 var unmatched=[];
-                for (pieceA of piecesA) {
+                for (var pieceA of piecesA) {
                     findNearest(pieceA,piecesB,matched,unmatched);
                 }
-                for (m of matched) {
-                    ret += m.dist;
+                for (var m in matched) {
+                    if (matched.hasOwnProperty(m))
+                        ret += matched[m].dist;
                 }
                 
                 //This gives a heavy penalty to having an uneven number of pieces
                 //But given that the other direction won't have the penalty, it should work out.
-                for (u of unmatched) {
-                    var sum=0;
-                    for (pieceB of piecesB) {
-                        if (u.player===pieceB.player) {
-                            count++;
-                            sum+=u.sqDistance(pieceB);
+                if (piecesB.length>0) {
+                    for (u of unmatched) {
+                        var sum=0;
+                        var count=0;
+                        for (pieceB of piecesB) {
+                            if (u.player===pieceB.player) {
+                                count++;
+                                sum+=u.sqDistance(pieceB);
+                            }
                         }
+                        ret += sum/(0.0+count);
                     }
-                    ret += sun/(0.0+count);
                 }
                 return ret;
             }
@@ -362,19 +376,25 @@ module.exports = function() {
             },
             minClusters: params.clusteringKCoef*avgNumTurnsPerMatch
         });
+        
+        
         var clusters = levels[levels.length - 1].clusters;
-        for (cluster of clusters) {
-            var accumScore=Array.apply(null, Array(numPlayers)).map(Number.prototype.valueOf,0);
-            for (index of cluster) {
+        for (var clust of clusters) {
+            var accumScore= new Array(numPlayers);//Array.apply(null, Array(numPlayers)).map(Number.prototype.valueOf,0);
+            for (var i=0; i<numPlayers; i++)
+                accumScore[i]=0;
+            
+            for (index of clust) {
                 for (var i=0; i<numPlayers; i++) {
-                    accumScore[i]+=turnsScores[index].scores[i]
+                    accumScore[i]+=+turnsScores[index].scores[i];
+                    
                 }
             }
             for (var i=0; i<numPlayers; i++)//normalize
-                accumScore[i]/=0.0+cluster.length;
-                
+                accumScore[i]/=0.0+clust.length;
+            
             //We return the clustering-scoring by setting the value of an object shared with an array by the matchInfo object
-            for (index of cluster) {
+            for (index of clust) {
                 turnsScores[index].returnObj.strengthScored=accumScore;
             }
         }

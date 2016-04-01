@@ -352,14 +352,14 @@ var ControllerApp = function(host,port) {
                 self.gameCord.addPlayer('l2','localhost',9152,'l6',0,1);
                 self.gameCord.addPlayer('l3','localhost',9153,'l7',0,1);
                 self.gameCord.addPlayer('l4','localhost',9154,'l8',0,1);*/
-                self.gameCord.addPlayer('l','localhost',9147,'l',0,1);
+                //self.gameCord.addPlayer('l','localhost',9147,'l',0,1);
                 
-                /*self.gameCord.addPlayer('montecarlo','normandy',9147,'m');
+                self.gameCord.addPlayer('montecarlo','normandy',9147,'m');
                 self.gameCord.addPlayer('montecarlotreesearch','normandy',9148,'mt');
-                self.gameCord.addPlayer('heurisitc_prune','normandy',9150,'h_prune');
-                self.gameCord.addPlayer('heurisitc','normandy',9149,'h');
-                self.gameCord.addPlayer('heurisitc_rand','localhost',9147,'h_r');
-                self.gameCord.addPlayer('heurisitc_prop','localhost',9148,'h_prop');*/
+                //self.gameCord.addPlayer('heurisitc_prune','normandy',9150,'h_prune');
+                //self.gameCord.addPlayer('heurisitc','normandy',9149,'h');
+                //self.gameCord.addPlayer('heurisitc_rand','localhost',9147,'h_r');
+                self.gameCord.addPlayer('heurisitc','localhost',9148,'h');
                 
                 ////////////////////
                 

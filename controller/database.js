@@ -9,13 +9,17 @@ module.exports =  function() {
             self.gdlDir='./gdl';
         else
             self.gdlDir=gdlDir;
+        self.writing=[];
+        
         fs.access(self.gdlDir,fs.F_OK, function(err) {
             if (err) {
-                fs.mkdir(self.gdlDir, function(){});
-            }
+                fs.mkdir(self.gdlDir,function(){});
+            } //else {
+            //    fs.unlink(self.gdlDir+'/*.gdl',function(){});
+            //}
         });
         
-        self.writing=[];
+        
         
         self.mongo = require('mongodb').MongoClient;
 
@@ -42,6 +46,20 @@ module.exports =  function() {
     Database.prototype.storeGame = function (meta,gdl,hlgdl,callback)  {
         
         var self=this;
+        
+        function finish() {
+            self.gameCollection.insert(meta, {w:1}, function(err, result) {
+                if (err) {
+                    callback(err);
+                } else
+                    self.gameCollection.update({id:meta.id}, {$set:{gdl:gdl, hlgdl:hlgdl}},{w:1}, function(err, result) {
+                        if (err)
+                            callback(err);
+                        else
+                            callback('ok');
+                    });
+            });
+        }
         //Be sure we don't overlap
         self.gameCollection.deleteMany({id:meta.id}, {w:1}, function(err, result) {
             if (err) {
@@ -54,23 +72,18 @@ module.exports =  function() {
                         if(!err) {
                             console.log('gdl file already exists. Deleting it.');
                             fs.unlink(filePath,function(err){
-                                if (err)
+                                if (err) {
                                     console.log('Could not remove prev existing gdl file '+filePath+': '+err);
+                                    callback(err);
+                                } else
+                                    finish();
                             });
-                        }
+                        } else
+                            finish();
                     });
-                }
-                self.gameCollection.insert(meta, {w:1}, function(err, result) {
-                    if (err) {
-                        callback(err);
-                    } else
-                        self.gameCollection.update({id:meta.id}, {$set:{gdl:gdl, hlgdl:hlgdl}},{w:1}, function(err, result) {
-                            if (err)
-                                callback(err);
-                            else
-                                callback('ok');
-                        });
-                });
+                } else
+                    finish();
+                
             }
         });
         //console.log('Database is stubbed. Would be storing game '+meta.id+': '+meta.name);
@@ -159,16 +172,23 @@ module.exports =  function() {
                             id:0,
                             skillDifWeight:0.3,
                             prefLength:60,
-                            drawishWeight:-0.5,
-                            luckWeight:-0.2,
-                            durationWeight:0.4,
-                            resilienceWeight:0.4,
-                            completionWeight:0.4,
+                            
+                            drawishWeight:-0.1,
+                            luckWeight:-0.1,
+                            durationWeight:0.2,
+                            resilienceWeight:0.1,
+                            completionWeight:0.08,
+                            favorsPositionWeight:-0.3,
+                            uncertaintyLateWeight:0.2,
+                            leadChangeWeight:-0.28,
+                            permananceWeight:0.1,
+                            killMovesWeight:0.36,
+                            
                             clusteringKCoef:0.4,
                             strengthEvalDrawWeight:0.5,
                             stepDifWeight:1.0
                           });
-        } else {
+        } else {//generator
             callback('ok', {
                             id:0,
                             

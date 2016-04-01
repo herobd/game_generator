@@ -354,6 +354,22 @@ var EvaluatorServer = function(host,port) {
         var lengthDevSum=0;
         var totalFinished=0;
         
+        var winsByPosition=new Array(gameMeta.numPlayers);
+        for (var i=0; i<gameMeta.numPlayers; i++)
+            winsByPosition[i]=0;
+            
+        var sumLeadAtT = new Array(100);
+        var linearScoreAtT = new Array(100);
+        for (var i=0; i<100; i++) {
+            sumLeadAtT[i]=0;
+            linearScoreAtT[i]=0;
+        }
+        
+        var leadChangeSum=0.0;
+        var permSum=0.0;
+        var killerSum=0.0;
+        
+        learnPositionStrength(JSON.parse(gameMeta.hlgdl),self.matches[gameMeta.id],gameMeta.numPlayers,self.params);
         
         for (var matchInfo of self.matches[gameMeta.id]) {
             var minSkill=1000; var maxSkill=-1000;
@@ -361,6 +377,7 @@ var EvaluatorServer = function(host,port) {
             
             var maxScore=-1000; var maxScore2nd=-1; var minScore=1000;
             var playersAtMaxScore = [];
+            var winningIndexes = [];
             var playersAt2ndMaxScore = [];
             for (var pIdx=0; pIdx<matchInfo.players.length; pIdx++) {
                 var p = matchInfo.players[pIdx];
@@ -381,15 +398,17 @@ var EvaluatorServer = function(host,port) {
                     }
                 }
                 
-                var pScore = matchInfo.outcome[pIdx];
+                var pScore = +matchInfo.outcome[pIdx];
                 if (pScore>=maxScore) {
-                    if (pScore==maxScore)
+                    if (pScore==maxScore) {
                         playersAtMaxScore.push(matchInfo.players[pIdx]);
-                    else {
+                        winningIndexes.push(pIdx);
+                    } else {
                         playersAt2ndMaxScore=playersAtMaxScore;
                         maxScore2nd=maxScore;
                         
                         playersAtMaxScore=[matchInfo.players[pIdx]];
+                        winningIndexes=[pIdx];
                         maxScore=pScore;
                     }
                 } else if (maxScore2nd==-1) {
@@ -466,19 +485,137 @@ var EvaluatorServer = function(host,port) {
             if (matchInfo.finished)
                 totalFinished+=1;
             
+            //favorPosition
+            for (var i=0; i<gameMeta.numPlayers; i++)
+                if (+matchInfo.outcome[i] == maxScore)
+                    winsByPosition[i]+=1;
+
+
+            //dynamics
+            
+            console.log('A match, final:'+matchInfo.outcome);
+            
+            //First, create the lead information.
+            //As we have >2 player games, I define 3 ways of computing the lead.
+            //  I generally the compute stats on all three and take the max
+            
+            var losingIndexes=[];
+            for (var i=0; i<gameMeta.numPlayers; i++) {
+                if (winningIndexes.indexOf(i)==-1)
+                    losingIndexes.push(i);
+            }
+            
+            var leadAvg = []
+            var leadMin = []
+            var leadMax = []
+            for (turn of matchInfo.turnsStrengthScored) {
+                
+                console.log('str: '+turn.strengthScored);
+                
+                var winPos=0.0;
+                var winPosMax=null;
+                var winPosMin=null;
+                for (var i of winningIndexes) {
+                    winPos+=turn.strengthScored[i];
+                    if (turn.strengthScored[i]>winPosMax || winPosMax==null)
+                        winPosMax=turn.strengthScored[i];
+                    if (turn.strengthScored[i]<winPosMin || winPosMin==null)
+                        winPosMin=turn.strengthScored[i];
+                }
+                winPos/=winningIndexes.length;
+                var otherPos=0.0;
+                var otherPosMax=null;
+                var otherPosMin=null;
+                for (var i of losingIndexes) {
+                    otherPos+=turn.strengthScored[i];
+                    if (turn.strengthScored[i]>otherPosMax || otherPosMax==null)
+                        otherPosMax=turn.strengthScored[i];
+                    if (turn.strengthScored[i]<otherPosMin || otherPosMin==null)
+                        otherPosMin=turn.strengthScored[i];
+                }
+                otherPos/=losingIndexes.length;
+                
+                leadAvg.push(winPos-otherPos);
+                
+                leadMax.push(winPosMax-otherPosMax);
+                leadMin.push(winPosMin-otherPosMin);
+            }
+            
+            //uncertaintyLate
+            for (var i=0; i<100; i++) {
+                var t=(i/99.0);
+                linearScoreAtT[i]+=maxScore*t;
+                var turn=(matchInfo.turnsStrengthScored.length-1)*t;
+                var str1=leadAvg[Math.floor(turn)];
+                var str2=leadAvg[Math.ceil(turn)];
+                var intrLeadAvg=(str2-str1)*(turn-Math.floor(turn)) + str1;
+                
+                str1=leadMax[Math.floor(turn)];
+                str2=leadMax[Math.ceil(turn)];
+                var intrLeadMax=(str2-str1)*(turn-Math.floor(turn)) + str1;
+                
+                str1=leadMin[Math.floor(turn)];
+                str2=leadMin[Math.ceil(turn)];
+                var intrLeadMin=(str2-str1)*(turn-Math.floor(turn)) + str1;
+                sumLeadAtT[i]+=Math.max(intrLeadAvg,intrLeadMax,intrLeadMin)/maxScore;
+                if (sumLeadAtT[i]!=sumLeadAtT[i] || linearScoreAtT[i]!=linearScoreAtT[i]) {
+                    console.log('ERROR, NaN: i='+i+' turn='+turn);
+                    console.log(intrLeadAvg+' '+intrLeadMax+' '+intrLeadMin);
+                }
+            }
+            
+            //leadChange
+            function countLeadChanges(lead) {
+                var lastLead=Math.sign(lead[0]);
+                var countChanges=0;
+                for (var turn=1; turn<lead.length; turn++) {
+                    var thisLead=Math.sign(lead[i]);
+                    if (thisLead!=0) {
+                        if (thisLead!=lastLead) {
+                            countChanges++;
+                            //console.log('lead change '+lead[turn-1]+' '+lead[turn]);
+                        }
+                        lastLead=thisLead;
+                    }
+                }
+                return countChanges;
+            }
+            leadChangeSum += Math.max(countLeadChanges(leadAvg),countLeadChanges(leadMax),countLeadChanges(leadMin))/(0.0+leadAvg.length);
+            
+            //permanance
+            function perm(lead) {
+                var ret=0;
+                for (var turn=2; turn<lead.length; turn++) {
+                    ret+=Math.abs((lead[turn]-lead[turn-1])-(lead[turn-1]-lead[turn-2]));
+                }
+                return ret/(lead.length-2.0);
+            }
+            permSum += Math.max(perm(leadAvg),perm(leadMin),perm(leadMin))/maxScore;
+            
+            //killer moves
+            function getKiller(lead) {
+                var maxMove=0;
+                for (var turn=1; turn<lead.length; turn++) {
+                    var gain = Math.abs(lead[turn-1]-lead[turn]);
+                    if (gain>maxMove)
+                        maxMove=gain;
+                }
+                return maxMove;
+            }
+            killerSum += Math.max(getKiller(leadAvg),getKiller(leadMax),getKiller(leadMin))/maxScore;
             
         }//end match evals
         
-        learnPositionStrength(JSON.parse(gameMeta.hlgdl),self.matches[gameMeta.id],gameMeta.numPlayers,self.params);
-        
-        //evaluate dynamics of gameplay
-        for (var matchInfo of self.matches[gameMeta.id]) {
-            
-            //TODO
-            for (turn of matchInfo.turnsStrengthScored) {
-                //TODO turn.strengthScored
-            }
+        var positionWinsMost=null;
+        var positionWinsLeast=null;
+        for (var wins of winsByPosition) {
+            if (wins>positionWinsMost || positionWinsMost===null)
+                positionWinsMost=wins;
+            if (wins<positionWinsLeast || positionWinsLeast===null)
+                positionWinsLeast=wins;
         }
+        
+        
         
         //Caclulate scores
         
@@ -495,13 +632,28 @@ var EvaluatorServer = function(host,port) {
         
         retScore.completion=totalFinished/totalMatchesPlayed;
         
-        //retScore.favorsPosition
+        retScore.favorsPosition=(positionWinsMost-positionWinsLeast+0.0)/totalMatchesPlayed;
+        
+        var uncertainty=0;
+        for (var i=0; i<100; i++) {
+            uncertainty+=(linearScoreAtT[i]-sumLeadAtT[i])/totalMatchesPlayed;
+        }
+        retScore.uncertaintyLate=uncertainty/100.0;
+        
+        retScore.leadChange=leadChangeSum/totalMatchesPlayed;
+        retScore.permanance=permSum/totalMatchesPlayed;
+        retScore.killMoves=killerSum/totalMatchesPlayed;
         
         retScore.evalScore= self.params.drawishWeight * retScore.drawish +
                             self.params.luckWeight * retScore.luck +
                             self.params.durationWeight * retScore.duration +
                             self.params.resilienceWeight * retScore.resilience +
-                            self.params.completionWeight * retScore.completion;
+                            self.params.completionWeight * retScore.completion +
+                            self.params.favorsPositionWeight * retScore.favorsPosition +
+                            self.params.uncertaintyLateWeight * retScore.uncertaintyLate +
+                            self.params.leadChangeWeight * retScore.leadChange + 
+                            self.params.permananceWeight * retScore.permanance +
+                            self.params.killMovesWeight * retScore.killMoves;
         
         retScore.id = self.params.id;
         
@@ -511,6 +663,11 @@ var EvaluatorServer = function(host,port) {
         console.log('  Duration: '+retScore.duration);
         console.log('  Resilience: '+retScore.resilience);
         console.log('  Completion: '+retScore.completion);
+        console.log('  favorsPosition: '+retScore.favorsPosition);
+        console.log('  uncertaintyLate: '+retScore.uncertaintyLate);
+        console.log('  leadChange: '+retScore.leadChange);
+        console.log('  permanance: '+retScore.permanance);
+        console.log('  killMoves: '+retScore.killMoves);
         console.log('Combined: '+retScore.evalScore);
         //TODO more
         return err;
