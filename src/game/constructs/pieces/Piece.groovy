@@ -13,7 +13,10 @@ class Piece implements HasClauses, FineTunable
 {
 	private String name = ""	//perhaps change to type later..?
 	private Placement placement
+	
+	private MoveType moveType
 	private List<Move> moves
+	private List<Piece> children
 
 	Piece(String name, Placement placement, List<Move> moves)
 	{
@@ -26,6 +29,32 @@ class Piece implements HasClauses, FineTunable
 	{
 		this.placement = placement
 		this.moves = moves
+		nameMoves()
+	}
+	
+	private void nameMoves()
+	{
+	    for (int i=0; i<moves.length; i++)
+		{
+		    this.moves[i].setId(name+'_'+i)
+		}
+	}
+	
+	void removeMove(int i)
+	{
+	    moves.remove(i)
+	    nameMoves()
+	}
+	
+	void addMove(Move m)
+	{
+	    this.moves.push(m)
+	    nameMoves()
+	}
+	
+	Move getMove(int i)
+	{
+	    return this.moves[i]
 	}
 
 	@Override

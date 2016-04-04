@@ -16,15 +16,19 @@ import generator.FineTunable
  *
  * Contains the GDL descriptions of a legal move that can be performed by a piece
  */
-class Move implements HasClauses, HasDynCompClause, HasBaseClause, HasLegalClause, FineTunable
+class Move implements HasClauses, FineTunable //HasDynCompClause, HasBaseClause, HasLegalClause,
 {
-	private def inputs = []
+	/*private def inputs = []
 	private DynamicComponentsClause dynComp
 	private BaseClause base
-	private LegalClause legal
+	private LegalClause legal*/
 	
-	private Condition precondition
-	Private List<Action> postconditions
+	private SimpleStatement input
+	
+	private Condition precondition=null
+	private List<Action> postconditions=[]
+	
+	private String id=''
 
 	/**
 	 * Defines the Move
@@ -33,7 +37,7 @@ class Move implements HasClauses, HasDynCompClause, HasBaseClause, HasLegalClaus
 	 * @param dynCompStatements The predefined GDL definitions of the way this move works
 	 * @param i					(temporary) the input clause statement
 	 * @param l					(temporary) the legal clause statement
-	 */
+	 *
 	Move(List<String> inputs, List<GDLStatement> dynCompStatements, GDLStatement i, GDLStatement l)
 	{
 		//TODO: generate Input and Legal statements using inputs, rather than hard-coding
@@ -41,20 +45,45 @@ class Move implements HasClauses, HasDynCompClause, HasBaseClause, HasLegalClaus
 		this.dynComp = new DynamicComponentsClause(dynCompStatements)
 		this.base = new BaseClause([i])
 		this.legal = new LegalClause([l])
+	}*/
+	
+	Move()
+	{
+	
+	}
+	
+	Move(Condition precondition, List<Action> postconditions)
+	{
+	    this.precondition = precondition
+	    this.postconditions = postconditions
 	}
 
-	@Override
-	BaseClause getBaseAndInputClause()
-	{
-		return this.base
-	}
+    String getId() 
+    {
+        return id
+    }
+    void setId(String id)
+    {
+        this.id=id
+        input = new SimpleStatement("(<= (input ?p ("+id+" ?x ?y)) (index ?x) (index ?y) (role ?p))")
+    }
+
+	
 
 	@Override
 	Collection<GDLClause> getGDLClauses()
 	{
-		return [base, dynComp, legal]
+		//return [base, dynComp, legal]
+		def toRet=[precondition.getGDLClauses(id)]
+		for (Move m : moves)
+		    toRet.push(m.getGDLClauses(id));
 	}
 
+   /* @Override
+	BaseClause getBaseAndInputClause()
+	{
+		return this.base
+	}
 	@Override
 	DynamicComponentsClause getDynamicComponentClause()
 	{
@@ -65,7 +94,7 @@ class Move implements HasClauses, HasDynCompClause, HasBaseClause, HasLegalClaus
 	LegalClause getLegalClause()
 	{
 		return this.legal
-	}
+	}*/
 
     int complexityCount()
     {
