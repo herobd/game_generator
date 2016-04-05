@@ -83,18 +83,24 @@ class Move implements HasClauses, FineTunable //HasDynCompClause, HasBaseClause,
 	GDLClause compilePostconditions(Board board) //List<Actions> postconditions, String piece_id, String move_id
 	{
 	    List< List<string> > effectedSpaces=[];
-	    String moveParams=''
+	    Set<List<string>> moveParams= new Set<String>;
 	    string clause = "(<= (next "
 	    for (Action a : postconditions)
 	    {
 	        clause += a.effect(board) //The effects of the postcondition, like "(cell ?mTo ?nTo ${GameToken.PLAYER_NAME}"+"_"+piece_id+")"
-	        effectedSpaces.push(a.effected(board)) //the vaiables the effects use, like "?mTo", or possiblely adjcent type identifiers
-	        moveParams+=a.params(board)+" " //the variables that the player selects
+	        effectedSpaces.push(a.effected(board)) //the vaiables the effects use, like "?mTo", or possiblely adjcent identifiers
+	        moveParams.add(a.params(board)) //the variables that the player selects
 	    }
 	    clause += board.getGeneralSpaceGDL() + ')' // general space is like "(cell ?m ?n ?var)"
 	    //end next
 	    
-	    clause += "(does ${GameToken.PLAYER_NAME} ("+move_id+" "+moveParams+"))"
+	    clause += "(does ${GameToken.PLAYER_NAME} ("+id+" "
+	    for (List<String> space : moveParams)
+	    {
+	        for (String index : space)
+	            clause+=index+' '
+	    }
+	    clause +="))"
 	    
 	    //define all the uneffected spaces to be the same
 	    clause += '(true '+board.getGeneralSpace() + ')'
