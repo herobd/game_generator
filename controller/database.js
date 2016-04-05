@@ -46,7 +46,7 @@ module.exports =  function() {
     Database.prototype.storeGame = function (meta,gdl,hlgdl,callback)  {
         
         var self=this;
-        
+        meta.isGame=1;
         function finish() {
             self.gameCollection.insert(meta, {w:1}, function(err, result) {
                 if (err) {
@@ -61,7 +61,7 @@ module.exports =  function() {
             });
         }
         //Be sure we don't overlap
-        self.gameCollection.deleteMany({id:meta.id}, {w:1}, function(err, result) {
+        self.gameCollection.deleteMany({id:meta.id, isGame:1}, {w:1}, function(err, result) {
             if (err) {
                 callback(err);
             } else {
@@ -96,7 +96,7 @@ module.exports =  function() {
     }*/
     
     Database.prototype.getMetaForEval = function (gameId,callback) {
-        this.gameCollection.findOne({id:gameId},{id:1,gdl:1,hlgdl:1,numPlayers:1}, function(err, item) {
+        this.gameCollection.findOne({id:gameId, isGame:1},{id:1,gdl:1,hlgdl:1,numPlayers:1}, function(err, item) {
             callback(err,item);//this returns an extra '_id' field, but oh well
         });
     };
@@ -140,7 +140,7 @@ module.exports =  function() {
     
     Database.prototype.storeScore = function (gameId,score,callback) {
         //console.log('Database is stubbed. Soring score for '+gameId);
-        this.gameCollection.update({id:gameId}, {$set:{score:score}},{w:1}, function(err, result) {
+        this.gameCollection.update({id:gameId, isGame:1}, {$set:{score:score}},{w:1}, function(err, result) {
             if (err)
                 callback(err);
             else
@@ -150,7 +150,7 @@ module.exports =  function() {
     
     Database.prototype.storeGameResults = function (results,callback) {
         //console.log('Database is stubbed. Soring game results for game: '+results.gameId);
-        this.gameCollection.update({id:results.gameId}, {$push:{match_simulation_results:results}},{w:1}, function(err, result) {
+        this.gameCollection.update({id:results.gameId, isGame:1}, {$push:{match_simulation_results:results}},{w:1}, function(err, result) {
             if (err)
                 callback(err);
             else
@@ -212,7 +212,7 @@ module.exports =  function() {
         /*this.gameCollection.find({/*does not have score},{id:1, name:1, intrinsicScore:1, testLength:1, numPlayers:1, gdlVersion:1}, function(err, item) {
             if (item != null){
                 var ret = [];
-                for (meta of item) {
+                for (var meta of item) {
                     ret.push({meta:meta, startedEval:false});
                 }
                 callback(err,ret);
@@ -225,18 +225,20 @@ module.exports =  function() {
     
     Database.prototype.getTopGames = function (num,callback) {
         console.log('Database is stubbed. Would be retrieving top games');
-        /*this.gameCollection.find({/*ordered by score},{id:1, name:1, gdlVersion:1, hlgdl:1, gdl:1}, function(err, item) {
+        if (num<=0)
+            num=1;
+        this.gameCollection.find({isGame:1},{id:1, name:1, gdlVersion:1, hlgdl:1, gdl:1, score:1},{'sort': [['score','desc']], 'limit':sum}, function(err, item) {
             if (item != null){
-                var ret = [];
-                for (meta of item) {
-                    ret.push({meta:meta, startedEval:false});
-                }
-                callback(err,ret);
+                /*var ret = [];
+                for (var game of item) {
+                    ret.push(game);
+                }*/
+                callback(err,item);
 	        } else
                 callback(err,null);
-        });*/
+        });
         //expects games: {meta:the meta data, startedEval:boolean, matches:[{id,playerOrder,rep,players}] stored in database}
-        callback(null,[]);
+        //callback(null,[]);
     };
     
     Database.prototype.savePlayerTypeSkills = function (skillMap,callback) {

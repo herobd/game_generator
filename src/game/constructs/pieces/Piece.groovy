@@ -36,7 +36,7 @@ class Piece implements HasClauses, FineTunable
 	{
 	    for (int i=0; i<moves.length; i++)
 		{
-		    this.moves[i].setId(name+'_'+i)
+		    this.moves[i].setId(name+'_m'+i)
 		}
 	}
 	

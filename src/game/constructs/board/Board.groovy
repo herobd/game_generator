@@ -33,6 +33,8 @@ abstract class Board implements HasClauses, Supports, FineTunable
 			throw new FunctionNotSupportedException(func, ex)
 		}
 	}
+	
+	
 
 	@Override
 	Collection<GDLClause> getGDLClauses()
@@ -54,5 +56,7 @@ abstract class Board implements HasClauses, Supports, FineTunable
 		}
 	}
 	
+	String getGeneralSpaceGDL()
+	String getGeneralSpaceGDLIndex(int i)
 	
 }
