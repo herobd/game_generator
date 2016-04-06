@@ -1,40 +1,63 @@
 package game.constructs.pieces
 
 import game.gdl.clauses.GDLClause
-import game.gdl.clauses.HasClauses
+//import game.gdl.clauses.HasClausesWithDep
 import generator.FineTunable
+import game.constructs.board.Board
+import game.constructs.pieces.StartingPosition
 
 /**
  * @author Lawrence Thatcher
  *
  * An abstract representation of a game piece.
  */
-class Piece implements HasClauses, FineTunable
+class Piece implements  FineTunable //HasClausesWithDep
 {
 	private String name = ""	//perhaps change to type later..?
-	private StartingPositions startPositions
+	private List<StartingPosition> startPositions
 	
 	//private MoveType moveType
 	private List<Move> moves
 	private List<Piece> children =[]
 
-	Piece(String name, StartingPositions startPositions, List<Move> moves)
+	Piece(String name, List<StartingPosition> startPositions, List<Move> moves)
 	{
 		this.name = name
 		this.startPosition = startPosition
 		this.moves = moves
 	}
 
-	Piece(StartingPosition startPositions, List<Move> moves)
+	Piece(List<StartingPosition> startPositions, List<Move> moves)
 	{
-		this.startPosition = startPositions
+		this.startPositions = startPositions
 		this.moves = moves
+		nameMoves()
+	}
+	
+	Piece(StartingPosition startPosition, Move move)
+	{
+		this.startPositions = [startPosition]
+		this.moves = [move]
+		nameMoves()
+	}
+	
+	Piece(List<Move> moves)
+	{
+		this.startPositions = [new StartingPosition()]
+		this.moves = moves
+		nameMoves()
+	}
+	
+	Piece(Move move)
+	{
+		this.startPositions = [new StartingPosition()]
+		this.moves = [move]
 		nameMoves()
 	}
 	
 	private void nameMoves()
 	{
-	    for (int i=0; i<moves.length; i++)
+	    for (int i=0; i<moves.size(); i++)
 		{
 		    this.moves[i].setId(name+'_m'+i)
 		}
@@ -62,18 +85,34 @@ class Piece implements HasClauses, FineTunable
 	    return name;
     }
     
-    String setName(String name)
+    String getName(String player)
+	{
+	    return player+'_'+name;
+    }
+    
+    void setName(String name)
     {
-        this.name=name;
+        this.name=name
+        nameMoves()
+    }
+    
+    List<StartingPosition> getStartPositions()
+	{
+	    return startPositions;
+    }
+    
+    void setStartPositions(List<StartingPosition> startPositions)
+    {
+        this.startPositions=startPositions;
     }
 
-	@Override
-	Collection<GDLClause> getGDLClauses()
+	//@Override
+	Collection<GDLClause> getGDLClauses(Board board)
 	{
 		def clauses = []
-		clauses += startPositions.GDLClauses //?
+		//clauses += startPositions.GDLClauses //These are accepted by the board eariler
 		for (Move m : moves)
-			clauses += m.GDLClauses
+			clauses += m.getGDLClauses(board,name)
 		return clauses
 	}
 
@@ -105,6 +144,10 @@ class Piece implements HasClauses, FineTunable
         {
             ret += move.getNumParams()
         }
+        for (StartingPosition sp : startPositions)
+        {
+            ret += sp.getNumParams()
+        }
         return ret
 	}
 	
@@ -127,6 +170,16 @@ class Piece implements HasClauses, FineTunable
             }
             else
                 sofar-=move.getNumParams()
+        }
+        for (StartingPosition sp : startPositions)
+        {
+            if (sofar-sp.getNumParams()<0)
+            {
+                sp.changeParam(sofar,amount)
+                return
+            }
+            else
+                sofar-=sp.getNumParams()
         }
     }
 }

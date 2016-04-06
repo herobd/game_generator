@@ -3,15 +3,17 @@ package game.constructs.board
 import game.constructs.condition.functions.Function
 import game.constructs.condition.functions.Supports
 import game.gdl.clauses.GDLClause
-import game.gdl.clauses.HasClauses
+//import game.gdl.clauses.HasClausesWithDep
 import generator.FineTunable
+import game.constructs.pieces.Piece
+import game.constructs.player.Players
 
 /**
  * @author Lawrence Thatcher
  *
  * Stores information about the game board.
  */
-abstract class Board implements HasClauses, Supports, FineTunable
+abstract class Board implements  Supports, FineTunable //HasClausesWithDep
 {
 	/**
 	 * Retrieves the GDL-description and implementation of a particular function
@@ -36,11 +38,8 @@ abstract class Board implements HasClauses, Supports, FineTunable
 	
 	
 
-	@Override
-	Collection<GDLClause> getGDLClauses()
-	{
-		return []
-	}
+	//@Override
+	abstract Collection<GDLClause> getGDLClauses(List<Piece> pieces, Players players)
 
 	@Override
 	boolean supports(Function function)
@@ -56,8 +55,8 @@ abstract class Board implements HasClauses, Supports, FineTunable
 		}
 	}
 	
-	String getGeneralSpaceGDL()
-	String getGeneralSpaceGDLIndex(int i)
-	String getPieceSpaceGDL()
-	String getSelectedSpaceGDL(int i)
+	abstract String getGeneralSpaceGDL()
+	abstract String getGeneralSpaceGDLIndex(int i)
+	abstract List<String> getPieceSpaceGDL()
+	abstract List<String> getSelectedSpaceGDL(int i)
 }

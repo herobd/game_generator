@@ -14,6 +14,9 @@ import game.gdl.GDLDescription
 import generator.Evolvable
 import generator.Gene
 import generator.FineTunable
+import game.gdl.clauses.base.BaseClause
+import game.gdl.statement.GeneratorStatement
+import game.gdl.statement.GameToken
 
 /**
  * @author Lawrence Thatcher
@@ -55,6 +58,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		else
 			this.pieces = pieces
 		this.end = new EndGameConditions(end, board)
+		namePieces()
 	}
 	
 	Game(Players players, Board board, TurnOrder turnOrder, List<Piece> pieces, List<TerminalConditional> end, double score)
@@ -68,14 +72,14 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 			this.pieces = pieces
 		this.end = new EndGameConditions(end, board)
 		this.score=score
+		namePieces()
 	}
 	
 	void namePieces()
 	{
-	    for (int i=0; i<moves.length; i++)
+	    for (int i=0; i<pieces.size(); i++)
 		{
-		    if (this.moves[i].getName()=="")
-		        this.moves[i].setName('p'+i)
+		    this.pieces[i].setName('p'+i+this.pieces[i].getName())
 		}
 	}
 	
@@ -109,12 +113,15 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 	{
 		List<GDLClause> clauses = []
 		clauses += players.GDLClauses
-		clauses += board.GDLClauses
+		clauses += board.getGDLClauses(pieces,players)
 		clauses += turnOrder.GDLClauses
+		List<GeneratorStatement> pieceGeneralize=[]
 		for (Piece p : pieces)
 		{
-			clauses += p.GDLClauses
+			clauses += p.getGDLClauses(board)
+			pieceGeneralize += new GeneratorStatement("( ${GameToken.PLAYER_MARK} "+p.getName("${GameToken.PLAYER}")+" )")
 		}
+		clauses += new BaseClause(pieceGeneralize)
 		clauses += end.supportedBoardGDLClauses
 		clauses += end.GDLClauses
 
@@ -134,6 +141,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 			Gene f = pair[1]
 			m.crossOver(f)
 		}
+		child.namePieces()
 		return child
 	}
 	

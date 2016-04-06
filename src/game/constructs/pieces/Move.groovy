@@ -1,7 +1,7 @@
 package game.constructs.pieces
 
 import game.gdl.clauses.GDLClause
-import game.gdl.clauses.HasClauses
+//import game.gdl.clauses.HasClausesWithDep
 import game.gdl.clauses.base.BaseClause
 import game.gdl.clauses.base.HasBaseClause
 import game.gdl.clauses.dynamic.DynamicComponentsClause
@@ -10,6 +10,8 @@ import game.gdl.clauses.legal.HasLegalClause
 import game.gdl.clauses.legal.LegalClause
 import game.gdl.statement.GDLStatement
 import game.gdl.statement.GeneratorStatement
+import game.gdl.statement.SimpleStatement
+import game.gdl.statement.GameToken
 import game.constructs.condition.Condition
 import game.constructs.board.Board
 import generator.FineTunable
@@ -21,7 +23,7 @@ import java.util.HashSet
  *
  * Contains the GDL descriptions of a legal move that can be performed by a piece
  */
-class Move implements HasClauses, FineTunable //HasDynCompClause, HasBaseClause, HasLegalClause,
+class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalClause, HasClausesWithDep
 {
 	/*private def inputs = []
 	private DynamicComponentsClause dynComp
@@ -75,57 +77,56 @@ class Move implements HasClauses, FineTunable //HasDynCompClause, HasBaseClause,
 
 	
 
-	@Override
-	Collection<GDLClause> getGDLClauses(Board board)
+	//@Override
+	Collection<GDLClause> getGDLClauses(Board board,piece_id)
 	{
 		//return [base, dynComp, legal]
-		def toRet=[precondition.getGDLClauses(id),compilePostconditions(board)]
-		//for (Action a : postconditions)
-		    //toRet.push(a.getGDLClauses(id));
+		def toRet=[new DynamicComponentsClause([new SimpleStatement(precondition.getGDL_Signature(/*id*/))]),compilePostconditions(board,piece_id)]
 	    return toRet
 	}
 	
-	private GDLClause compilePostconditions(Board board) //List<Actions> postconditions, String piece_id, String move_id
+	private GDLClause compilePostconditions(Board board, String piece_id) //List<Actions> postconditions, String piece_id, String move_id
 	{
 	    Set< List<String> > effectedSpaces=[];
 	    Set<List<String>> moveParams= new HashSet<String>();
-	    String clause = "(<= (next "
-	    for (inti=0; i<postconditions.length; i++)
+	    GString clause = GString.EMPTY
+	    clause += "(<= (next "
+	    for (int i=0; i<postconditions.size(); i++)
 	    {
 	        Action a = postconditions[i]
-	        clause += a.effect(board,i) //The effects of the postcondition, like "(cell ?mTo ?nTo ${GameToken.PLAYER_NAME}"+"_"+piece_id+")"
+	        clause += a.effect(board,i,piece_id)+"\n" //The effects of the postcondition, like "(cell ?mTo ?nTo ${GameToken.PLAYER}"+"_"+piece_id+")"
 	        effectedSpaces.addAll(a.effected(board,i)) //the vaiables the effects use, like "?mTo", or possiblely adjcent identifiers
 	        moveParams.addAll(a.params(board,i)) //the variables that the player selects
 	    }
-	    clause += board.getGeneralSpaceGDL() + ')' // general space is like "(cell ?m ?n ?var)"
+	    clause += board.getGeneralSpaceGDL() + ")\n" // general space is like "(cell ?m ?n ?var)"
 	    //end next
 	    
-	    clause += "(does ${GameToken.PLAYER_NAME} ("+id+" "
+	    clause += "(does ${GameToken.PLAYER} ("+id+" "
 	    for (List<String> space : moveParams)
 	    {
-	        clause+=space.join(' ')
+	        clause+=space.join(" ")
 	    }
-	    clause +="))"
+	    clause +="))\n"
 	    
 	    //define all the uneffected spaces to be the same
-	    clause += '(true '+board.getGeneralSpace() + ')'
+	    clause += "(true "+board.getGeneralSpaceGDL() + ")\n"
 	    for (List<String> space : effectedSpaces)
 	    {
-	        if (space.length==0) {
-	            clause += '(distinct '+board.getGeneralSpaceGDLIndex(0)+' '+space[0]+')'
+	        if (space.size()==0) {
+	            clause += '(distinct '+board.getGeneralSpaceGDLIndex(0)+" "+space[0]+")\n"
 	        }
 	        else
 	        {
-	            clause += '(or '
-	            for (int i=0; i<space.length; i++) //does 'or' support more than two parameters?
+	            clause += "(or "
+	            for (int i=0; i<space.size(); i++) //does 'or' support more than two parameters?
 	            {
-	                clause += '(distinct '+board.getGeneralSpaceGDLIndex(i)+' '+space[i]+')'
+	                clause += "(distinct "+board.getGeneralSpaceGDLIndex(i)+" "+space[i]+")\n"
 	            }
-	            clause += ')'
+	            clause += ")"
 	        }
 	    }
 	    clause+=")"
-	    return new GeneratorStatement(clause)
+	    return new DynamicComponentsClause([new GeneratorStatement(clause)])
 	}
 	
 	/*reference code

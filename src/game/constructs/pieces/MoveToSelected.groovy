@@ -2,13 +2,14 @@ package game.constructs.pieces
 
 import game.constructs.board.Board
 import game.constructs.pieces.Action
+import game.gdl.statement.GameToken
 
-class MoveToSelected extends Action
+class MoveToSelected implements Action
 {
     @Override
     String effect(Board board, int n, String piece_id)//?selM ?selN
     {
-        return "(cell "+board.getSelectedSpaceGDL(n).join(' ')+" ${GameToken.PLAYER_NAME}"+"_"+piece_id+") \
+        return "(cell "+board.getSelectedSpaceGDL(n).join(' ')+" ${GameToken.PLAYER}"+"_"+piece_id+") \
 		        (cell "+board.getPieceSpaceGDL().join(' ')+" b)"
         
     }

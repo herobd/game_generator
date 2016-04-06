@@ -33,12 +33,6 @@ final class NamedMoves
 		return new Move(inputs, dynComps, i, l)
 	}
 	
-	public static Move getMark()
-	{
-		Condition precondition = GameFunction.SelectedOpen()
-        List<Action> postconditions = [GameActions.MoveToSelected()]
-		return new Move(precondition,postconditions)
-	}
 	
 	
 }

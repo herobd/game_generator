@@ -2,6 +2,7 @@ package game.constructs.condition
 
 import game.constructs.condition.functions.Function
 import generator.FineTunable
+import game.gdl.clauses.GDLClause
 
 /**
  * @author Lawrence Thatcher
@@ -31,4 +32,6 @@ interface Condition extends FineTunable
 	def getGDL_Signature()
 	
 	int complexityCount()
+	
+	//GDLClause getGDLClauses()
 }

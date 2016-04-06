@@ -253,6 +253,7 @@ var ControllerApp = function(host,port) {
         self.app.get('/getGames', function(req, res) {
             res.setHeader('Content-Type', 'application/json');
             self.database.getTopGames(+req.query.num,function(err,games) {
+                console.log(games);
                 if (!err)
                     res.json({id:"controller",status:"ok",games:games});
                 else

@@ -87,4 +87,16 @@ class NegatedCondition implements Condition
     {
         condition.changeParam(param,amount)
     }
+    
+    @Override
+    int complexityCount()
+    {
+        return condition.complexityCount()
+    }
+    
+    /*@Override
+    GDLClause getGDLClauses()
+    {
+        return new SimpleStatement("filler for funtion: "+getFunctionName());
+    }*/
 }

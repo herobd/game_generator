@@ -100,4 +100,10 @@ enum GameFunction implements Function, Condition
 				return null
 		}
 	}
+	
+	@Override
+	int complexityCount()
+	{
+	    return 1
+	}
 }

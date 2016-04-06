@@ -227,16 +227,18 @@ module.exports =  function() {
         console.log('Database is stubbed. Would be retrieving top games');
         if (num<=0)
             num=1;
-        this.gameCollection.find({isGame:1},{id:1, name:1, gdlVersion:1, hlgdl:1, gdl:1, score:1},{'sort': [['score','desc']], 'limit':sum}, function(err, item) {
-            if (item != null){
-                /*var ret = [];
-                for (var game of item) {
-                    ret.push(game);
-                }*/
-                callback(err,item);
-	        } else
-                callback(err,null);
+        var ret = [];
+        var cursor = this.gameCollection.find({isGame:1},{id:1, name:1, gdlVersion:1, hlgdl:1, gdl:1, score:1},{'sort': [['score.evalScore','desc']], 'limit':num});//
+        cursor.each(function(err, doc) {
+            if (err) {
+                callback(err,ret);
+            } else if (doc != null) {
+                ret.push(doc)
+            } else {
+                callback(err,ret);
+            }
         });
+        
         //expects games: {meta:the meta data, startedEval:boolean, matches:[{id,playerOrder,rep,players}] stored in database}
         //callback(null,[]);
     };

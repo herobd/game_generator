@@ -24,9 +24,13 @@ module.exports =  function() {
         // removes and returns the data of highest priority
         pop: function() {
             if (this.heap.length-1>0) {
-                var topVal = this.heap[1].data;
-                this.heap[1] = this.heap.pop();
-                this.sink(1); return topVal;
+                 var topVal = this.heap[1].data;
+                 var newHead = this.heap.pop();
+                 if (this.heap.length-1>0) {
+                    this.heap[1] = newHead;
+                    this.sink(1);
+                 }
+                 return topVal;
             }  else
                 return null;
         },

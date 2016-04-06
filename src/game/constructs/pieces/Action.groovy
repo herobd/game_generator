@@ -3,7 +3,7 @@ package game.constructs.pieces
 import game.constructs.board.Board
 import generator.FineTunable
 
-abstract class Action implements FineTunable
+interface Action extends FineTunable
 {
     
     /**

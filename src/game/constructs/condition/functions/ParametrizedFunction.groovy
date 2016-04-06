@@ -117,4 +117,10 @@ class ParametrizedFunction implements Function
         args[param]+=amount
         name = func(args)
     }
+    
+    @Override
+    int complexityCount()
+    {
+        return 1;
+    }
 }

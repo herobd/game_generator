@@ -4,7 +4,7 @@ import game.constructs.board.Board
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.clauses.GDLClause
-import game.gdl.clauses.HasClauses
+//import game.gdl.clauses.HasClausesWithDep
 import game.gdl.clauses.base.BaseClause
 import game.gdl.statement.GameToken
 
@@ -13,7 +13,7 @@ import game.gdl.statement.GameToken
  *
  * Generic Grid that has cells
  */
-abstract class Grid extends Board implements HasClauses
+abstract class Grid extends Board //implements HasClausesWithDep
 {
 	protected static GDLClause getHasCellsClause()
 	{
@@ -37,13 +37,13 @@ abstract class Grid extends Board implements HasClauses
 	}
 	
 	@Override
-	String getPieceSpaceGDL()
+	List<String> getPieceSpaceGDL()
 	{
 	    return ['?fromm', '?fromn']
 	}
 	
 	@Override
-	String getSelectedSpaceGDL(int i)
+	List<String> getSelectedSpaceGDL(int i)
 	{
 	    return ['?selm'+i, '?seln'+i]
 	}
