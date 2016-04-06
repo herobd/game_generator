@@ -58,5 +58,6 @@ abstract class Board implements HasClauses, Supports, FineTunable
 	
 	String getGeneralSpaceGDL()
 	String getGeneralSpaceGDLIndex(int i)
-	
+	String getPieceSpaceGDL()
+	String getSelectedSpaceGDL(int i)
 }

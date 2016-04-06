@@ -12,22 +12,22 @@ import generator.FineTunable
 class Piece implements HasClauses, FineTunable
 {
 	private String name = ""	//perhaps change to type later..?
-	private Placement placement
+	private StartingPositions startPositions
 	
-	private MoveType moveType
+	//private MoveType moveType
 	private List<Move> moves
-	private List<Piece> children
+	private List<Piece> children =[]
 
-	Piece(String name, Placement placement, List<Move> moves)
+	Piece(String name, StartingPositions startPositions, List<Move> moves)
 	{
 		this.name = name
-		this.placement = placement
+		this.startPosition = startPosition
 		this.moves = moves
 	}
 
-	Piece(Placement placement, List<Move> moves)
+	Piece(StartingPosition startPositions, List<Move> moves)
 	{
-		this.placement = placement
+		this.startPosition = startPositions
 		this.moves = moves
 		nameMoves()
 	}
@@ -56,12 +56,22 @@ class Piece implements HasClauses, FineTunable
 	{
 	    return this.moves[i]
 	}
+	
+	String getName()
+	{
+	    return name;
+    }
+    
+    String setName(String name)
+    {
+        this.name=name;
+    }
 
 	@Override
 	Collection<GDLClause> getGDLClauses()
 	{
 		def clauses = []
-		clauses += placement.GDLClauses
+		clauses += startPositions.GDLClauses //?
 		for (Move m : moves)
 			clauses += m.GDLClauses
 		return clauses
@@ -70,7 +80,7 @@ class Piece implements HasClauses, FineTunable
 	@Override
 	Piece clone()
 	{
-		return new Piece(name, placement, new ArrayList<Move>(moves))
+		return new Piece(name, startPositions, new ArrayList<Move>(moves))
 	}
 
     int complexityCount()
@@ -88,7 +98,7 @@ class Piece implements HasClauses, FineTunable
     int getNumParams()
 	{
 	    
-	    int ret=0
+	    int ret=startPositions.getNumParams()
 	    //TODO, initail position?
 	    
         for (Move move : moves)
@@ -102,6 +112,12 @@ class Piece implements HasClauses, FineTunable
     void changeParam(int param, int amount)
     {
         int sofar=param
+        if (sofar-startPositions.getNumParams()<0)
+        {
+            startPositions.changeParam(sofar,amount)
+            return
+        }
+        sofar-=startPositions.getNumParams()
         for (Move move : moves)
         {
             if (sofar-move.getNumParams()<0)

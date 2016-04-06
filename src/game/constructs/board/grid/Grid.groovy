@@ -35,4 +35,16 @@ abstract class Grid extends Board implements HasClauses
 	{
 	    return ['?gridm', '?gridn'][i]
 	}
+	
+	@Override
+	String getPieceSpaceGDL()
+	{
+	    return ['?fromm', '?fromn']
+	}
+	
+	@Override
+	String getSelectedSpaceGDL(int i)
+	{
+	    return ['?selm'+i, '?seln'+i]
+	}
 }

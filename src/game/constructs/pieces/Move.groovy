@@ -9,7 +9,12 @@ import game.gdl.clauses.dynamic.HasDynCompClause
 import game.gdl.clauses.legal.HasLegalClause
 import game.gdl.clauses.legal.LegalClause
 import game.gdl.statement.GDLStatement
+import game.gdl.statement.GeneratorStatement
+import game.constructs.condition.Condition
+import game.constructs.board.Board
 import generator.FineTunable
+
+import java.util.HashSet
 
 /**
  * @author Lawrence Thatcher
@@ -23,7 +28,7 @@ class Move implements HasClauses, FineTunable //HasDynCompClause, HasBaseClause,
 	private BaseClause base
 	private LegalClause legal*/
 	
-	private SimpleStatement input
+	//private SimpleStatement input
 	
 	private Condition precondition=null
 	private List<Action> postconditions=[]
@@ -65,7 +70,7 @@ class Move implements HasClauses, FineTunable //HasDynCompClause, HasBaseClause,
     void setId(String id)
     {
         this.id=id
-        input = new SimpleStatement("(<= (input ?p ("+id+" ?x ?y)) (index ?x) (index ?y) (role ?p))")
+        //input = new SimpleStatement("(<= (input ?p ("+id+" ?x ?y)) (index ?x) (index ?y) (role ?p))")
     }
 
 	
@@ -80,16 +85,17 @@ class Move implements HasClauses, FineTunable //HasDynCompClause, HasBaseClause,
 	    return toRet
 	}
 	
-	GDLClause compilePostconditions(Board board) //List<Actions> postconditions, String piece_id, String move_id
+	private GDLClause compilePostconditions(Board board) //List<Actions> postconditions, String piece_id, String move_id
 	{
-	    List< List<string> > effectedSpaces=[];
-	    Set<List<string>> moveParams= new Set<String>;
-	    string clause = "(<= (next "
-	    for (Action a : postconditions)
+	    Set< List<String> > effectedSpaces=[];
+	    Set<List<String>> moveParams= new HashSet<String>();
+	    String clause = "(<= (next "
+	    for (inti=0; i<postconditions.length; i++)
 	    {
-	        clause += a.effect(board) //The effects of the postcondition, like "(cell ?mTo ?nTo ${GameToken.PLAYER_NAME}"+"_"+piece_id+")"
-	        effectedSpaces.push(a.effected(board)) //the vaiables the effects use, like "?mTo", or possiblely adjcent identifiers
-	        moveParams.add(a.params(board)) //the variables that the player selects
+	        Action a = postconditions[i]
+	        clause += a.effect(board,i) //The effects of the postcondition, like "(cell ?mTo ?nTo ${GameToken.PLAYER_NAME}"+"_"+piece_id+")"
+	        effectedSpaces.addAll(a.effected(board,i)) //the vaiables the effects use, like "?mTo", or possiblely adjcent identifiers
+	        moveParams.addAll(a.params(board,i)) //the variables that the player selects
 	    }
 	    clause += board.getGeneralSpaceGDL() + ')' // general space is like "(cell ?m ?n ?var)"
 	    //end next
@@ -97,14 +103,13 @@ class Move implements HasClauses, FineTunable //HasDynCompClause, HasBaseClause,
 	    clause += "(does ${GameToken.PLAYER_NAME} ("+id+" "
 	    for (List<String> space : moveParams)
 	    {
-	        for (String index : space)
-	            clause+=index+' '
+	        clause+=space.join(' ')
 	    }
 	    clause +="))"
 	    
 	    //define all the uneffected spaces to be the same
 	    clause += '(true '+board.getGeneralSpace() + ')'
-	    for (List<string> space : effectedSpaces)
+	    for (List<String> space : effectedSpaces)
 	    {
 	        if (space.length==0) {
 	            clause += '(distinct '+board.getGeneralSpaceGDLIndex(0)+' '+space[0]+')'
@@ -120,7 +125,7 @@ class Move implements HasClauses, FineTunable //HasDynCompClause, HasBaseClause,
 	        }
 	    }
 	    clause+=")"
-	    return new GeneratorStatement(cluase)
+	    return new GeneratorStatement(clause)
 	}
 	
 	/*reference code
@@ -160,21 +165,41 @@ class Move implements HasClauses, FineTunable //HasDynCompClause, HasBaseClause,
 
     int complexityCount()
     {
-        //TODO fill this is
-        return 1
+        int ret = 1+precondition.complexityCount()
+        for (Action a : postconditions) 
+            ret+=a.complexityCount()
+        return ret
     }
     
     @Override
     int getNumParams()
 	{
-	    //TODO fill this is
-        return 0
+	    int ret = precondition.getNumParams()
+        for (Action a : postconditions) 
+            ret+=a.getNumParams()
+        return ret
 	}
 	
 	@Override
     void changeParam(int param, int amount)
     {
-        //TODO
+        int sofar=param
+        
+        if (sofar-precondition.getNumParams()<0)
+        {
+            precondition.changeParam(sofar,amount)
+            return
+        }
+        sofar-=precondition.getNumParams()
+        for (Action a : postconditions)
+        {
+            if (sofar-a.getNumParams()<0)
+            {
+                a.changeParam(sofar,amount)
+                return
+            }
+            sofar-=a.getNumParams()
+        }
         
     }
 }

@@ -44,17 +44,6 @@ class EvolutionaryAlgorithm
 
 	public static void main(String[] args)
 	{
-        //ParametrizedFunction ttt = GameFunction.N_inARow(3)
-        //println ttt.getNumParams()
-        Function tttt = GameFunction.Open
-        println tttt.getNumParams()
-        ParametrizedFunction t3 = GameFunction.N_M_test([1,2])
-        println t3.getNumParams()
-        
-        println t3.toString()
-        t3.changeParam(0, 1)
-        println t3.toString()
-        return
         
 		//For now using a hard-coded initial population...
 		def players = new Players(["White", "Black", "Salmon", "Pink"])

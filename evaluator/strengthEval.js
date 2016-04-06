@@ -92,14 +92,14 @@ module.exports = function() {
     function Description(i0,i1,p,board,hlgdl) {
         
         this.hlgdl=hlgdl;
-        this.i0=i0;
-        this.i1=i1;
+        this.i0=+i0;
+        this.i1=+i1;
         var RE_piece = /(\w+)_(\w+)/;
         //console.log(p);
         this.player = p.match(RE_piece)[1];
         this.piece = p.match(RE_piece)[2];
         function makePieceCounter() {
-            return new pieceCounter(i0,i1,board,hlgdl.players);
+            return new pieceCounter(this.i0,this.i1,board,hlgdl.players);
         }
         
         
@@ -160,7 +160,7 @@ module.exports = function() {
                 //var lines=[];
                 for (dir of directions) {
                     var count=makePieceCounter();
-                    var curPos=[i0+dir[0],i1+dir[1]];
+                    var curPos=[this.i0+dir[0],this.i1+dir[1]];
                     while (curPos[0]>=0 && curPos[0]<board.length &&
                            curPos[1]>=0 && curPos[1]<board[curPos[0]].length) {
                         count.add(curPos);

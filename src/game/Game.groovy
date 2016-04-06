@@ -70,6 +70,15 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		this.score=score
 	}
 	
+	void namePieces()
+	{
+	    for (int i=0; i<moves.length; i++)
+		{
+		    if (this.moves[i].getName()=="")
+		        this.moves[i].setName('p'+i)
+		}
+	}
+	
 	int getNumPlayers()
 	{
 	    return players.size()

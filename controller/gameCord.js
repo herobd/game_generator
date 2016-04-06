@@ -236,22 +236,22 @@ module.exports =  function() {
                      gameMeta.testLength==='s' ||
                      gameMeta.testLength==='quick') {
                     numOfRuns=1;
-                    startclock=10;
-                    playclock=3;
+                    startclock=5;
+                    playclock=2;
                     maxSteps=100;
                 } else if (gameMeta.testLength==='med' || 
                            gameMeta.testLength==='medium' || 
                            gameMeta.testLength==='m') {
                     numOfRuns=2;
-                    startclock=13;
-                    playclock=5;
+                    startclock=9;
+                    playclock=3;
                     maxSteps=110;
                 } else if (gameMeta.testLength==='long' || 
                            gameMeta.testLength==='l' || 
                            gameMeta.testLength==='full') {
                     numOfRuns=3;
-                    startclock=15;
-                    playclock=7;
+                    startclock=13;
+                    playclock=4;
                     maxSteps=120;
                 } else {
                     console.log('ERROR: game '+gameMeta.id+' '+gameMeta.name+' has an invalid testLength: '+gameMeta.testLength);
