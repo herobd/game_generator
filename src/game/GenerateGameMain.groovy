@@ -12,8 +12,8 @@ import game.constructs.condition.result.EndGameResult
 import game.constructs.player.Players
 import game.constructs.pieces.Piece
 import game.constructs.pieces.Move
-import game.constructs.pieces.Mark
-import game.constructs.pieces.MoveToSelected
+import game.constructs.pieces.action.Mark
+import game.constructs.pieces.action.MoveToSelected
 import game.constructs.pieces.StartingPosition
 import game.gdl.GDLDescription
 

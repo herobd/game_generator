@@ -15,6 +15,7 @@ import game.gdl.statement.GameToken
 import game.constructs.condition.Condition
 import game.constructs.board.Board
 import generator.FineTunable
+import game.constructs.pieces.action.Action
 
 import java.util.HashSet
 
@@ -32,7 +33,7 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	
 	//private SimpleStatement input
 	
-	private Condition precondition=null
+	private Query precondition=null
 	private List<Action> postconditions=[]
 	
 	private String id=''
@@ -81,23 +82,28 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	Collection<GDLClause> getGDLClauses(Board board,piece_id)
 	{
 		//return [base, dynComp, legal]
-		def toRet=[new DynamicComponentsClause([new SimpleStatement(precondition.getGDL_Signature(/*id*/))]),compilePostconditions(board,piece_id)]
+		def toRet=[new LegalClause([new SimpleStatement(precondition.getGDL(board,id,piece_id))]),compilePostconditions(precondition.getNumParams(),board,piece_id)]
 	    return toRet
 	}
 	
-	private GDLClause compilePostconditions(Board board, String piece_id) //List<Actions> postconditions, String piece_id, String move_id
+	private GDLClause compilePostconditions(int numParams, Board board, String piece_id) //List<Actions> postconditions, String piece_id, String move_id
 	{
 	    Set< List<String> > effectedSpaces=[];
 	    Set<List<String>> moveParams= new HashSet<String>();
 	    GString clause = GString.EMPTY
+	    Map cells = [:] //This map is to prevent a cell from getting two state assignments by allowing later postconditions to override previous ones 
+	    Set<String> definitions = new HashSet<String>()
 	    clause += "(<= (next "
 	    for (int i=0; i<postconditions.size(); i++)
 	    {
 	        Action a = postconditions[i]
-	        clause += a.effect(board,i,piece_id)+"\n" //The effects of the postcondition, like "(cell ?mTo ?nTo ${GameToken.PLAYER}"+"_"+piece_id+")"
-	        effectedSpaces.addAll(a.effected(board,i)) //the vaiables the effects use, like "?mTo", or possiblely adjcent identifiers
-	        moveParams.addAll(a.params(board,i)) //the variables that the player selects
+	        clause += a.effect(cells,board,i,piece_id,definitions)+"\n" //The effects of the postcondition
+	        effectedSpaces.addAll(a.effected(board,i,definitions)) //the vaiables the effects use, like "?mTo", or possiblely adjcent identifiers
+	        moveParams.addAll(a.params(board,i,definitions)) //the variables that the player selects
 	    }
+	    cells.each { cell, piece ->
+            clause+="(cell "+cell+" "+piece+")\n"
+        };
 	    clause += board.getGeneralSpaceGDL() + ")\n" // general space is like "(cell ?m ?n ?var)"
 	    //end next
 	    
@@ -125,6 +131,7 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	            clause += ")"
 	        }
 	    }
+	    clase+=definitions.join('\n')
 	    clause+=")"
 	    return new DynamicComponentsClause([new GeneratorStatement(clause)])
 	}
