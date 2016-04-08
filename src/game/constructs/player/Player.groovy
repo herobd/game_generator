@@ -30,7 +30,7 @@ class Player
 	String getMarkToken()
 	{
 		if (mark_token == null)
-			return name.toLowerCase()
+			return name.toLowerCase()+'Piece'
 		return mark_token
 	}
 

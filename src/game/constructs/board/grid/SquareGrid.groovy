@@ -408,7 +408,7 @@ class SquareGrid extends Grid implements
 		return new SimpleStatement(result)
 	}
 	
-	List<List<String>> getSelectedSpaceNborsGDL(int i,Set<GString> definitions)
+	/*List<List<String>> getSelectedSpaceNborsGDL(int i,Set<GString> definitions)
 	{
 	    definitions.add("(succ ?selm${i} ?selm${i}H)")
 	    definitions.add("(succ ?selm${i}L ?selm${i})")
@@ -429,7 +429,11 @@ class SquareGrid extends Grid implements
 	            ["?selm${i}H', '?seln${i}L"],
 	            ["?selm${i}L', '?seln${i}H"],
 	            ["?selm${i}L', '?seln${i}L"]]
-	}
+	}*/
+	//(nbor ?n ?m ?nn ?nm) 
+	//(<= (nbor ?n ?m ?nn ?nm) 
+	//    (index ?ALL) (succ ?n ?nn) (?m ?nm))
+	
 	
 	@Override
 	int getNumParams()

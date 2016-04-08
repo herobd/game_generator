@@ -26,15 +26,6 @@ interface Action extends FineTunable
 	 */
     Set< List<GString> > effected(Board board, Set<GString> definitions);
     
-    /**
-	 * Retrieves the GDL variables of the action the player chooses.
-	 * This is probably the same as effected().
-	 * 
-	 * @param board The board for this game.
-	 * @param n This is the nth postcondition (used for creating unique variable names if needed)
-	 * @return A set of strings of GDL variables. Lenght depends on board type
-	 */
-    Set< List<GString> > params(Board board, Set<GString> definitions);
     
     int complexityCount();
 }

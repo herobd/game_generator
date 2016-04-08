@@ -2,6 +2,9 @@ package game.constructs.pieces
 
 import game.gdl.clauses.GDLClause
 //import game.gdl.clauses.HasClausesWithDep
+import game.gdl.clauses.base.BaseClause
+import game.gdl.statement.GeneratorStatement
+import game.gdl.statement.GameToken
 import generator.FineTunable
 import game.constructs.board.Board
 import game.constructs.pieces.StartingPosition
@@ -107,12 +110,18 @@ class Piece implements  FineTunable //HasClausesWithDep
     }
 
 	//@Override
-	Collection<GDLClause> getGDLClauses(Board board)
+	/**
+	 *
+	 * @param globalRules The global rules mapped by name to prevent duplications
+	 * @return The cluases needed to describe this piece
+	 */
+	Collection<GDLClause> getGDLClauses(Map<String,GDLClause> globalRules, Board board)
 	{
-		def clauses = []
+		def clauses = [new BaseClause([new GeneratorStatement("(${name} ${GameToken.PLAYER}_${name})")]),
+		               new BaseClause([new GeneratorStatement("(${GameToken.PLAYER_MARK} ${GameToken.PLAYER}_${name})")])]
 		//clauses += startPositions.GDLClauses //These are accepted by the board eariler
 		for (Move m : moves)
-			clauses += m.getGDLClauses(board,name)
+			clauses += m.getGDLClauses(globalRules,board,name)
 		return clauses
 	}
 

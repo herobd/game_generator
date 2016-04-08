@@ -297,7 +297,7 @@ var EvaluatorServer = function(host,port) {
     
     self.evalRes = function(matchResults) {
         var err='ok';
-        //console.log('outcome:'+matchResults.printout.match(self.RE_outcome)[1]);
+        console.log('outcome raw:'+matchResults.printout.match(self.RE_outcome)[1]);
         var outcome = matchResults.printout.match(self.RE_outcome)[1].match(self.RE_numbers);
         var finished = true;
         if(matchResults.printout.match(self.RE_outOfTime))
@@ -319,7 +319,7 @@ var EvaluatorServer = function(host,port) {
         }
         for (var i=0; i<outcome.length; i++)
             outcome[i]= +outcome[i];
-        //console.log('outcome:'+outcome.join(', '))
+        console.log('outcome parsed:'+outcome.join(', '))
         
         //var stats = self.gameStats[matchResults.gameId];
         var matchInfo = {

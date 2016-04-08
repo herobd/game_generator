@@ -1,4 +1,4 @@
-package game.constructs.pieces.action
+/*package game.constructs.pieces.action
 
 import game.constructs.board.Board
 import game.constructs.pieces.action.Action
@@ -79,4 +79,4 @@ class CaptureNearSelected implements Action
     {
         
     }
-}
+}*/

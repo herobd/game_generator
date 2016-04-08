@@ -80,23 +80,34 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	
 
 	//@Override
-	Collection<GDLClause> getGDLClauses(Board board,piece_id)
-	{
+	Collection<GDLClause> getGDLClauses(Map<String,GDLClause> globalRules, Board board,piece_id)
+	{   
+	    GString moveParams = GString.EMPTY
+	    for (int n=0; n<preconditions.size(); n++)
+	        if (preconditions[n].size()>0)
+	        {
+	            moveParams += board.getSelectedSpaceGDL(n).join(' ')
+	            moveParams += " "
+            }
 		//return [base, dynComp, legal]
-		def toRet=[compilePreconditions(board,piece_id)]
-		toRet.addAll(compilePostconditions(preconditions.size(),board,piece_id))
+		def toRet=[]
+		toRet.addAll(compilePreconditions(globalRules,board,piece_id,moveParams))
+		toRet.addAll(compilePostconditions(preconditions.size(),board,piece_id,moveParams))
 	    return toRet
 	}
 	
-	private GDLClause compilePreconditions(Board board, String piece_id)
+	private List<GDLClause> compilePreconditions(Map<String,GDLClause> globalRules, Board board, String piece_id, GString moveParams)
 	{
 	    GString clause = GString.EMPTY
+	    GString baseclause = GString.EMPTY
 	    clause += "(<= (legal ${GameToken.PLAYER} (${id} "
-	    for (int n=0; n<preconditions.size(); n++)
-	        if (preconditions[n].size()>0)
-	            clause += board.getSelectedSpaceGDL(n).join(' ')+" "
+	    baseclause += "(<= (input ?p (${id} "
+	    clause += moveParams
+	    baseclause += moveParams
         clause +="))\n"
-        //clause +="(role ?role)\n"
+        //clause +="(role ?p)\n"
+        baseclause += ")) (role ?p) "
+        
         clause += "\t(true (control ${GameToken.PLAYER}))\n"
 	    for (int n=0; n<preconditions.size(); n++)
 	    {
@@ -105,20 +116,29 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	            clause += "\t"
 	            clause += q.toGDL(board,piece_id,n) 
 	            clause +="\n"
+	            q.setGlobalRules(globalRules,board)
 	        }
 	    }
+	    for (int n=0; n<preconditions.size(); n++)
+	        if (preconditions[n].size()>0)
+	        {
+	            for (String index : board.getSelectedSpaceGDL(n))
+	                baseclause += "(index ${index}) "
+            }
 	    clause += ")"
-	    return new LegalClause([new GeneratorStatement(clause)])
+	    baseclause += ")"
+	    return [new LegalClause([new GeneratorStatement(clause)]),
+	            new BaseClause([new SimpleStatement(baseclause)])]
 	}
 	//(<= (legal ?role (move ?x ?y ?u ?v))
     // (role ?role)
     // (coordinate ?u)
     // (coordinate ?v)...
 	
-	private List<GDLClause> compilePostconditions(int numParams, Board board, String piece_id) //List<Actions> postconditions, String piece_id, String move_id
+	private List<GDLClause> compilePostconditions(int numParams, Board board, String piece_id, GString moveParams) //List<Actions> postconditions, String piece_id, String move_id
 	{
 	    Set< List<GString> > effectedSpaces=[];
-	    Set<List<GString>> moveParams= new HashSet<GString>();
+	    //Set<List<GString>> moveParams= new HashSet<GString>();
 	    GString clause = GString.EMPTY
 	    Map<GString,GString> cells = new HashMap<GString,GString>() //This map is to prevent a cell from getting two state assignments by allowing later postconditions to override previous ones 
 	    Set<GString> definitions = new HashSet<GString>()
@@ -130,7 +150,7 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	    {
 	        otherEffects.push(a.effect(cells,board,piece_id,definitions)) //The effects of the postcondition
 	        effectedSpaces.addAll(a.effected(board,definitions)) //the vaiables the effects use, like "?mTo", or possiblely adjcent identifiers
-	        moveParams.addAll(a.params(board,definitions)) //the variables that the player selects
+	        //moveParams.addAll(a.params(board,definitions)) //the variables that the player selects
 	    }
 	    cells.each { cell, piece ->
 	        GString clauseCell = GString.EMPTY
@@ -140,10 +160,7 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
             clauseCell+=piece
             clauseCell+="))\n"
             clauseCell += "\t(does ${GameToken.PLAYER} (${id} "
-	        for (List<String> space : moveParams)
-	        {
-	            clauseCell+=space.join(" ")+" "
-	        }
+	        clauseCell += moveParams
 	        clauseCell +="))\n\t"
 	        
 	        clauseCell+=definitions.join("\n\t")
@@ -161,10 +178,7 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	            clauseOther += ef
 	            clauseOther+=")\n"
                 clauseOther += "\t(does ${GameToken.PLAYER} (${id} "
-	            for (List<String> space : moveParams)
-	            {
-	                clauseOther+=space.join(" ")+" "
-	            }
+	            clauseOther += moveParams
 	            clauseOther +="))\n\t"
 	            
 	            clauseOther+=definitions.join("\n\t")
@@ -182,10 +196,7 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	    
 	    
 	    clausePerm += "\t(does ${GameToken.PLAYER} (${id} "
-	    for (List<String> space : moveParams)
-	    {
-	        clausePerm+=space.join(" ")+" "
-	    }
+	    clausePerm += moveParams
 	    clausePerm +="))\n"
 	    
 	    clausePerm += "\t(true ${board.getGeneralSpaceGDL()})\n"
@@ -205,7 +216,7 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	        }
 	    }
 	    clausePerm+=definitions.join("\n\t")
-	    clausePerm+="\t)"
+	    clausePerm+="\n)"
 	    ret.push(new DynamicComponentsClause([new GeneratorStatement(clausePerm)])) //This potentailly could use a (?role) (role ?role) instead of generator, but its safer this way
 	    return ret
 	}

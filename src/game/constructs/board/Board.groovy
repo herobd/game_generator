@@ -60,6 +60,6 @@ abstract class Board implements  Supports, FineTunable //HasClausesWithDep
 	List<String> getPieceSpaceGDL() {return getSelectedSpaceGDL(0)}
 	abstract List<String> getSelectedSpaceGDL(int i)
 	
-	abstract List<List<GString>> getSelectedSpaceNborsGDL(int i,Set<GString> definitions);
-	abstract List<List<GString>> getSelectedSpaceI_NborsGDL(int i,Set<GString> definitions);
+	//abstract List<List<GString>> getSelectedSpaceNborsGDL(int i,Set<GString> definitions);
+	//abstract List<List<GString>> getSelectedSpaceI_NborsGDL(int i,Set<GString> definitions);
 }

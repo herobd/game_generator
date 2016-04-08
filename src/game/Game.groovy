@@ -115,13 +115,14 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		clauses += players.GDLClauses
 		clauses += board.getGDLClauses(pieces,players)
 		clauses += turnOrder.GDLClauses
-		List<GeneratorStatement> pieceGeneralize=[]
+		Map<String,GDLClause> globalRules= new HashMap<String,GDLClause>() //This is to prevent duplications of rules
 		for (Piece p : pieces)
 		{
-			clauses += p.getGDLClauses(board)
-			pieceGeneralize += new GeneratorStatement("(${GameToken.PLAYER_MARK} ${GameToken.PLAYER}_${p.getName()})")
+			clauses += p.getGDLClauses(globalRules,board)
 		}
-		clauses += new BaseClause(pieceGeneralize)
+		globalRules.each { name, rule ->
+		    clauses += rule
+		}
 		clauses += end.supportedBoardGDLClauses
 		clauses += end.GDLClauses
 

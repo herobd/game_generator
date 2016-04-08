@@ -2,6 +2,7 @@ package game.constructs.pieces.query
 
 import game.constructs.board.Board
 import generator.FineTunable
+import game.gdl.clauses.GDLClause
 
 interface Query extends FineTunable
 {
@@ -17,7 +18,13 @@ interface Query extends FineTunable
 	 */
     GString toGDL(Board board,String piece_id, int n);
     
-
+    /**
+	 * Retrieves rules that this defines that may be reused later (hence global)
+	 *
+	 * @param globalRules The global rules mapped by name to prevent duplications
+	 * @param board The board for this game.
+	 */
+    void setGlobalRules(Map<String,GDLClause> globalRules, Board board);
     
     int complexityCount();
 }
