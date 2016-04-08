@@ -18,7 +18,7 @@ abstract class Grid extends Board //implements HasClausesWithDep
 	protected static GDLClause getHasCellsClause()
 	{
 		def b = new SimpleStatement("(<= (base (cell ?x ?y b)) (index ?x) (index ?y))")
-		def x = new GeneratorStatement("(<= (base (cell ?x ?y ${GameToken.PLAYER_MARK})) (index ?x) (index ?y))")
+		def x = new GeneratorStatement("(<= (base (cell ?x ?y ?piece)) (index ?x) (index ?y) (${GameToken.PLAYER_MARK} ?piece))")
 
 		return new BaseClause([b,x])
 	}

@@ -119,8 +119,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		for (Piece p : pieces)
 		{
 			clauses += p.getGDLClauses(board)
-			for (Piece p2 : pieces)
-			    pieceGeneralize += new GeneratorStatement("(sameplayer ${GameToken.PLAYER}_${p.getName()} ${GameToken.PLAYER}_${p2.getName()} )")
+			pieceGeneralize += new GeneratorStatement("(${GameToken.PLAYER_MARK} ${GameToken.PLAYER}_${p.getName()})")
 		}
 		clauses += new BaseClause(pieceGeneralize)
 		clauses += end.supportedBoardGDLClauses

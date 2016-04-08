@@ -83,7 +83,8 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	Collection<GDLClause> getGDLClauses(Board board,piece_id)
 	{
 		//return [base, dynComp, legal]
-		def toRet=[compilePreconditions(board,piece_id),compilePostconditions(preconditions.size(),board,piece_id)]
+		def toRet=[compilePreconditions(board,piece_id)]
+		toRet.addAll(compilePostconditions(preconditions.size(),board,piece_id))
 	    return toRet
 	}
 	
@@ -96,13 +97,17 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	            clause += board.getSelectedSpaceGDL(n).join(' ')+" "
         clause +="))\n"
         //clause +="(role ?role)\n"
+        clause += "\t(true (control ${GameToken.PLAYER}))\n"
 	    for (int n=0; n<preconditions.size(); n++)
 	    {
 	        for (Query q : preconditions[n])
 	        {
-	            clause += q.toGDL(board,piece_id,n) +"\n"
+	            clause += "\t"
+	            clause += q.toGDL(board,piece_id,n) 
+	            clause +="\n"
 	        }
 	    }
+	    clause += ")"
 	    return new LegalClause([new GeneratorStatement(clause)])
 	}
 	//(<= (legal ?role (move ?x ?y ?u ?v))
@@ -110,58 +115,99 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
     // (coordinate ?u)
     // (coordinate ?v)...
 	
-	private GDLClause compilePostconditions(int numParams, Board board, String piece_id) //List<Actions> postconditions, String piece_id, String move_id
+	private List<GDLClause> compilePostconditions(int numParams, Board board, String piece_id) //List<Actions> postconditions, String piece_id, String move_id
 	{
 	    Set< List<GString> > effectedSpaces=[];
 	    Set<List<GString>> moveParams= new HashSet<GString>();
 	    GString clause = GString.EMPTY
 	    Map<GString,GString> cells = new HashMap<GString,GString>() //This map is to prevent a cell from getting two state assignments by allowing later postconditions to override previous ones 
 	    Set<GString> definitions = new HashSet<GString>()
-	    clause += "(<= (next "
-	    for (int i=0; i<postconditions.size(); i++)
+	    
+	    def ret =[]
+	    
+	    List<GString> otherEffects= new ArrayList<GString>()
+	    for (Action a : postconditions)
 	    {
-	        Action a = postconditions[i]
-	        clause += a.effect(cells,board,piece_id,definitions)+"\n" //The effects of the postcondition
+	        otherEffects.push(a.effect(cells,board,piece_id,definitions)) //The effects of the postcondition
 	        effectedSpaces.addAll(a.effected(board,definitions)) //the vaiables the effects use, like "?mTo", or possiblely adjcent identifiers
 	        moveParams.addAll(a.params(board,definitions)) //the variables that the player selects
 	    }
 	    cells.each { cell, piece ->
-            clause+="(cell "
-            clause+=cell
-            clause+=" "
-            clause+=piece
-            clause+=")\n"
+	        GString clauseCell = GString.EMPTY
+	        clauseCell += "(<= (next (cell "
+            clauseCell+=cell
+            clauseCell+=" "
+            clauseCell+=piece
+            clauseCell+="))\n"
+            clauseCell += "\t(does ${GameToken.PLAYER} (${id} "
+	        for (List<String> space : moveParams)
+	        {
+	            clauseCell+=space.join(" ")+" "
+	        }
+	        clauseCell +="))\n\t"
+	        
+	        clauseCell+=definitions.join("\n\t")
+	        clauseCell+="\n)"
+	        ret.push(new DynamicComponentsClause([new GeneratorStatement(clauseCell)]))
         };
-	    clause += board.getGeneralSpaceGDL() + ")\n" // general space is like "(cell ?m ?n ?var)"
-	    //end next
+        
+        //Other effects, like score, game state
+        for (GString ef : otherEffects)
+        {
+            if (ef.length()>0)
+            {
+                GString clauseOther = GString.EMPTY
+	            clauseOther += "(<= (next "
+	            clauseOther += ef
+	            clauseOther+=")\n"
+                clauseOther += "\t(does ${GameToken.PLAYER} (${id} "
+	            for (List<String> space : moveParams)
+	            {
+	                clauseOther+=space.join(" ")+" "
+	            }
+	            clauseOther +="))\n\t"
+	            
+	            clauseOther+=definitions.join("\n\t")
+	            clauseOther+="\n)"
+	            ret.push(new DynamicComponentsClause([new GeneratorStatement(clauseOther)]))
+            }
+        }
+        
+        //Permanance of all other spaces/pieces
+        //define all the uneffected spaces to be the same
+        GString clausePerm = GString.EMPTY
+        clausePerm += "(<= (next "
+	    clausePerm += board.getGeneralSpaceGDL() 
+	    clausePerm += ")\n" // general space is like "(cell ?m ?n ?var)"
 	    
-	    clause += "(does ${GameToken.PLAYER} (${id} "
+	    
+	    clausePerm += "\t(does ${GameToken.PLAYER} (${id} "
 	    for (List<String> space : moveParams)
 	    {
-	        clause+=space.join(" ")+" "
+	        clausePerm+=space.join(" ")+" "
 	    }
-	    clause +="))\n"
+	    clausePerm +="))\n"
 	    
-	    //define all the uneffected spaces to be the same
-	    clause += "(true ${board.getGeneralSpaceGDL()})\n"
+	    clausePerm += "\t(true ${board.getGeneralSpaceGDL()})\n"
 	    for (List<String> space : effectedSpaces)
 	    {
 	        if (space.size()==0) {
-	            clause += "(distinct ${board.getGeneralSpaceGDLIndex(0)} ${space[0]})\n"
+	            clausePerm += "\t(distinct ${board.getGeneralSpaceGDLIndex(0)} ${space[0]})\n\t"
 	        }
 	        else
 	        {
-	            clause += "(or "
+	            clausePerm += "\t(or \n"
 	            for (int i=0; i<space.size(); i++) //does 'or' support more than two parameters?
 	            {
-	                clause += "(distinct ${board.getGeneralSpaceGDLIndex(i)} ${space[i]})\n"
+	                clausePerm += "\t\t(distinct ${board.getGeneralSpaceGDLIndex(i)} ${space[i]})\n"
 	            }
-	            clause += ")"
+	            clausePerm += "\t)\n\t"
 	        }
 	    }
-	    clause+=definitions.join("\n")
-	    clause+=")"
-	    return new DynamicComponentsClause([new GeneratorStatement(clause)])
+	    clausePerm+=definitions.join("\n\t")
+	    clausePerm+="\t)"
+	    ret.push(new DynamicComponentsClause([new GeneratorStatement(clausePerm)])) //This potentailly could use a (?role) (role ?role) instead of generator, but its safer this way
+	    return ret
 	}
 	
 	

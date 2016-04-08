@@ -273,7 +273,7 @@ public class StaticValidator implements GameValidator {
         }
 
         if(!linesStack.isEmpty()) {
-            throw new ValidatorException("Extra open parens encountered, starting at line " + linesStack.peek());
+            throw new ValidatorException("Extra open parens encountered, starting at line " + linesStack.peek()+"\n\t'"+lines[linesStack.peek()]+"'");
         }
     }
 
