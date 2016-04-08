@@ -9,32 +9,45 @@ class CaptureNearSelected implements Action
     //private boolean friendlyFire
     private boolean i_nbors=false
     private boolean nbors=true
+    private int n=1
+    Mark (int n)
+    {
+        if (n>0)
+            this.n=n
+    }
     
+    Mark (int n, boolean nbors, boolean i_nbors)
+    {
+        if (n>0)
+            this.n=n
+        this.nbors=nbors
+        this.i_nbors=i_nbors
+    }
     
     
     @Override
-    String effect(Map cells,Board board, int n, String piece_id,Set<String> definitions)//?selM ?selN
+    GString effect(Map<GString,GString> cells,Board board, String piece_id,Set<GString> definitions)//?selM ?selN
     {
         //return "(cell "+board.getSelectedSpaceGDL(n).join(' ')+" ${GameToken.PLAYER}"+"_"+piece_id+") \
 		//        (cell "+board.getPieceSpaceGDL().join(' ')+" b)"
         if (nbors)
             for (List<String> space : board.getSelectedSpaceNborsGDL(n,definitions))
             {
-                cells[space.join(' ')]="b"
+                cells[space.join(" ")]="b"
             }
         if (i_nbors)
             for (List<String> space : board.getSelectedSpaceI_NborsGDL(n,definitions))
             {
-                cells[space.join(' ')]="b"
+                cells[space.join(" ")]="b"
             }
         //cells[board.getSelectedSpaceGDL(n).join(' ')+"<<nbors]="b"
-        return ""
+        return GString.EMPTY
     }
     
     @Override
-    List< List<String> > effected(Board board, int n,Set<String> definitions)
+    List< List<GString> > effected(Board board,Set<GString> definitions)
     {
-        Set ret = new HashSet<List<String>>()
+        Set ret = new HashSet<List<GString>>()
         if (nbors)
             ret.addAll(board.getSelectedSpaceNborsGDL(n,definitions))
         if (i_nbors)
@@ -43,9 +56,9 @@ class CaptureNearSelected implements Action
     }
     
     @Override
-    Set< List<String> > params(Board board, int n,Set<String> definitions)
+    Set< List<GString> > params(Board board,Set<GString> definitions)
     {
-        Set ret = new HashSet<List<String>>()
+        Set ret = new HashSet<List<GString>>()
         ret.add(board.getSelectedSpaceGDL(n))
         return ret
     }

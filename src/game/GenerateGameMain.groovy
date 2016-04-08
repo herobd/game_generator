@@ -14,6 +14,8 @@ import game.constructs.pieces.Piece
 import game.constructs.pieces.Move
 import game.constructs.pieces.action.Mark
 import game.constructs.pieces.action.MoveToSelected
+import game.constructs.pieces.query.IsOpen
+import game.constructs.pieces.query.PieceOrigin
 import game.constructs.pieces.StartingPosition
 import game.gdl.GDLDescription
 
@@ -26,8 +28,8 @@ class GenerateGameMain
 		def end = []
 		end.add(new TerminalConditional(GameFunction.N_inARow([3]), EndGameResult.Win))
 		end.add(new TerminalConditional(new NegatedCondition(GameFunction.Open), EndGameResult.Draw))
-		Move mark = new Move(GameFunction.Open,[new Mark()]);
-		Move move = new Move(GameFunction.Open,[new MoveToSelected()]);
+		Move mark = new Move([[],[new IsOpen()]],[new Mark(1)]);
+		Move move = new Move([[new PieceOrigin()],[new IsOpen()]],[new MoveToSelected(1)]);
 		Piece basic = new Piece([new StartingPosition(2)],[mark]);
 		Piece starter = new Piece([new StartingPosition(StartingPosition.PositionType.Center,1)],[move]);
 		Game ticTacToe = new Game(new Players(["Red", "Black", "Blue"]), board, TurnOrder.Alternating, [basic,starter], end)

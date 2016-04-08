@@ -16,6 +16,7 @@ import game.constructs.condition.Condition
 import game.constructs.board.Board
 import generator.FineTunable
 import game.constructs.pieces.action.Action
+import game.constructs.pieces.query.Query
 
 import java.util.HashSet
 
@@ -33,7 +34,7 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	
 	//private SimpleStatement input
 	
-	private Query precondition=null
+	private List<List<Query>> preconditions=[]
 	private List<Action> postconditions=[]
 	
 	private String id=''
@@ -60,9 +61,9 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	
 	}
 	
-	Move(Condition precondition, List<Action> postconditions)
+	Move(List<List<Query>> preconditions, List<Action> postconditions)
 	{
-	    this.precondition = precondition
+	    this.preconditions = preconditions
 	    this.postconditions = postconditions
 	}
 
@@ -82,59 +83,87 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	Collection<GDLClause> getGDLClauses(Board board,piece_id)
 	{
 		//return [base, dynComp, legal]
-		def toRet=[new LegalClause([new SimpleStatement(precondition.getGDL(board,id,piece_id))]),compilePostconditions(precondition.getNumParams(),board,piece_id)]
+		def toRet=[compilePreconditions(board,piece_id),compilePostconditions(preconditions.size(),board,piece_id)]
 	    return toRet
 	}
 	
+	private GDLClause compilePreconditions(Board board, String piece_id)
+	{
+	    GString clause = GString.EMPTY
+	    clause += "(<= (legal ${GameToken.PLAYER} (${id} "
+	    for (int n=0; n<preconditions.size(); n++)
+	        if (preconditions[n].size()>0)
+	            clause += board.getSelectedSpaceGDL(n).join(' ')+" "
+        clause +="))\n"
+        //clause +="(role ?role)\n"
+	    for (int n=0; n<preconditions.size(); n++)
+	    {
+	        for (Query q : preconditions[n])
+	        {
+	            clause += q.toGDL(board,piece_id,n) +"\n"
+	        }
+	    }
+	    return new LegalClause([new GeneratorStatement(clause)])
+	}
+	//(<= (legal ?role (move ?x ?y ?u ?v))
+    // (role ?role)
+    // (coordinate ?u)
+    // (coordinate ?v)...
+	
 	private GDLClause compilePostconditions(int numParams, Board board, String piece_id) //List<Actions> postconditions, String piece_id, String move_id
 	{
-	    Set< List<String> > effectedSpaces=[];
-	    Set<List<String>> moveParams= new HashSet<String>();
+	    Set< List<GString> > effectedSpaces=[];
+	    Set<List<GString>> moveParams= new HashSet<GString>();
 	    GString clause = GString.EMPTY
-	    Map cells = [:] //This map is to prevent a cell from getting two state assignments by allowing later postconditions to override previous ones 
-	    Set<String> definitions = new HashSet<String>()
+	    Map<GString,GString> cells = new HashMap<GString,GString>() //This map is to prevent a cell from getting two state assignments by allowing later postconditions to override previous ones 
+	    Set<GString> definitions = new HashSet<GString>()
 	    clause += "(<= (next "
 	    for (int i=0; i<postconditions.size(); i++)
 	    {
 	        Action a = postconditions[i]
-	        clause += a.effect(cells,board,i,piece_id,definitions)+"\n" //The effects of the postcondition
-	        effectedSpaces.addAll(a.effected(board,i,definitions)) //the vaiables the effects use, like "?mTo", or possiblely adjcent identifiers
-	        moveParams.addAll(a.params(board,i,definitions)) //the variables that the player selects
+	        clause += a.effect(cells,board,piece_id,definitions)+"\n" //The effects of the postcondition
+	        effectedSpaces.addAll(a.effected(board,definitions)) //the vaiables the effects use, like "?mTo", or possiblely adjcent identifiers
+	        moveParams.addAll(a.params(board,definitions)) //the variables that the player selects
 	    }
 	    cells.each { cell, piece ->
-            clause+="(cell "+cell+" "+piece+")\n"
+            clause+="(cell "
+            clause+=cell
+            clause+=" "
+            clause+=piece
+            clause+=")\n"
         };
 	    clause += board.getGeneralSpaceGDL() + ")\n" // general space is like "(cell ?m ?n ?var)"
 	    //end next
 	    
-	    clause += "(does ${GameToken.PLAYER} ("+id+" "
+	    clause += "(does ${GameToken.PLAYER} (${id} "
 	    for (List<String> space : moveParams)
 	    {
-	        clause+=space.join(" ")
+	        clause+=space.join(" ")+" "
 	    }
 	    clause +="))\n"
 	    
 	    //define all the uneffected spaces to be the same
-	    clause += "(true "+board.getGeneralSpaceGDL() + ")\n"
+	    clause += "(true ${board.getGeneralSpaceGDL()})\n"
 	    for (List<String> space : effectedSpaces)
 	    {
 	        if (space.size()==0) {
-	            clause += '(distinct '+board.getGeneralSpaceGDLIndex(0)+" "+space[0]+")\n"
+	            clause += "(distinct ${board.getGeneralSpaceGDLIndex(0)} ${space[0]})\n"
 	        }
 	        else
 	        {
 	            clause += "(or "
 	            for (int i=0; i<space.size(); i++) //does 'or' support more than two parameters?
 	            {
-	                clause += "(distinct "+board.getGeneralSpaceGDLIndex(i)+" "+space[i]+")\n"
+	                clause += "(distinct ${board.getGeneralSpaceGDLIndex(i)} ${space[i]})\n"
 	            }
 	            clause += ")"
 	        }
 	    }
-	    clase+=definitions.join('\n')
+	    clause+=definitions.join("\n")
 	    clause+=")"
 	    return new DynamicComponentsClause([new GeneratorStatement(clause)])
 	}
+	
 	
 	/*reference code
 	{
@@ -173,7 +202,12 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 
     int complexityCount()
     {
-        int ret = 1+precondition.complexityCount()
+        int ret = 1
+        for (List<Query> lq : preconditions)
+        {
+            for (Query q : lq)
+                ret+=q.complexityCount()
+        }
         for (Action a : postconditions) 
             ret+=a.complexityCount()
         return ret
@@ -182,7 +216,12 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
     @Override
     int getNumParams()
 	{
-	    int ret = precondition.getNumParams()
+	    int ret = 0 
+	    for (List<Query> lq : preconditions)
+        {
+            for (Query q : lq)
+                ret+=q.getNumParams()
+        }
         for (Action a : postconditions) 
             ret+=a.getNumParams()
         return ret
@@ -193,12 +232,18 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
     {
         int sofar=param
         
-        if (sofar-precondition.getNumParams()<0)
+        for (List<Query> lq : preconditions)
         {
-            precondition.changeParam(sofar,amount)
-            return
+            for (Query q : lq)
+            {
+                if (sofar-q.getNumParams()<0)
+                {
+                    q.changeParam(sofar,amount)
+                    return
+                }
+                sofar-=q.getNumParams()
+            }
         }
-        sofar-=precondition.getNumParams()
         for (Action a : postconditions)
         {
             if (sofar-a.getNumParams()<0)

@@ -1,4 +1,4 @@
-package game.constructs.pieces
+package game.constructs.pieces.action
 
 
 import game.constructs.board.Board
@@ -7,26 +7,34 @@ import game.gdl.statement.GameToken
 
 class Mark implements Action
 {
+    private int n=1
+    Mark (int n)
+    {
+        if (n>0)
+            this.n=n
+    }
+
     @Override
-    String effect(Map cells,Board board, int n, String piece_id,Set<String> definitions)//?selM ?selN
+    GString effect(Map<GString,GString> cells,Board board, String piece_id,Set<GString> definitions)//?selM ?selN
     {
         //return "(cell "+board.getSelectedSpaceGDL(n).join(' ')+" ${GameToken.PLAYER}"+"_"+piece_id+")"
-        cells[board.getSelectedSpaceGDL(n).join(' ')]="${GameToken.PLAYER}"+"_"+piece_id
+        cells[board.getSelectedSpaceGDL(n).join(" ")]="${GameToken.PLAYER}_${piece_id}"
+        return GString.EMPTY
     }
     
     @Override
-    Set< List<String> > effected(Board board, int n,Set<String> definitions)
+    Set< List<GString> > effected(Board board, Set<GString> definitions)
     {
         Set ret = new HashSet<List<String>>()
-        ret.addAll([board.getSelectedSpaceGDL(n), board.getPieceSpaceGDL()])
+        ret.addAll([board.getSelectedSpaceGDL(n)])
         return ret
     }
     
     @Override
-    Set< List<String> > params(Board board, int n,Set<String> definitions)
+    Set< List<GString> > params(Board board, Set<GString> definitions)
     {
-        Set ret = new HashSet<List<String>>()
-        ret.addAll([board.getSelectedSpaceGDL(n), board.getPieceSpaceGDL()])
+        Set ret = new HashSet<List<GString>>()
+        ret.addAll([board.getSelectedSpaceGDL(n)])
         return ret
     }
     

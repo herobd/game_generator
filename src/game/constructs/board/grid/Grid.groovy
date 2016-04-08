@@ -27,24 +27,19 @@ abstract class Grid extends Board //implements HasClausesWithDep
 	@Override
 	String getGeneralSpaceGDL()
 	{
-	    return '(cell ?gridm ?gridn ?gridpiece)'
+	    return "(cell ?gridm ?gridn ?gridpiece)"
 	}
 	
 	@Override
 	String getGeneralSpaceGDLIndex(int i)
 	{
-	    return ['?gridm', '?gridn'][i]
+	    return ["?gridm", "?gridn"][i]
 	}
 	
-	@Override
-	List<String> getPieceSpaceGDL()
-	{
-	    return ['?fromm', '?fromn']
-	}
 	
 	@Override
 	List<String> getSelectedSpaceGDL(int i)
 	{
-	    return ['?selm'+i, '?seln'+i]
+	    return ["?selm${i}", "?seln${i}"]
 	}
 }

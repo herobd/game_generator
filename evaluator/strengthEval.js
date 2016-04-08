@@ -161,12 +161,15 @@ module.exports = function() {
                 for (dir of directions) {
                     var count=makePieceCounter();
                     var curPos=[this.i0+dir[0],this.i1+dir[1]];
-                    while (curPos[0]>=0 && curPos[0]<board.length &&
-                           curPos[1]>=0 && curPos[1]<board[curPos[0]].length) {
+                    if (dir[0]!=0 || dir[1]!=0)
+                        while (curPos[0]>=0 && curPos[0]<board.length &&
+                               curPos[1]>=0 && curPos[1]<board[curPos[0]].length) {
+                            count.add(curPos);
+                            curPos[0]+=dir[0];
+                            curPos[1]+=dir[1];
+                        }
+                    else
                         count.add(curPos);
-                        curPos[0]+=dir[0];
-                        curPos[1]+=dir[1];
-                    }
                     desc.push(count);
                 }
                 //knight moves?
@@ -232,11 +235,15 @@ module.exports = function() {
                     board=new Array(hlgdl.board.size);
                     for (var i = 0; i < hlgdl.board.size; i++) {
                         board[i] = new Array(hlgdl.board.size);
+                        for (var j = 0; j < hlgdl.board.size; j++)
+                            board[i][j]='';
                     }
                 } else if (hlgdl.board.layoutShape=='Rectangle') {
                     board=new Array(hlgdl.board.size);
                     for (var i = 0; i < hlgdl.board.size; i++) {
                         board[i] = new Array(hlgdl.board.size2);
+                        for (var j = 0; j < hlgdl.board.size2; j++)
+                            board[i][j]='';
                     }
                 } else {
                     console.log('ERROR, unknown layoutShape: '+hlgdl.board.layoutShape);
@@ -271,76 +278,100 @@ module.exports = function() {
         return ret;
     }
     
+    function findNearest(piece,otherPieces,matched,unmatched) {
+        var minDist=null;
+        for (var i=0; i<otherPieces.length; i++) {
+            var pieceB=otherPieces[i];
+            if (piece.player===pieceB.player) {
+                var dist = piece.sqDistance(pieceB);
+                if ((minDist==null||dist<minDist) && (matched[i]===undefined || matched[i].dist>dist)) {
+                    minDist=dist;
+                    var doAgain=null;
+                    if (matched[i]!==undefined)
+                        doAgain=matched[i].piece;
+                    matched[i]={piece:piece, dist:dist};
+                    if (doAgain!==null)
+                        findNearest(doAgain,otherPieces,matched,unmatched);
+                }
+            }
+        }
+        if (minDist===null) {
+            unmatched.push(piece);
+        }
+    }
+    
+    function stateDistBothWay (piecesA, piecesB) {
+        var ret=0;
+        var matched={};
+        var unmatched=[];
+        for (var pieceA of piecesA) {
+            findNearest(pieceA,piecesB,matched,unmatched);
+        }
+        for (var m in matched) {
+            if (matched.hasOwnProperty(m))
+                ret += matched[m].dist;
+        }
+        
+        //This gives a heavy penalty to having an uneven number of pieces
+        //so I only count half.
+        if (piecesB.length>0) {
+            for (u of unmatched) {
+                var sum=0;
+                var count=0;
+                for (var pieceB of piecesB) {
+                    if (u.player===pieceB.player) {
+                        count++;
+                        sum+=u.sqDistance(pieceB);
+                    }
+                }
+                ret += sum/(2.0*count);
+            }
+        }
+        if (piecesA.length>0) {
+            for (var bi=0l bi<piecesB.length; bi++) {
+                if (matched[bi]===undefined)
+                {
+                    var sum=0;
+                    var count=0;
+                    for (var pieceA of piecesA) {
+                        if (piecesB[bi].player===pieceA.player) {
+                            count++;
+                            sum+=piecesB[bi].sqDistance(pieceA);
+                        }
+                    }
+                    ret += sum/(2.0*count);
+                }
+            }
+        }
+        return ret;
+    }
+    
     function getStateDistanceMetric(hlgdl,params) {
         return function (a,b) {
             //a,b={returnObj:{}, stateParsed:null, state:'(...)', scores:[scores]}
             
-            
+            var startTime=(new Date()).getTime();
             if (a.stateParsed==null)
+            {
                 a.stateParsed=parseState(hlgdl,a.state);
+                console.log("parsed A: "+((new Date()).getTime()-startTime));
+            }
             if (b.stateParsed==null)
+            {
                 b.stateParsed=parseState(hlgdl,b.state);
-            
-            function findNearest(piece,otherPieces,matched,unmatched) {
-                var minDist=null;
-                for (var i=0; i<otherPieces.length; i++) {
-                    var pieceB=otherPieces[i];
-                    if (piece.player===pieceB.player) {
-                        var dist = piece.sqDistance(pieceB);
-                        if ((minDist==null||dist<minDist) && (matched[i]===undefined || matched[i].dist>dist)) {
-                            minDist=dist;
-                            var doAgain=null;
-                            if (matched[i]!==undefined)
-                                doAgain=matched[i].piece;
-                            matched[i]={piece:piece, dist:dist};
-                            if (doAgain!==null)
-                                findNearest(doAgain,otherPieces,matched,unmatched);
-                        }
-                    }
-                }
-                if (minDist===null) {
-                    unmatched.push(piece);
-                }
+                console.log("parsed B: "+((new Date()).getTime()-startTime));
             }
             
-            function stateDistOneWay (piecesA, piecesB) {
-                var ret=0;
-                var matched={};
-                var unmatched=[];
-                for (var pieceA of piecesA) {
-                    findNearest(pieceA,piecesB,matched,unmatched);
-                }
-                for (var m in matched) {
-                    if (matched.hasOwnProperty(m))
-                        ret += matched[m].dist;
-                }
-                
-                //This gives a heavy penalty to having an uneven number of pieces
-                //But given that the other direction won't have the penalty, it should work out.
-                if (piecesB.length>0) {
-                    for (u of unmatched) {
-                        var sum=0;
-                        var count=0;
-                        for (pieceB of piecesB) {
-                            if (u.player===pieceB.player) {
-                                count++;
-                                sum+=u.sqDistance(pieceB);
-                            }
-                        }
-                        ret += sum/(0.0+count);
-                    }
-                }
-                return ret;
-            }
             
-            var sumDist=stateDistOneWay(a.stateParsed,b.stateParsed) + stateDistOneWay(b.stateParsed,a.stateParsed);
-            
+            var sumDist=stateDistBothWay(a.stateParsed,b.stateParsed); // + stateDistOneWay(b.stateParsed,a.stateParsed);
+            console.log("computed dist: "+((new Date()).getTime()-startTime));
             
             return Math.sqrt(sumDist + Math.pow(a.step-b.step,2)*params.stepDifWeight);
         };
     }
     
     function learnPositionStrength(hlgdl,matches,numPlayers,params) {
+        //console.log('Learning pos str');
         var turnsScores=[];
         var avgNumTurnsPerMatch=0;
         
@@ -364,6 +395,8 @@ module.exports = function() {
         }
         avgNumTurnsPerMatch/=0.0+matches.length;
         
+        console.log('cluster, num clust:'+Math.floor(params.clusteringKCoef*avgNumTurnsPerMatch));
+        console.log('cluster, num turnsScores:'+turnsScores.length);
         var levels = cluster({
             input: turnsScores,
             distance: getStateDistanceMetric(hlgdl,params),
@@ -374,9 +407,9 @@ module.exports = function() {
                     sum+=d;
                 return sum/(0.0+distances.length);
             },
-            minClusters: params.clusteringKCoef*avgNumTurnsPerMatch
+            minClusters: Math.floor(params.clusteringKCoef*avgNumTurnsPerMatch)
         });
-        
+        console.log('finished cluster');
         
         var clusters = levels[levels.length - 1].clusters;
         for (var clust of clusters) {

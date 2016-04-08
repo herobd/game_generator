@@ -15,7 +15,7 @@ interface Action extends FineTunable
 	 * @param piece_id The name of the parent piece
 	 * @return A string for the appropriate GDL.
 	 */
-    String effect(Map cells, Board board, int n, String piece_id,Set<String> definitions);
+    GString effect(Map<GString,GString> cells, Board board, String piece_id,Set<GString> definitions);
     
     /**
 	 * Retrieves the GDL variables of the spaces this action effects
@@ -24,7 +24,7 @@ interface Action extends FineTunable
 	 * @param n This is the nth postcondition (used for creating unique variable names if needed)
 	 * @return A set of strings of GDL variables. Lenght depends on board type
 	 */
-    Set< List<String> > effected(Board board, int n,Set<String> definitions);
+    Set< List<GString> > effected(Board board, Set<GString> definitions);
     
     /**
 	 * Retrieves the GDL variables of the action the player chooses.
@@ -34,7 +34,7 @@ interface Action extends FineTunable
 	 * @param n This is the nth postcondition (used for creating unique variable names if needed)
 	 * @return A set of strings of GDL variables. Lenght depends on board type
 	 */
-    Set< List<String> > params(Board board, int n,Set<String> definitions);
+    Set< List<GString> > params(Board board, Set<GString> definitions);
     
     int complexityCount();
 }

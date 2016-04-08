@@ -356,7 +356,8 @@ var ControllerApp = function(host,port) {
                 //self.gameCord.addPlayer('l','localhost',9147,'l',0,1);
                 
                 self.gameCord.addPlayer('montecarlo','normandy',9147,'m');
-                self.gameCord.addPlayer('montecarlotreesearch','normandy',9148,'mt');
+                //self.gameCord.addPlayer('montecarlotreesearch','normandy',9148,'mt');
+                
                 //self.gameCord.addPlayer('heurisitc_prune','normandy',9150,'h_prune');
                 //self.gameCord.addPlayer('heurisitc','normandy',9149,'h');
                 //self.gameCord.addPlayer('heurisitc_rand','localhost',9147,'h_r');

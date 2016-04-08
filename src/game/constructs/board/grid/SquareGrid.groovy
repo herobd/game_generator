@@ -408,27 +408,27 @@ class SquareGrid extends Grid implements
 		return new SimpleStatement(result)
 	}
 	
-	List<List<String>> getSelectedSpaceNborsGDL(int i,Set<String> definitions)
+	List<List<String>> getSelectedSpaceNborsGDL(int i,Set<GString> definitions)
 	{
-	    definitions.add('(succ ?selm'+i+' ?selm'+i+'H)')
-	    definitions.add('(succ ?selm'+i+'L ?selm'+i+')')
-	    definitions.add('(succ ?seln'+i+' ?seln'+i+'H)')
-	    definitions.add('(succ ?seln'+i+'L ?seln'+i+')')
-	    return [['?selm'+i, '?seln'+i+'H'],
-	            ['?selm'+i, '?seln'+i+'L'],
-	            ['?selm'+i+'H', '?seln'+i],
-	            ['?selm'+i+'L', '?seln'+i]]
+	    definitions.add("(succ ?selm${i} ?selm${i}H)")
+	    definitions.add("(succ ?selm${i}L ?selm${i})")
+	    definitions.add("(succ ?seln${i} ?seln${i}H)")
+	    definitions.add("(succ ?seln${i}L ?seln${i})")
+	    return [["?selm${i}", "?seln${i}H"],
+	            ["?selm${i}", "?seln${i}L"],
+	            ["?selm${i}H", "?seln${i}"],
+	            ["?selm${i}L", "?seln${i}"]]
 	}
-	List<List<String>> getSelectedSpaceI_NborsGDL(int i,Set<String> definitions)
+	List<List<String>> getSelectedSpaceI_NborsGDL(int i,Set<GString> definitions)
 	{
-	    definitions.add('(succ ?selm'+i+' ?selm'+i+'H)')
-	    definitions.add('(succ ?selm'+i+'L ?selm'+i+')')
-	    definitions.add('(succ ?seln'+i+' ?seln'+i+'H)')
-	    definitions.add('(succ ?seln'+i+'L ?seln'+i+')')
-	    return [['?selm'+i+'H', '?seln'+i+'H'],
-	            ['?selm'+i+'H', '?seln'+i+'L'],
-	            ['?selm'+i+'L', '?seln'+i+'H'],
-	            ['?selm'+i+'L', '?seln'+i+'L']]
+	    definitions.add("(succ ?selm${i} ?selm${i}H)")
+	    definitions.add("(succ ?selm${i}L ?selm${i})")
+	    definitions.add("(succ ?seln${i} ?seln${i}H)")
+	    definitions.add("(succ ?seln${i}L ?seln${i})")
+	    return [["?selm${i}H', '?seln${i}H"],
+	            ["?selm${i}H', '?seln${i}L"],
+	            ["?selm${i}L', '?seln${i}H"],
+	            ["?selm${i}L', '?seln${i}L"]]
 	}
 	
 	@Override

@@ -57,9 +57,9 @@ abstract class Board implements  Supports, FineTunable //HasClausesWithDep
 	
 	abstract String getGeneralSpaceGDL()
 	abstract String getGeneralSpaceGDLIndex(int i)
-	abstract List<String> getPieceSpaceGDL()
+	List<String> getPieceSpaceGDL() {return getSelectedSpaceGDL(0)}
 	abstract List<String> getSelectedSpaceGDL(int i)
 	
-	abstract List<List<String>> getSelectedSpaceNborsGDL(int i,Set<String> definitions);
-	abstract List<List<String>> getSelectedSpaceI_NborsGDL(int i,Set<String> definitions);
+	abstract List<List<GString>> getSelectedSpaceNborsGDL(int i,Set<GString> definitions);
+	abstract List<List<GString>> getSelectedSpaceI_NborsGDL(int i,Set<GString> definitions);
 }
