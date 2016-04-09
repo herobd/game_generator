@@ -29,4 +29,6 @@ interface Query extends FineTunable
     int complexityCount();
     
     String convertToJSON()
+    
+    //static Query fromJSON(def parsed)
 }

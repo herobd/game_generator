@@ -58,6 +58,19 @@ class Piece implements  FineTunable //HasClausesWithDep
 		nameMoves()
 	}
 	
+	static Piece fromJSON(def parsed)
+	{
+	    def startPositions =[]
+	    parsed.startPositions.each { sp ->
+	        startPositions.push(StartingPosition.fromJSON(sp))
+        }
+        def moves =[]
+	    parsed.moves.each { m ->
+	        moves.push(Move.fromJSON(m))
+        }
+        return new Piece(startPositions,moves)
+	}
+	
 	private void nameMoves()
 	{
 	    for (int i=0; i<moves.size(); i++)

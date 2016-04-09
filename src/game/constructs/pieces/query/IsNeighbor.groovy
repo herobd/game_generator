@@ -19,6 +19,14 @@ class IsNeighbor implements Query
             this.neighborOf=neighborOf
     }
     
+    IsNeighbor(int neighborOf, boolean nbors, boolean i_nbors)
+    {
+        if (neighborOf<0)
+            this.neighborOf=neighborOf
+        this.nbors=nbors
+        this.i_nbors=i_nbors
+    }
+    
     @Override
     GString toGDL(Board board,String piece_id, int n)
     {
@@ -117,5 +125,11 @@ class IsNeighbor implements Query
     String convertToJSON()
     {
         return '{"query":"IsNeighbor", "neighborOf":'+neighborOf+', "nbors":"'+nbors+'", "i_nbors":"'+i_nbors+'"}'
+    }
+    
+    //@Override
+    static Query fromJSON(def parsed)
+    {
+        return new IsNeighbor(parsed.neighborOf, parsed.nbors, parsed.i_nbors)
     }
 }

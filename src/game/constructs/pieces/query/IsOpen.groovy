@@ -39,4 +39,10 @@ class IsOpen implements Query
     {
         return '{"query":"IsOpen"}'
     }
+    
+    //@Override
+    static Query fromJSON(def parsed)
+    {
+        return new IsOpen()
+    }
 }

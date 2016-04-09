@@ -52,4 +52,10 @@ class MoveToSelected implements Action
     {
         return '{"action":"MoveToSelected", "parameter":'+n+'}'
     }
+    
+    //@Override
+    static Action fromJSON(def parsed)
+    {
+        return new MoveToSelected(parsed.parameter)
+    }
 }

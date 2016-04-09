@@ -42,4 +42,10 @@ class PieceOrigin implements Query
     {
         return '{"query":"PieceOrigin"}'
     }
+    
+    //@Override
+    static Query fromJSON(def parsed)
+    {
+        return new PieceOrigin()
+    }
 }

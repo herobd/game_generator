@@ -41,4 +41,10 @@ class IsEnemy implements Query
     {
         return '{"query":"IsEnemy"}'
     }
+    
+    //@Override
+    static Query fromJSON(def parsed)
+    {
+        return new IsEnemy()
+    }
 }

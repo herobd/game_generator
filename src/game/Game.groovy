@@ -17,6 +17,12 @@ import generator.FineTunable
 import game.gdl.clauses.base.BaseClause
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.GameToken
+import groovy.json.JsonSlurper
+import game.constructs.condition.NegatedCondition
+import game.constructs.board.grid.SquareGrid
+import game.constructs.condition.functions.GameFunction
+import game.constructs.condition.result.EndGameResult
+import game.constructs.condition.TerminalConditional
 
 /**
  * @author Lawrence Thatcher
@@ -73,6 +79,27 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		this.end = new EndGameConditions(end, board)
 		this.score=score
 		namePieces()
+	}
+	
+	static Game fromJSON(String json)
+	{
+	    def jsonSlurper = new JsonSlurper()
+        def parsed = jsonSlurper.parseText(json)
+        def players = new Players(parsed.players)
+        def board
+        if (parsed.board.macroType=="Grid" && parsed.board.tileType=="Square" && parsed.board.layoutShape=="Square")
+            board=new SquareGrid(parsed.board.size)
+        else
+            println 'Error, unsupported board: '+parsed.board
+        def pieces=[]
+        parsed.pieces.each { p ->
+            pieces.push(Piece.fromJSON(p))
+        }
+        //default
+        def end = []
+		end.add(new TerminalConditional(GameFunction.N_inARow([3]), EndGameResult.Win))
+		end.add(new TerminalConditional(new NegatedCondition(GameFunction.Open), EndGameResult.Draw))
+        return new Game(players,board,TurnOrder.Alternating,pieces,end,100)
 	}
 	
 	void namePieces()
@@ -140,7 +167,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		
 		String ret = ''
 		ret +='{\n'
-		ret +='  "players": ['+players.getPlayerNames().join(', ')+'],\n'
+		ret +='  "players": ["'+players.getPlayerNames().join('", "')+'"],\n'
 		ret +='  "board": '+board.convertToJSON()+',\n'
 		ret +='  "pieces": ['+ps.join(', ')+'],\n'
 		ret +='  "end": "some end"\n'

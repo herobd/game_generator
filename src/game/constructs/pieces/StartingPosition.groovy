@@ -40,6 +40,11 @@ class StartingPosition implements FineTunable
         this.number = number
     }
     
+    StartingPosition(String type, int number) {
+        this.type = type
+        this.number = number
+    }
+    
     @Override
     int getNumParams()
 	{
@@ -56,5 +61,10 @@ class StartingPosition implements FineTunable
     {
         return '{"type":"'+type+'", "number":'+number+'}'
     }
+    
+    static StartingPosition fromJSON(def parsed)
+    {
+        return new StartingPosition(parsed.type,parsed.number)
+    }   
 }
 
