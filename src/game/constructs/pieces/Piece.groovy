@@ -21,7 +21,7 @@ class Piece implements  FineTunable //HasClausesWithDep
 	
 	//private MoveType moveType
 	private List<Move> moves
-	private List<Piece> children =[]
+	//private List<Piece> children =[]
 
 	Piece(String name, List<StartingPosition> startPositions, List<Move> moves)
 	{
@@ -190,5 +190,21 @@ class Piece implements  FineTunable //HasClausesWithDep
             else
                 sofar-=sp.getNumParams()
         }
+    }
+    
+    String convertToJSON()
+    {
+        
+        List<String> ms = []
+		for (Move move : moves)
+		{
+			ms.push(move.convertToJSON())
+		}
+		List<String> ss = []
+		for (StartingPosition s : startPositions)
+		{
+			ss.push(s.convertToJSON())
+		}
+		String ret='{"moves": ['+ms.join(', ')+'], "startPositions": ['+ss.join(', ')+'] }'
     }
 }

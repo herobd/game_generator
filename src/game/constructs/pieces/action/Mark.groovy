@@ -48,4 +48,10 @@ class Mark implements Action
     {
         
     }
+    
+    @Override
+    String convertToJSON()
+    {
+        return '{"action":"Mark", "parameter":'+n+'}'
+    }
 }

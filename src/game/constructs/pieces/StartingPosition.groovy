@@ -51,5 +51,10 @@ class StartingPosition implements FineTunable
     {
         numer+=amount;
     }
+    
+    String convertToJSON()
+    {
+        return '{"type":"'+type+'", "number":'+number+'}'
+    }
 }
 

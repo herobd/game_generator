@@ -35,4 +35,10 @@ class IsEnemy implements Query
     {
         
     }
+    
+    @Override
+    String convertToJSON()
+    {
+        return '{"query":"IsEnemy"}'
+    }
 }

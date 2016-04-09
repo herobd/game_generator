@@ -36,4 +36,10 @@ class PieceOrigin implements Query
     {
         
     }
+    
+    @Override
+    String convertToJSON()
+    {
+        return '{"query":"PieceOrigin"}'
+    }
 }

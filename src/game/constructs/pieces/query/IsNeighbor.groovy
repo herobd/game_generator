@@ -112,4 +112,10 @@ class IsNeighbor implements Query
     {
         
     }
+    
+    @Override
+    String convertToJSON()
+    {
+        return '{"query":"IsNeighbor", "neighborOf":'+neighborOf+', "nbors":"'+nbors+'", "i_nbors":"'+i_nbors+'"}'
+    }
 }

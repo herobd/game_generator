@@ -450,4 +450,10 @@ class SquareGrid extends Grid implements
         else
             i_nbors=!i_nbors*/
     }
+    
+    @Override 
+    String convertToJSON()
+    {
+        return '{ "macroType": "Grid", "tileType": "Square", "layoutShape": "Square", "size": '+size+'}'
+    }
 }

@@ -55,6 +55,8 @@ abstract class Board implements  Supports, FineTunable //HasClausesWithDep
 		}
 	}
 	
+	abstract String convertToJSON()
+	
 	abstract String getGeneralSpaceGDL()
 	abstract String getGeneralSpaceGDLIndex(int i)
 	List<String> getPieceSpaceGDL() {return getSelectedSpaceGDL(0)}

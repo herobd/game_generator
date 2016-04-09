@@ -312,4 +312,25 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
         }
         
     }
+    
+    String convertToJSON()
+    {
+        def test=0
+        List< String > acs = new ArrayList<String>()
+        for (Action a : postconditions)
+            acs.push(a.convertToJSON())
+        
+        List<String> qqs = []
+        for (List<Query> qls : preconditions)
+        {
+            
+            List<String> qs = []
+            for (Query q : qls)
+                qs.push(q.convertToJSON())
+            
+            qqs.push('['+qs.join(', ')+']')
+        }
+        
+        return '{"preconditions": ['+qqs.join(', ')+'], "postconditions": ['+acs.join(', ')+']}'
+    }
 }

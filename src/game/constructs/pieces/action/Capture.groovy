@@ -46,4 +46,10 @@ class Capture implements Action
     {
         
     }
+    
+    @Override
+    String convertToJSON()
+    {
+        return '{"action":"Capture", "parameter":'+n+'}'
+    }
 }

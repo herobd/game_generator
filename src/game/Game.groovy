@@ -129,6 +129,24 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		GameContextInfo contextInfo = new GameContextInfo(players)
 		return new GDLDescription(name, clauses, contextInfo)
 	}
+	
+	String convertToJSON()
+	{
+	    List<String> ps = []
+		for (Piece p : pieces)
+		{
+			ps.push(p.convertToJSON())
+		}
+		
+		String ret = ''
+		ret +='{\n'
+		ret +='  "players": ['+players.getPlayerNames().join(', ')+'],\n'
+		ret +='  "board": '+board.convertToJSON()+',\n'
+		ret +='  "pieces": ['+ps.join(', ')+'],\n'
+		ret +='  "end": "some end"\n'
+		ret +='}'
+		return ret
+	}
 
 	@Override
 	Evolvable crossOver(Evolvable mate)
