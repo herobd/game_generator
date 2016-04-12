@@ -62,4 +62,10 @@ class Move implements HasClauses, HasDynCompClause, HasBaseClause, HasLegalClaus
 	{
 		return this.legal
 	}
+
+    int complexityCount()
+    {
+        //TODO fill this is
+        return 1
+    }
 }

@@ -6,8 +6,9 @@ import game.gdl.clauses.GDLClause
 /**
  * @author Lawrence Thatcher
  */
-trait Function implements PreCondition
-{
+
+trait Function implements PreCondition {
+
 	abstract GameFunction getType()
 
 	abstract String getFunctionName()

@@ -1,0 +1,14 @@
+{
+  "name": "controller_server",
+  "version": "0.0.1",
+  "description": "Controller Server for PEGGASUS",
+  "dependencies": {
+  	"express": "*",
+  	"body-parser": "*",
+  	"multer": "*",
+  	"fs": "*",
+  	"mongodb": "*",
+  	"request": "*"
+   },
+  "engine": "node >=0.12.x"
+}

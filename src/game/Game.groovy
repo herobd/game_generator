@@ -24,6 +24,7 @@ class Game implements Evolvable, GDLConvertable
 	private static final double DEFAULT_CROSS_OVER_PROBABILITY = 0.1
 
 	private String name = "unnamed game"
+	private String id = "no_id"
 	private Players players
 	private Board board
 	private TurnOrder turnOrder
@@ -50,6 +51,31 @@ class Game implements Evolvable, GDLConvertable
 		else
 			this.pieces = pieces
 		this.end = new EndGameConditions(end, board)
+	}
+	
+	int getNumPlayers()
+	{
+	    return players.size()
+	}
+	
+	String getId()
+	{
+	    return id
+	}
+	
+	void setId(String id)
+	{
+	    this.id=id
+	}
+	
+	String getName()
+	{
+	    return name
+	}
+	
+	int getGDLVersion()
+	{
+	    return 1
 	}
 
 	@Override
@@ -128,4 +154,19 @@ class Game implements Evolvable, GDLConvertable
 		}
 		return result
 	}
+
+    int complexityCount_piece()
+    {
+        int ret=0
+        for (Piece p : pieces)
+            ret += 1 + p.complexityCount()
+        return ret
+    }
+    int complexityCount_end()
+    {
+        int ret=0
+        for (Conditional c : end.conditionals)
+            ret += 1 + c.complexityCount()
+        return ret
+    }
 }

@@ -4,11 +4,10 @@ Evaluation server for our General Rudimental Evolutionary Game Generator (GREGG)
 - Node.js  (incldues packages)
   - express
   - request
-  - fs
   - body-parser
   - multer
 
-Just `npm install [ ]` them
+Just `npm install` them from package.json
 
 Accepts
 
