@@ -32,4 +32,13 @@ interface Evolvable
 	 * @return a list of all the elements of this class that implement the Gene interface
 	 */
 	List<Gene> getGenes()
+	
+	/**
+	 * Retrieves a list containing the parents this was generated from. First is template
+	 * @return a list of parents of this instance
+	 */
+	List<Evolvable> getParents()
+	
+	double getScore()
+	void setScore(double score)
 }

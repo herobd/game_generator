@@ -11,4 +11,6 @@ final class NamedPieces
 	{
 		return new Piece(Placement.Persistent, [NamedMoves.mark])
 	}
+	
+
 }

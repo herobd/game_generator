@@ -24,9 +24,13 @@ module.exports =  function() {
         // removes and returns the data of highest priority
         pop: function() {
             if (this.heap.length-1>0) {
-                var topVal = this.heap[1].data;
-                this.heap[1] = this.heap.pop();
-                this.sink(1); return topVal;
+                 var topVal = this.heap[1].data;
+                 var newHead = this.heap.pop();
+                 if (this.heap.length-1>0) {
+                    this.heap[1] = newHead;
+                    this.sink(1);
+                 }
+                 return topVal;
             }  else
                 return null;
         },
@@ -77,6 +81,13 @@ module.exports =  function() {
         // returns true if node i is higher priority than j
         // I'm assuming higher score = higher priority
         isHigherPriority: function(i,j) {
+            if (i>=this.heap.length)
+                return false
+            else if (this.heap[i]==undefined)
+                console.log('ERROR in PriorityQueue, this.heap['+i+'] is undef, i')
+            else if (this.heap[j]==undefined)
+                console.log('ERROR in PriorityQueue, this.heap['+j+'] is undef, j')
+            
             return this.heap[i].priority > this.heap[j].priority;
         }
     }
@@ -100,6 +111,7 @@ module.exports =  function() {
         this.nextMatchId = null;
         this.database.getMaxMatchId(function(matchId){self.nextMatchId=matchId;});
         this.numMatchesBeingPlayed=0;
+	this.rankMode=false;
     }
     
     GameCord.prototype.queueLength = function () {
@@ -140,12 +152,13 @@ module.exports =  function() {
             readjust=true;
         if (name===undefined)
             name='unnamed';
-        if (skillLevel===undefined)
-            skillLevel=1;
         if (gdlVersion===undefined)
             gdlVersion=1;
-        this.players.push({
-                            id:this.playerIdCounter++,
+        
+        var self=this;
+        function finishAddingPlayer() {
+            self.players.push({
+                            id:self.playerIdCounter++,
                             type:method,
                             host:host, 
                             port:port, 
@@ -154,13 +167,30 @@ module.exports =  function() {
                             skill:skillLevel, 
                             busy:false
                           });
-        if (this.allPlayerTypes.indexOf(method)==-1) {
-            this.allPlayerTypes.push(method);
+            if (self.allPlayerTypes.indexOf(method)==-1) {
+                self.allPlayerTypes.push(method);
+            }
+            if (readjust) {
+                self.createPlaySchedule();
+            }
+            console.log('Added player '+name+' ('+host+':'+port+') of type '+method);
         }
-        if (readjust) {
-            this.createPlaySchedule();
+        
+        if (skillLevel===undefined || skillLevel===null || skillLevel<0) {
+            var mm = method.substring(0,method.indexOf('.'))
+            self.owner.getPlayerTypeSkill(mm,function (err,skill) {
+                if (!err & skill!=null && skill>=0)
+		            skillLevel=skill;
+	            else
+	                skillLevel=1;
+                
+                finishAddingPlayer();
+	        });
+	    } else {
+	        finishAddingPlayer();
         }
-        console.log('Added player '+name+' ('+host+':'+port+') of type '+method);
+        
+        
         return 'ok';
     }
     
@@ -210,23 +240,23 @@ module.exports =  function() {
                      gameMeta.testLength==='s' ||
                      gameMeta.testLength==='quick') {
                     numOfRuns=1;
-                    startclock=10;
-                    playclock=3;
-                    maxSteps=120;
+                    startclock=5;
+                    playclock=2;
+                    maxSteps=100;
                 } else if (gameMeta.testLength==='med' || 
                            gameMeta.testLength==='medium' || 
                            gameMeta.testLength==='m') {
                     numOfRuns=2;
-                    startclock=20;
-                    playclock=7;
-                    maxSteps=150;
+                    startclock=9;
+                    playclock=3;
+                    maxSteps=110;
                 } else if (gameMeta.testLength==='long' || 
                            gameMeta.testLength==='l' || 
                            gameMeta.testLength==='full') {
                     numOfRuns=3;
-                    startclock=30;
-                    playclock=10;
-                    maxSteps=280;
+                    startclock=13;
+                    playclock=4;
+                    maxSteps=120;
                 } else {
                     console.log('ERROR: game '+gameMeta.id+' '+gameMeta.name+' has an invalid testLength: '+gameMeta.testLength);
                     valid = false;
@@ -450,7 +480,10 @@ module.exports =  function() {
                                             type:self.players[playerId].type
                                          });
                 }
-                self.owner.sendGameResults({matchId:m.id, playerOrder:allOrders.length, rep:rep, players:thisGamePlayerInfo, gameId:m.gameId,printout:stdout});
+                if (self.rankMode==false)
+		    self.owner.sendGameResults({matchId:m.id, playerOrder:allOrders.length, rep:rep, players:thisGamePlayerInfo, gameId:m.gameId,printout:stdout});
+	        else
+		    self.evalWin(thisGamePlayerInfo,stdout);
             }
             if (allOrders.length>0 || leftToPlayWith>1)
                 self.playMatch(m,allOrders,gameLoc,leftToPlayWith-1,thisGamePlayers);
@@ -470,8 +503,8 @@ module.exports =  function() {
         }
         
         //inform evaluator
-        if (m.owner.allDone())
-            this.owner.sendGameDone({gameId:m.gameId});
+        if (m.owner.allDone() && this.rankMode==false)
+            this.owner.sendGameDone(m.gameId);
         
         //The second term is just a catch-all in case we hit a funny case
         if (this.findNextMatchUp(m.playerTypes) || this.numMatchesBeingPlayed==0)
@@ -580,6 +613,55 @@ module.exports =  function() {
         else
             return null;
     };
+
     
+    GameCord.prototype.rankPlayersStart = function () {
+        this.rankMode=true;
+	    this.wins={};
+	    for (t of this.allPlayerTypes)
+	        this.wins[t]=0;
+    }
+    GameCord.prototype.rankPlayersEnd = function () {
+        this.rankMode=false;
+	    
+        var toSort = [];
+	    for (var t of this.allPlayerTypes) {
+            toSort.push({type:t, wins:this.wins[t]});
+	    }
+	    toSort.sort(function (a,b) {return a.wins-b.wins});
+        var curSkill=0;
+	    var ret={};
+	    for (rankPair of toSort) {
+            console.log('player type ['+rankPair.type+'] is skill\t'+curSkill+' \twith\t'+rankPair.wins+' wins');
+            ret[rankPair.type]=curSkill;
+	        for (p of this.players) {
+                    p.skill=curSkill;
+	        }
+	        if ((curSkill==0 && rankPair.type=='random') || curSkill>0) {
+                    curSkill++;
+	        } 
+	    }
+	    this.owner.savePlayerTypeSkills(ret);
+	    return toSort;
+    }
+    GameCord.prototype.evalWin = function (playerInfo,printout) {
+        var RE_outcome = /INFO\([0-9.:]+\): Game over! results: ([0-9. ]+)/;
+        var RE_numbers = /[0-9.]+/g;
+        var outcome = printout.match(RE_outcome)[1].match(RE_numbers);
+	    var highScore=-999;
+	    var winI=-1;
+	    for (var i=0; i<outcome.length; i++) {
+            if (outcome[i]>highScore) {
+		        highScore=outcome[i];
+		        winI=i;
+	        } else if (outcome[i]==highScore){
+		        winI=-1;
+	        }
+
+	    }
+	    if (winI!=-1) {
+		    this.wins[playerInfo[winI].type]++
+	    }
+    }
     return GameCord;
 };

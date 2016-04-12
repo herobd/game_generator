@@ -9,3 +9,4 @@ enum EndGameResult implements PostCondition
 	Lose,
 	Draw
 }
+

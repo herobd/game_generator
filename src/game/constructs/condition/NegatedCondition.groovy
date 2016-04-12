@@ -75,4 +75,28 @@ class NegatedCondition implements PreCondition
 	{
 		return new NegatedCondition(condition)
 	}
+	
+	@Override
+	int getNumParams()
+	{
+	    return condition.getNumParams()
+    }
+    
+    @Override
+    void changeParam(int param, int amount)
+    {
+        condition.changeParam(param,amount)
+    }
+    
+    @Override
+    int complexityCount()
+    {
+        return condition.complexityCount()
+    }
+    
+    /*@Override
+    GDLClause getGDLClauses()
+    {
+        return new SimpleStatement("filler for funtion: "+getFunctionName());
+    }*/
 }

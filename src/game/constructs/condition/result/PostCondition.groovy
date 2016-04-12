@@ -7,5 +7,10 @@ package game.constructs.condition.result
  */
 interface PostCondition
 {
-
+    /*int getNumParams()
+    {
+        return 0
+    }*/
 }
+
+

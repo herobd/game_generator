@@ -234,7 +234,31 @@ var ControllerApp = function(host,port) {
                       numPlayers:self.gameCord.numPlayers(),
                       numPlayerTypes:self.gameCord.numPlayerTypes(),
                       gameBeingEval1:self.gameCord.gameBeingEval1(),
-                      gameBeingEval2:self.gameCord.gameBeingEval2(),});
+                      gameBeingEval2:self.gameCord.gameBeingEval2(),
+                      ranking:self.gameCord.rankMode});
+        });
+        
+        self.app.get('/startRanking', function(req, res) {
+            res.setHeader('Content-Type', 'application/json');
+            self.gameCord.rankPlayersStart();
+            res.json({id:"controller",status:"ok"});
+        });
+        
+        self.app.get('/endRanking', function(req, res) {
+            res.setHeader('Content-Type', 'application/json');
+            var results = self.gameCord.rankPlayersEnd();
+            res.json({id:"controller",status:"ok",results:results});
+        });
+        
+        self.app.get('/getGames', function(req, res) {
+            res.setHeader('Content-Type', 'application/json');
+            self.database.getTopGames(+req.query.num,function(err,games) {
+                console.log(games);
+                if (!err)
+                    res.json({id:"controller",status:"ok",games:games});
+                else
+                    res.json({id:"controller",status:err,games:null});
+            });
         });
 
         
@@ -295,12 +319,8 @@ var ControllerApp = function(host,port) {
         // Create the express server and routes.
         self.initializeServer();
         
-        self.database=new Database('localhost:27017');
-        if (self.database.test!=='ok')
-            console.log('ERROR: database failed to init');
-        self.gameCord=new GameCord(self,self.database);
-        if (self.gameCord.allPlayerTypes[0]!=='random')
-            console.log('ERROR: gameCord failed to init');
+        
+        
         self.evaluatorAddress=null;
         self.generatorAddress=null;
         self.returnToGenerator=[];
@@ -313,31 +333,59 @@ var ControllerApp = function(host,port) {
      */
     self.start = function() {
         //  Start the app on the specific interface (and port).
-        self.app.listen(self.port, /*self.ipaddress,*/ function() {
-            console.log('%s: Node server started on :%d ...',
-                        Date(Date.now() ), self.port);
+        self.database=new Database('localhost:27017', './gdl',function() {
+            self.gameCord=new GameCord(self,self.database);
             
-            //TODO init////
-            self.sendConnect('localhost:8081',function(err){console.log(err);});
-            
-            //self.gameCord.addPlayer('minimax','localhost',9147,'min1',1,1);
-            //self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
-            self.gameCord.addPlayer('l1','localhost',9147,'l1',0,1);
-            self.gameCord.addPlayer('l2','localhost',9148,'l2',0,1);
-            self.gameCord.addPlayer('l3','localhost',9149,'l3',0,1);
-            self.gameCord.addPlayer('l4','localhost',9150,'l4',0,1);
-            //self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
-            ////////////////////
-            
-            self.database.getAllUnscoredGames(function(unscoredGames,err) {
-                for (game of unscoredGames) {
-                    if (game.startedEval==false)
-                        self.gameCord.enqueue(game.meta);
-                    else {
-                        self.gameCord.enqueuePartail(game.meta,game.matches);
-                        //TODO retrieve all match results and pass to evaluator
+            self.app.listen(self.port, /*self.ipaddress,*/ function() {
+                console.log('%s: Node server started on :%d ...',
+                            Date(Date.now() ), self.port);
+                
+                //TODO init////
+                self.sendConnect('localhost:8081',function(err){console.log(err);});
+                
+                //self.gameCord.addPlayer('minimax','localhost',9147,'min1',1,1);
+                //self.gameCord.addPlayer('heuristic','localhost',9148,'heu1',2,1);
+                /*self.gameCord.addPlayer('l1','localhost',9147,'l1',0,1);
+                self.gameCord.addPlayer('l2','localhost',9148,'l2',0,1);
+                self.gameCord.addPlayer('l3','localhost',9149,'l3',0,1);
+                self.gameCord.addPlayer('l4','localhost',9150,'l4',0,1);
+                self.gameCord.addPlayer('l1','localhost',9151,'l5',0,1);
+                self.gameCord.addPlayer('l2','localhost',9152,'l6',0,1);
+                self.gameCord.addPlayer('l3','localhost',9153,'l7',0,1);
+                self.gameCord.addPlayer('l4','localhost',9154,'l8',0,1);*/
+                //self.gameCord.addPlayer('l','localhost',9147,'l',0,1);
+                
+                //self.gameCord.addPlayer('montecarlo','normandy',9147,'m');
+                //self.gameCord.addPlayer('montecarlotreesearch','normandy',9148,'mt');
+                
+                //self.gameCord.addPlayer('heurisitc_prune','normandy',9150,'h_prune');
+                //self.gameCord.addPlayer('heurisitc','normandy',9149,'h');
+                //self.gameCord.addPlayer('heurisitc_rand','localhost',9147,'h_r');
+                //self.gameCord.addPlayer('heurisitc','localhost',9148,'h');
+                
+                //THESE ARE RUNNING
+                self.gameCord.addPlayer('PAST','normandy',59834,'past');
+                self.gameCord.addPlayer('UCT','normandy',59835,'uct');
+                self.gameCord.addPlayer('MAST','normandy',59836,'mast');
+                self.gameCord.addPlayer('TO-MAST','normandy',59837,'to-mast');
+                
+                self.gameCord.addPlayer('PAST','normandy',59838,'past2');
+                self.gameCord.addPlayer('UCT','normandy',59839,'uct2');
+                self.gameCord.addPlayer('MAST','normandy',59840,'mast2');
+                self.gameCord.addPlayer('TO-MAST','normandy',59841,'to-mast2');
+                
+                ////////////////////
+                
+                self.database.getAllUnscoredGames(function(err,unscoredGames) {
+                    for (game of unscoredGames) {
+                        if (game.startedEval==false)
+                            self.gameCord.enqueue(game.meta);
+                        else {
+                            self.gameCord.enqueuePartail(game.meta,game.matches);
+                            //TODO retrieve all match results and pass to evaluator
+                        }
                     }
-                }
+                });
             });
         });
     };
@@ -365,21 +413,26 @@ var ControllerApp = function(host,port) {
         );
     };
     
-    self.sendGameDone = function(results) {
-        
-        request.post(
-            'http://'+self.evaluatorAddress+'/gameDone',
-            { json: results },
-            function (error, response, body) {
-                if (!error && response.statusCode == 200) {
-                    
-                    if (body.status!=='recieved'&&body.status!=='ok') {
-                        console.log('ERROR: DONE for '+results.gameId+' didnt stick in evaluator');
+    self.sendGameDone = function(gameId) {
+        self.database.getMetaForEval(gameId, function(err,res) {
+            if (!err) {
+                request.post(
+                    'http://'+self.evaluatorAddress+'/gameDone',
+                    { json: res },
+                    function (error, response, body) {
+                        if (!error && response.statusCode == 200) {
+                            
+                            if (body.status!=='recieved'&&body.status!=='ok') {
+                                console.log('ERROR: DONE for '+appendedResults.gameId+' didnt stick in evaluator');
+                            }
+                            
+                        }
                     }
-                    
-                }
+                );
+            } else {
+                console.log('ERROR: failed to retrieve gdl and hlgdl: '+err);
             }
-        );
+        });
     };
     
     //localhost:8081/connect?id=controller&address=localhost:8080
@@ -436,6 +489,14 @@ var ControllerApp = function(host,port) {
             callback();
         }
     };
+
+    self.savePlayerTypeSkills = function(skillMap) {
+        self.database.savePlayerTypeSkills(skillMap,function(err) {if (err) console.log('ERROR saving skills: '+err);});
+    }
+
+    self.getPlayerTypeSkill = function(type,callback) {
+        self.database.getPlayerTypeSkill(type,callback);
+    }
 };   /*  END Controller Application.  */
 
 

@@ -5,3 +5,8 @@
 ## Node files:
 /controller/node_modules/
 
+## Gedit backup
+**/*~
+
+## Class files
+**/*.class

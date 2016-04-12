@@ -8,6 +8,7 @@ import game.gdl.statement.SimpleStatement
 import generator.CrossOver
 import generator.Gene
 import generator.Mutation
+import generator.FineTunable
 
 /**
  * @author Lawrence Thatcher
@@ -15,7 +16,7 @@ import generator.Mutation
  * Stores information concerning the Players construct,
  * including number of players and the players' names.
  */
-class Players implements HasClauses, HasRolesClause, Gene, Iterable<Player>
+class Players implements HasClauses, HasRolesClause, Gene, Iterable<Player>, FineTunable
 {
 	private List<Player> players = []
 
@@ -280,5 +281,18 @@ class Players implements HasClauses, HasRolesClause, Gene, Iterable<Player>
 		if (idx == size())
 			return players[0]
 		return players[idx]
+	}
+	
+	@Override
+	int getNumParams()
+	{
+	    //TODO, though this probably shouldn't return the number of players. That isn't really a fine-tuning type of thing
+	    return 0;
+	}
+	
+	@Override
+	void changeParam(int param, int amount)
+	{
+	    //TODO
 	}
 }

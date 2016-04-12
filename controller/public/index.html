@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Controller</title>
+<title>PEGGASUS Controller</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link href="default.css" rel="stylesheet" type="text/css" />
 <script>
+var ranking=false;
 var checked=null;
 function check(val) {
     checked = val;
@@ -101,20 +102,97 @@ function queueStatus() {
         document.getElementById("numMatchesBeingPlayed").innerHTML = jres.numMatchesBeingPlayed;
         document.getElementById("gameBeingEval1").innerHTML = jres.gameBeingEval1;
         document.getElementById("gameBeingEval2").innerHTML = jres.gameBeingEval2;
+        ranking=jres.ranking;
+        if (ranking) {
+            document.getElementById("rankmode_button").innerHTML="End ranking";
+            document.getElementById("mode_show").innerHTML="Ranking";
+        } else {
+            document.getElementById("rankmode_button").innerHTML="Rank players";
+            document.getElementById("mode_show").innerHTML="normal";
+        }
+    });
+}
+
+
+function rankmode() {
+    if (!ranking) {
+        document.getElementById("rankmode_button").innerHTML="";
+        ranking = true;
+        httpGetAsync('/startRanking',function(res) {
+            //console.log('rec: '+res);
+            var jres=JSON.parse(res);
+            if (jres.status==null || jres.status=='ok'){
+                document.getElementById("rankmode_button").innerHTML="End ranking";
+                document.getElementById("mode_show").innerHTML="Ranking";
+            }
+        });
+    } else if (ranking) {
+        document.getElementById("rankmode_button").innerHTML="";
+        ranking = false;
+        httpGetAsync('/endRanking',function(res) {
+            //console.log('rec: '+res);
+            var jres=JSON.parse(res);
+            if (jres.status==null || jres.status=='ok'){
+                document.getElementById("rankmode_button").innerHTML="Rank players";
+                document.getElementById("mode_show").innerHTML="normal";
+                var results=" Results:  "
+                for (p of jres.results) {
+                    p+=p.type+':'+p.wins+', ';
+                }
+                document.getElementById("rank_res").innerHTML=results;
+            }
+        });
+    }
+}
+
+function get_games(withGDL) {
+    var num=document.getElementById("numOfGames").value;
+    document.getElementById("show_games").innerHTML = 'getting...';
+    httpGetAsync('/getGames?num='+num,function(res) {
+        var jres=JSON.parse(res);
+        if (jres.status=='ok') {
+            
+            var s='';
+            for (var game of jres.games) {
+                s+=     '<div class="game"> <p>ID: '+game.id
+                if (game.score!==undefined)
+                    s+=                   '   score:'+game.score.evalScore;
+                s+=                       '</p>'
+                s+=         '<h3>'+game.name+'</h3>'
+                s+=         '<div class="hlgdl">'+game.hlgdl+'</div>'
+                if (withGDL) {
+                    s+=     '<br><p>GDL</p>';
+                    s+=     '<div class="gdl">'+game.gdl.replace(/\n/g,'<br>')+'</div>';
+                }
+                if (game.score!==undefined)
+                    s+=     '<p>Score breakdown:'+JSON.stringify(game.score)+'</p>';
+                s+=     '</div><br>';
+                //document.getElementById("show_games").appendChild(s);
+            }
+            document.getElementById("show_games").innerHTML = s;
+        } else {
+            document.getElementById("show_games").innerHTML = jres.status;
+        }
+        
     });
 }
 </script>
 </head>
 <body onload='queueStatusKick()'>
 <div>
-    <h2>PEGGASUS: Parallel Evolutionary Game Generation and Simulation Unifying System</h2>
+    <h1>PEGGASUS: Parallel Evolutionary Game Generation and Simulation Unifying System</h1>
     By Brian Davis and Lawrence Thatcher
     <br>
     <div>
+        <h2>Info</h2>
         <p>Number of games in queue: <label id="queueLength"></label></p>
         <p>Number of matches being played: <label id="numMatchesBeingPlayed"></label></p>
         <p>Game being evaluated: <label id="gameBeingEval1"></label></p>
         <p>Game being evaluated: <label id="gameBeingEval2"></label></p>
+        <br>
+        <p>Mode: <label id="mode_show">--</label></p>
+        <p><button type="button" onclick="rankmode()" id="rankmode_button">Rank players</button><div id="rank_res"/></p>
+        
     </div>
 </div
 <div id="add_player_box">
@@ -129,16 +207,16 @@ function queueStatus() {
       <input type="radio" name="method" value="montecarlotreesearch" onclick="check(this.value)"> Monte Carlo Tree Search<br>
       <input type="radio" name="method" value="other" onclick="check(this.value)"> <input type="text" id="othermethod"> (note: use consistent spelling)<br>
     Name: <input type="text" id="name"><br>
-    Skill level: <input type="text" id="skillLevel"><br>
+    Skill level: <input type="text" id="skillLevel" value="-1"><br>
     GDL Version: <input type="text" id="gdlVersion" value="1"><br>
     <button type="button" onclick="submit_player()" id="submit_player_button">Submit player</button><br>
-    Status: <div id="submit_show">not submitted</div>
+    Status: <label id="submit_show">not submitted</label>
 </div>
 <div id="connect_to_eval_box">
     <h2>Connect to</h2>
     Evaluator: <input type="text" id="eval"><br>
     <button type="button" onclick="connect_eval()" id="connect_evaluator_button">Connect</button><br>
-    Status: <div id="eval_show">not connected</div>
+    Status: <label id="eval_show">not connected</label>
 </div>
 <div id="submit_game_box">
     <h2>Submit game</h2>
@@ -169,8 +247,8 @@ function queueStatus() {
 
 (index 1) (index 2) (index 3)
 (<= (base (cell ?x ?y b)) (index ?x) (index ?y))
-(<= (base (cell ?x ?y x)) (index ?x) (index ?y))
-(<= (base (cell ?x ?y o)) (index ?x) (index ?y))
+(<= (base (cell ?x ?y xplayer_0)) (index ?x) (index ?y))
+(<= (base (cell ?x ?y oplayer_0)) (index ?x) (index ?y))
 (<= (base (control ?p)) (role ?p))
 
 (<= (input ?p (mark ?x ?y)) (index ?x) (index ?y) (role ?p))
@@ -197,11 +275,11 @@ function queueStatus() {
 
 ;; Cell
 
-(<= (next (cell ?m ?n x))
+(<= (next (cell ?m ?n xplayer_0))
 (does xplayer (mark ?m ?n))
 (true (cell ?m ?n b)))
 
-(<= (next (cell ?m ?n o))
+(<= (next (cell ?m ?n oplayer_0))
 (does oplayer (mark ?m ?n))
 (true (cell ?m ?n b)))
 
@@ -265,41 +343,59 @@ function queueStatus() {
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (<= (goal xplayer 100)
-(line x))
+(line xplayer_0))
 
 (<= (goal xplayer 50)
-(not (line x))
-(not (line o))
+(not (line xplayer_0))
+(not (line oplayer_0))
 (not open))
 
 (<= (goal xplayer 0)
-(line o))
+(line oplayer_0))
 
 (<= (goal oplayer 100)
-(line o))
+(line oplayer_0))
 
 (<= (goal oplayer 50)
-(not (line x))
-(not (line o))
+(not (line xplayer_0))
+(not (line oplayer_0))
 (not open))
 
 (<= (goal oplayer 0)
-(line x))
+(line xplayer_0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (<= terminal
-(line x))
+(line xplayer_0))
 
 (<= terminal
-(line o))
+(line oplayer_0))
 
 (<= terminal
 (not open))
     </textarea> <br>
-    HAGDL: <br><textarea rows="30" cols="70" id="hlgdl"> NO HAGDL </textarea> <br>
+    HAGDL: <br><textarea rows="30" cols="70" id="hlgdl"> 
+    {
+        "players": ["xplayer","oplayer"],
+        "board": {
+                    "macroType":"Grid",
+                    "tileType":"Square",
+                    "layoutShape":"Square",
+                    "size":3
+                 },
+        "pieces":[{"name":"0"}]
+    }
+    </textarea> <br>
     <button type="button" onclick="submit_game()" id="submit_game_button">Submit</button><br>
-    Status: <div id="game_submit_show">---</div>
+    Status: <label id="game_submit_show">---</label>
+</div>
+<div>
+    <h2>Get games</h2>
+    Number: <input type="text" id="numOfGames" value="3"><br>
+    <button type="button" onclick="get_games(true)" id="get_games_button">Return games (with GDL)</button>
+    <button type="button" onclick="get_games(false)" id="get_games_buttonNoGDL">Return games (without GDL)</button><br>
+    <div id="show_games"></div>
 </div>
 </body>
 </html>

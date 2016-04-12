@@ -6,7 +6,10 @@
   	"express": "*",
   	"body-parser": "*",
   	"multer": "*",
-  	"request": "*"
+  	"request": "*",
+  	"hierarchical-clustering": "*",
+  	"c4.5": "*",
+  	"lodash": "*"
    },
   "engine": "node >=0.12.x"
 }

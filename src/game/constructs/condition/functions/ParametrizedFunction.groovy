@@ -101,4 +101,26 @@ class ParametrizedFunction implements Function
 		result = 31 * result + parent.hashCode()
 		return result
 	}
+	
+	@Override
+	int getNumParams()
+	{
+	    //TODO
+	    //return func.maximumNumberOfParameters
+	    return args.size()
+	}
+	
+	@Override
+    void changeParam(int param, int amount)
+    {
+        //TODO
+        args[param]+=amount
+        name = func(args)
+    }
+    
+    @Override
+    int complexityCount()
+    {
+        return 1;
+    }
 }
