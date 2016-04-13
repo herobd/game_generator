@@ -12,7 +12,6 @@ import game.gdl.statement.GDLStatement
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.statement.GameToken
-import game.constructs.condition.Condition
 import game.constructs.board.Board
 import generator.FineTunable
 import game.constructs.pieces.action.Action

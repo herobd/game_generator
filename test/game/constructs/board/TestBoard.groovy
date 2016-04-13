@@ -29,17 +29,4 @@ class TestBoard
 		assert gdl.statements.size() == 4
 
 	}
-
-	@Test
-	void test_getImplementation__throwsException()
-	{
-		try
-		{
-			def board = new Board()
-			board.getImplementation(GameFunction.N_inARow(5))
-			fail("The default board does not support the in-a-row function")
-		}
-		catch (FunctionNotSupportedException ignore)
-		{}
-	}
 }

@@ -15,19 +15,20 @@ import game.gdl.clauses.init.InitClause
 class MockInARow implements SupportsInARow
 {
 	@Override
-	GDLClause in_a_row(int n)
-	{
-		if (n == 3)
-			return new BaseClause([])
-		else if (n == 4)
-			return new InitClause([])
-		else
-			return null
-	}
-
-	@Override
 	boolean supports(Function function)
 	{
 		return function.type == GameFunction.N_inARow
+	}
+
+	@Override
+	GDLClause in_a_row(List n)
+	{
+		def x = n[0]
+		if (x == 3)
+			return new BaseClause([])
+		else if (x == 4)
+			return new InitClause([])
+		else
+			return null
 	}
 }
