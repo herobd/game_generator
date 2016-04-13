@@ -23,7 +23,7 @@ class TestBoard
 		assert gdl.contains("(<= open\n(true (cell ?x ?y b)))")
 
 		// parametrized
-		gdl = board.getImplementation(GameFunction.N_inARow(3))
+		gdl = board.getImplementation(GameFunction.N_inARow([3]))
 		assert gdl instanceof DynamicComponentsClause
 		assert gdl.contains("(<= (3inARow ?w) (row3 ?x ?y ?w))")
 		assert gdl.statements.size() == 4

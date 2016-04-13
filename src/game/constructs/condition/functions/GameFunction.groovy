@@ -70,7 +70,7 @@ enum GameFunction implements Function, PreCondition
 		if (this.numParams == 0)
 			return (GDLClause){x -> x."$functionName"()}.call(obj)
 		else
-			return (GDLClause){x -> x."$functionName"(defaultArgument)}.call(obj)
+			return (GDLClause){x -> x."$functionName"([defaultArgument])}.call(obj)
 	}
 
 	@Override

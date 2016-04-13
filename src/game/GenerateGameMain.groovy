@@ -40,12 +40,12 @@ class GenerateGameMain
 		end.add(new TerminalConditional(GameFunction.N_inARow([3]), EndGameResult.Win))
 		end.add(new TerminalConditional(new NegatedCondition(GameFunction.Open), EndGameResult.Draw))
 		
-		Move mark = new Move([[],[new IsOpen()]],[new Mark(1)]);
-		Piece basic = new Piece([new StartingPosition(0)],[mark]);
-		
+		Move mark = new Move([[],[new IsOpen()]],[new Mark(1)])
+		Piece basic = new Piece([new StartingPosition(0)],[mark])
+
 		Move move = new Move([[new PieceOrigin()],[new IsOpen(), new IsNeighbor(-1)],[new IsEnemy()]],[new MoveToSelected(1), new Capture(2)]);
 		Piece starter = new Piece([new StartingPosition(StartingPosition.PositionType.Center,1)],[move]);
-		game.Game ticTacToe = new game.Game(new Players(["Red", "Black", "Blue"]), board, TurnOrder.Alternating, [basic,starter], end)
+		Game ticTacToe = new Game(new Players(["Red", "Black", "Blue"]), board, TurnOrder.Alternating, [basic,starter], end)
 		GDLDescription gdl = ticTacToe.convertToGDL()
 		
 		println gdl.toString()

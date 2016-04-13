@@ -26,7 +26,7 @@ class Piece implements  FineTunable //HasClausesWithDep
 	Piece(String name, List<StartingPosition> startPositions, List<Move> moves)
 	{
 		this.name = name
-		this.startPosition = startPosition
+		this.startPositions = startPositions
 		this.moves = moves
 	}
 

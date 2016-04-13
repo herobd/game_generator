@@ -1,6 +1,10 @@
 package game
 
 import game.constructs.condition.Conditional
+import game.constructs.pieces.Move
+import game.constructs.pieces.StartingPosition
+import game.constructs.pieces.action.Mark
+import game.constructs.pieces.query.IsOpen
 import game.constructs.player.Players
 import game.constructs.TurnOrder
 import game.constructs.board.Board
@@ -54,7 +58,11 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		this.board = board
 		this.turnOrder = turnOrder
 		if (pieces == null || pieces == [])
-			this.pieces = [NamedPieces.DEFAULT_PIECE]
+		{
+			Move mark = new Move([[], [new IsOpen()]], [new Mark(1)])
+			Piece basic = new Piece([new StartingPosition(0)], [mark])
+			this.pieces = [basic]
+		}
 		else
 			this.pieces = pieces
 		this.end = new EndGameConditions(end, board)
