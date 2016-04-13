@@ -68,6 +68,7 @@ class SquareGrid extends Grid implements
 	@Override
 	GDLClause in_a_row(List n)
 	{
+		n = n as List<Integer>
 		String name = Integer.toString(n[0]) + "inARow"
 
 		def s = []

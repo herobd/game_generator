@@ -4,7 +4,7 @@ import generator.FineTunable
 
 class StartingPosition implements FineTunable
 {
-    public enum PositionType {
+    public static enum PositionType {
         HomeRow, HomeCorner, OppRow, OppCorner, Center
     }
     
@@ -39,7 +39,17 @@ class StartingPosition implements FineTunable
         this.type = type
         this.number = number
     }
-    
+
+    int getNumber()
+    {
+        return number
+    }
+
+    PositionType getType()
+    {
+        return type
+    }
+
     @Override
     int getNumParams()
 	{
@@ -49,7 +59,7 @@ class StartingPosition implements FineTunable
 	@Override
     void changeParam(int param, int amount)
     {
-        numer+=amount;
+        number+=amount;
     }
 }
 
