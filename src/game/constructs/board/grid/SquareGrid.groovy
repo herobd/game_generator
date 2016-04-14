@@ -474,11 +474,7 @@ class SquareGrid extends Grid implements
 	@Override
 	List<Mutation> getPossibleMutations()
 	{
-		def result = []
-		for (int i = 0; i < numParams; i++)
-		{
-			result.add(new ParameterMutation(this, i))
-		}
+		def result = parameterMutations
 		result.add(mutationMethod("toggle_iNbors"))
 		return result
 	}
