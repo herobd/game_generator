@@ -15,8 +15,10 @@ class ParameterMutation extends Mutation
 		super(parent)
 		if (parent.hasProperty("RANDOM") && parent.RANDOM)
 		{
-			double a = parent.RANDOM.nextGaussian()
-			amount = a.intValue()
+			double a = 0
+			while (a.intValue() == 0)
+				a = parent.RANDOM.nextGaussian()
+			amount = a
 		}
 		this.name = parameterMethod + "(" + Integer.toString(param) + "," + Integer.toString(amount) + ")"
 		this.closure = {p -> p."$parameterMethod"(param, amount)}

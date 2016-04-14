@@ -16,6 +16,7 @@ import game.constructs.player.Players
 import generator.CrossOver
 import generator.Gene
 import generator.Mutation
+import generator.ParameterMutation
 
 /**
  * @author Lawrence Thatcher
@@ -66,7 +67,7 @@ class SquareGrid extends Grid implements
 	@Override
 	InitClause getInitialStateClause()
 	{
-		return (InitClause)generateInitClause()
+		return null
 	}
 
 	@Override
@@ -438,7 +439,21 @@ class SquareGrid extends Grid implements
 	//(nbor ?n ?m ?nn ?nm) 
 	//(<= (nbor ?n ?m ?nn ?nm) 
 	//    (index ?ALL) (succ ?n ?nn) (?m ?nm))
-	
+
+	void toggle_iNbors()
+	{
+		this.i_nbors = !i_nbors
+	}
+
+	@Override
+	String toString()
+	{
+		String s = Integer.toString(size)
+		String result = "Square Grid: " + s + "x" + s
+		if (i_nbors)
+			result += " i_nbors"
+		return result
+	}
 	
 	@Override
 	int getNumParams()
@@ -457,12 +472,28 @@ class SquareGrid extends Grid implements
     }
 
 	@Override
-	List<Mutation> getPossibleMutations() {
-		return null
+	List<Mutation> getPossibleMutations()
+	{
+		def result = []
+		for (int i = 0; i < numParams; i++)
+		{
+			result.add(new ParameterMutation(this, i))
+		}
+		result.add(mutationMethod("toggle_iNbors"))
+		return result
 	}
 
 	@Override
-	List<CrossOver> getPossibleCrossOvers(Gene other) {
-		return null
+	List<CrossOver> getPossibleCrossOvers(Gene other)
+	{
+		other = other as SquareGrid
+		def result = []
+		def c = {SquareGrid sg -> this.size = sg.size}
+		c.curry(other)
+		result.add(new CrossOver(c))
+		c = {SquareGrid sg -> this.i_nbors = sg.i_nbors}
+		c.curry(other)
+		result.add(new CrossOver(c))
+		return result
 	}
 }
