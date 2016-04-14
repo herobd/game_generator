@@ -1,6 +1,6 @@
 module.exports = function() {
 
-    //var C45 = require('c4.5');
+    var C45 = require('c4.5');
     var cluster = require('hierarchical-clustering');
     
     function pieceCounter(i0,i1,board,players) {
@@ -21,11 +21,13 @@ module.exports = function() {
             console.log('Nan: '+i0+', '+i1)
     }
     pieceCounter.prototype.add = function(pos) {
-        console.log('add '+pos[0]+' '+pos[1]);
+        //console.log('add '+pos[0]+' '+pos[1]);
+        pos[0]=+pos[0]
+        pos[1]=+pos[1]
         var pp=this.getPlayer(pos);
         
         if (pp!=null){
-            console.log('add for player '+pp)
+            //console.log('add for player '+pp)
             
             var pieceType = this.getPiece(pos);
             if (this.players[pp].hasOwnProperty(pieceType))
@@ -56,10 +58,10 @@ module.exports = function() {
             var m= p.match(this.RE_piece);
             if (m!=null)
                 return m[1];//.toLowerCase();
-            console.log('no match for '+p)
+            //console.log('no match for '+p)
         }
-        console.log(this.i0+dir[0] +' , '+this.i1+dir[1])
-        console.log(this.board.length +' x '+this.board[0].length)
+        //console.log((this.i0+dir[0]) +' , '+(this.i1+dir[1]))
+        //console.log(this.board.length +' x '+this.board[0].length)
         return null;
     }
     pieceCounter.prototype.sqDistancePart = function(countedA,countedB) {
@@ -81,6 +83,8 @@ module.exports = function() {
                     ret += Math.pow(countedB[prop],2);
             }
         }
+        if (isNaN(ret))
+            console.log('ERROR, NaN in sqDistancePart')
         return ret;
     }
     pieceCounter.prototype.sqDistance = function(other) {
@@ -103,12 +107,30 @@ module.exports = function() {
         return ret;
     }
     
+    pieceCounter.prototype.getSparse = function(i,sparse) {
+        for (var pname in this.players) {
+            if (this.players.hasOwnProperty(pname)) {
+                for (var prop in this.players[pname]) {
+                    
+                    if (this.players[pname].hasOwnProperty(prop)) {
+                        if (this.players[pname][prop] > 0) {
+                            sparse[i]=this.players[pname][prop];
+                        }
+                        i++;
+                    }
+                }
+            }
+        }
+        return i;
+    }
+    
     function PieceDescription(i0,i1,p,board,hlgdl) {
         if (isNaN(i0) || isNaN(i1))
                     console.log('PD, '+i0+', '+i1)
         this.hlgdl=hlgdl;
         this.i0=+i0;
         this.i1=+i1;
+        this.sparse=null;
         var RE_piece = /(\w+)_(\w+)/;
         //console.log(p);
         this.player = p.match(RE_piece)[1];
@@ -195,6 +217,8 @@ module.exports = function() {
                 
                 this.descAllOr.push(desc);
             }
+            
+            this.makeSparse();
         
         } else {
             console.log('ERROR, macro type '+hlgdl.board.macroType+' not implemented for PieceDescription.');
@@ -202,20 +226,50 @@ module.exports = function() {
             return;
         }
     }
+    
+    PieceDescription.prototype.makeSparse = function() {
+        this.sparse = [];
+        for (var desc of this.descAllOr) {
+            var sparse = []
+            var i = 0;
+            for (var piece of desc)
+                i += piece.getSparse(i,sparse);
+        }
+    }
+    
     PieceDescription.prototype.sqDistance = function(other) {
         //if (this.player!==other.player) {
         //    return 99999; //don't compare pieces of other players
         //}
         var minDist=999999;
+        
+        
+        
         //console.log('sqd there are '+this.descAllOr.length+' orientations')
-        for (descThis of this.descAllOr) {
-            for (descOther of other.descAllOr) {
+        for (var descThis of this.descAllOr) {
+            for (var descOther of other.descAllOr) {
                 if (descThis.length==descOther.length) {
                     var dist=0;
                     //console.log('sqd there are '+descThis.length+' counters')
-                    for (var i=0; i<descThis.length; i++) {
-                        dist+=descThis[i].sqDistance(descOther[i]);
+                    //for (var i=0; i<descThis.length; i++) {
+                    //    dist+=descThis[i].sqDistance(descOther[i]);
+                    //}
+                    for (var index in descThis) {
+                        if (descThis.hasOwnProperty(index)) {
+                            if (descOther.hasOwnProperty(index))
+                                dist+=Math.pow(descThis[index]-descOther[index],2);
+                            else
+                                dist+=Math.pos(descThis[index],2);
+                        }
                     }
+                    for (var index in descOther) {
+                        if (descOther.hasOwnProperty(index)) {
+                            if (!descThis.hasOwnProperty(index))
+                                dist+=Math.pos(descOther[index],2);
+                        }
+                    }
+                    
+                    
                     if (dist<minDist)
                         minDist=dist;
                 } else {
@@ -224,7 +278,6 @@ module.exports = function() {
                 }
             }
         }
-        //console.log('min dist '+minDist)
         minDist *= this.piece===other.piece?1:1.5;
         
         //TODO, this is rather ill-formed, only works for square tile
@@ -237,7 +290,9 @@ module.exports = function() {
             console.log('ERROR, layoutShape '+this.hlgdl.board.layoutShape+' not implemented for PieceDescription');
             return null;
         }
-        minDist += Math.sqrt(Math.pow(descThis.i0-descOther.i0,2) + Math.pow(descThis.i1-descOther.i1,2))/boardSize;
+        minDist += Math.sqrt(Math.pow(this.i0-other.i0,2) + Math.pow(this.i1-other.i1,2))/boardSize;
+        if (isNaN(minDist))
+            console.log('ERROR, isNan sqDist 2  board:'+boardSize+' descOther:'+other.i0+','+other.i1+'  descThis:'+this.i0+','+this.i1)
         return minDist;
     }
     
@@ -296,7 +351,7 @@ module.exports = function() {
                     var piece = new PieceDescription(i0,i1,p,board,hlgdl);
                     this.pieces.push(piece);
                     allPieces.push(piece);
-                    return
+                    
                 }
             }
             
@@ -314,6 +369,7 @@ module.exports = function() {
             for (var i=0; i<pieceConfigurationClassifier.numClasses*players.length; i++) {
                 this.array.push(0);
             }
+            
             for (var piece of this.pieces) {
                 var cls = pieceConfigurationClassifier.classify(piece);
                 this.array[cls+players.indexOf(piece.player)*pieceConfigurationClassifier.numClasses]++;
@@ -331,22 +387,22 @@ module.exports = function() {
                 var sum=0;//average-link
                 for (d of distances)
                     sum+=d;
-                console.log('di '+ (sum/(0.0+distances.length)));
+                //console.log('di '+ (sum/(0.0+distances.length)));
                 return sum/(0.0+distances.length);
             },
             minClusters: Math.floor(4*numOfPieceTypes) //TODO magic number 4
         });
         
         var clusters = levels[levels.length - 1].clusters;
-        console.log(clusters.join())
-        console.log(levels[0].clusters.join())
+        //console.log(clusters.join())
+        //console.log(levels[0].clusters.join())
         clusters = clusters.map(function (cluster) {
           return cluster.map(function (index) {
             return pieces[index];
           });
         });
-        console.log('There are '+clusters.length+' clusters from '+pieces.length+' instances')
-        console.log('There should be '+(4*numOfPieceTypes)+' clusters. There are '+levels.length+' levels')
+        //console.log('There are '+clusters.length+' clusters from '+pieces.length+' instances')
+        //console.log('There should be '+(4*numOfPieceTypes)+' clusters. There are '+levels.length+' levels')
         return {
                     clusters:clusters,
                     classify: function(piece) {
@@ -425,16 +481,16 @@ module.exports = function() {
             var feats = turnScore.stateParsed.toArray(hlgdl.players,pieceConfigurationClassifier);
             feats.push(turnScore.scores.join(' '));
             allData.push(feats);
-            console.log(feats.join())
+            //	console.log(feats.join())
         }
-        console.log('num dim '+pieceConfigurationClassifier.numClasses*numPlayers)
+        //console.log('num dim '+pieceConfigurationClassifier.numClasses*numPlayers)
         
         shuffle(allData,turnsScores);
         
         var splitPoint = Math.max(200,allData.length/2);
         var trainingData = allData.slice(0,splitPoint);
-        callback();
-        return;
+        
+        
         var c45 = C45();
         var featuresList=[];
         var featureTypes=[];
