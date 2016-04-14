@@ -13,6 +13,9 @@ import game.gdl.statement.SimpleStatement
 import game.constructs.pieces.Piece
 import game.constructs.pieces.StartingPosition
 import game.constructs.player.Players
+import generator.CrossOver
+import generator.Gene
+import generator.Mutation
 
 /**
  * @author Lawrence Thatcher
@@ -24,7 +27,8 @@ class SquareGrid extends Grid implements
 		HasBaseClause,
 		HasInitClause,
 		SupportsInARow,
-		SupportsOpen //HasClauses
+		SupportsOpen,
+		Gene//HasClauses
 {
 	private int size
 	private boolean i_nbors = false
@@ -451,4 +455,14 @@ class SquareGrid extends Grid implements
         else
             i_nbors=!i_nbors*/
     }
+
+	@Override
+	List<Mutation> getPossibleMutations() {
+		return null
+	}
+
+	@Override
+	List<CrossOver> getPossibleCrossOvers(Gene other) {
+		return null
+	}
 }
