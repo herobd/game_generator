@@ -69,18 +69,18 @@ class IsNeighbor implements Query
     GDLClause getNborRuleSq()
 	{
 	    return new DynamicComponentsClause( [
-	        new SimpleStatement("(<= (nbor ?n ?m ?othern ?otherm)\n\
+	        new SimpleStatement("(<= (nbor ?n ?m ?othern ?m)\n\
 	            \t(index ?n) (index ?m) (index ?otherm) (index ?othern) \n\
-	            \t(succ ?n ?othern) (?m ?otherm))"),
-            new SimpleStatement("(<= (nbor ?n ?m ?othern ?otherm)\n\
+	            \t(succ ?n ?othern) )"),//(?m ?otherm)
+            new SimpleStatement("(<= (nbor ?n ?m ?othern ?m)\n\
                 \t(index ?n) (index ?m) (index ?otherm) (index ?othern) \n\
-	            \t(succ ?othern ?n) (?m ?otherm))"),
-            new SimpleStatement("(<= (nbor ?n ?m ?othern ?otherm)\n\
+	            \t(succ ?othern ?n) )"),//(?m ?otherm)
+            new SimpleStatement("(<= (nbor ?n ?m ?n ?otherm)\n\
                 \t(index ?n) (index ?m) (index ?otherm) (index ?othern) \n\
-	            \t(?n ?othern) (succ ?m ?otherm))"),
-            new SimpleStatement("(<= (nbor ?n ?m ?othern ?otherm)\n\
+	            \t (succ ?m ?otherm))"),//(?n ?othern)
+            new SimpleStatement("(<= (nbor ?n ?m ?n ?otherm)\n\
                 \t(index ?n) (index ?m) (index ?otherm) (index ?othern) \n\
-	            \t(?n ?othern) (succ ?otherm ?m))")
+	            \t (succ ?otherm ?m))")//(?n ?othern)
             ] );
             
 	}
@@ -130,6 +130,6 @@ class IsNeighbor implements Query
     //@Override
     static Query fromJSON(def parsed)
     {
-        return new IsNeighbor(parsed.neighborOf, parsed.nbors, parsed.i_nbors)
+        return new IsNeighbor(parsed.neighborOf, parsed.nbors=='true', parsed.i_nbors=='true')
     }
 }

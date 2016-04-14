@@ -1,6 +1,6 @@
 module.exports = function() {
 
-    var C45 = require('c4.5');
+    //var C45 = require('c4.5');
     var cluster = require('hierarchical-clustering');
     
     function pieceCounter(i0,i1,board,players) {
@@ -17,20 +17,22 @@ module.exports = function() {
         this.board=board;
         this.i0=+i0;
         this.i1=+i1;
-        
+        if (isNaN(this.i0) || isNaN(this.i1))
+            console.log('Nan: '+i0+', '+i1)
     }
     pieceCounter.prototype.add = function(pos) {
-        var toAdd;
+        console.log('add '+pos[0]+' '+pos[1]);
         var pp=this.getPlayer(pos);
+        
         if (pp!=null){
+            console.log('add for player '+pp)
             
-            toAdd=this.players[pp];
             var pieceType = this.getPiece(pos);
-            if (toAdd.hasOwnProperty(pieceType))
-                toAdd[pieceType]+=1;
+            if (this.players[pp].hasOwnProperty(pieceType))
+                this.players[pp][pieceType]+=1;
             else
-                toAdd[pieceType]=1;
-            toAdd.total+=1;
+                this.players[pp][pieceType]=1;
+            this.players[pp].total+=1;
         }
     }
     pieceCounter.prototype.getPiece = function(dir) {
@@ -54,13 +56,18 @@ module.exports = function() {
             var m= p.match(this.RE_piece);
             if (m!=null)
                 return m[1];//.toLowerCase();
+            console.log('no match for '+p)
         }
+        console.log(this.i0+dir[0] +' , '+this.i1+dir[1])
+        console.log(this.board.length +' x '+this.board[0].length)
         return null;
     }
     pieceCounter.prototype.sqDistancePart = function(countedA,countedB) {
         var ret=0;
         for (var prop in countedA) {
+            
             if (countedA.hasOwnProperty(prop)) {
+                //console.log('prop '+prop+' for A')
                 if (countedB.hasOwnProperty(prop))
                     ret += Math.pow(countedA[prop]-countedB[prop],2);
                 else
@@ -69,6 +76,7 @@ module.exports = function() {
         }
         for (var prop in countedB) {
             if (countedB.hasOwnProperty(prop)) {
+                //console.log('prop '+prop+' for B')
                 if (!countedA.hasOwnProperty(prop))
                     ret += Math.pow(countedB[prop],2);
             }
@@ -77,21 +85,27 @@ module.exports = function() {
     }
     pieceCounter.prototype.sqDistance = function(other) {
         if (this.player!==other.player) {
+            console.log('not matching players: '+this.player+', '+other.player);
             return 0;
         }
         
         var ret=0;
         //ret+=this.sqDistancePart(this.allies,other.allies);
         //ret+=this.sqDistancePart(this.enemies,other.enemies);
-        for (var i=0; i<this.players.length; i++) {
-            ret+=this.sqDistancePart(this.players[i],other.players[i]);
+        //console.log('counter there are '+this.players.length+' players')
+        for (var pname in this.players) {
+            if (this.players.hasOwnProperty(pname)) {
+                ret+=this.sqDistancePart(this.players[pname],other.players[pname]);
+                //console.log('counter dist for player '+pname+': '+this.sqDistancePart(this.players[pname],other.players[pname]));
+            }
         }
         
         return ret;
     }
     
     function PieceDescription(i0,i1,p,board,hlgdl) {
-        
+        if (isNaN(i0) || isNaN(i1))
+                    console.log('PD, '+i0+', '+i1)
         this.hlgdl=hlgdl;
         this.i0=+i0;
         this.i1=+i1;
@@ -100,7 +114,7 @@ module.exports = function() {
         this.player = p.match(RE_piece)[1];
         this.piece = p.match(RE_piece)[2];
         function makePieceCounter() {
-            return new pieceCounter(this.i0,this.i1,board,hlgdl.players);
+            return new pieceCounter(+i0,+i1,board,hlgdl.players);
         }
         
         
@@ -131,10 +145,12 @@ module.exports = function() {
                 return;
             }
             
+            //console.log('should be adding desc for orientations '+orientations.length)
             for (var directions of orientations) {
                 
             
                 var desc=[];
+                //console.log('should be adding directions '+directions.length)
                 for (dir of directions) {
                     var count=makePieceCounter();
                     count.add(dir);
@@ -161,7 +177,7 @@ module.exports = function() {
                 //var lines=[];
                 for (dir of directions) {
                     var count=makePieceCounter();
-                    var curPos=[this.i0+dir[0],this.i1+dir[1]];
+                    var curPos=[(+i0)+dir[0],(+i1)+dir[1]];
                     if (dir[0]!=0 || dir[1]!=0)
                         while (curPos[0]>=0 && curPos[0]<board.length &&
                                curPos[1]>=0 && curPos[1]<board[curPos[0]].length) {
@@ -191,10 +207,12 @@ module.exports = function() {
         //    return 99999; //don't compare pieces of other players
         //}
         var minDist=999999;
+        //console.log('sqd there are '+this.descAllOr.length+' orientations')
         for (descThis of this.descAllOr) {
             for (descOther of other.descAllOr) {
                 if (descThis.length==descOther.length) {
                     var dist=0;
+                    //console.log('sqd there are '+descThis.length+' counters')
                     for (var i=0; i<descThis.length; i++) {
                         dist+=descThis[i].sqDistance(descOther[i]);
                     }
@@ -206,6 +224,7 @@ module.exports = function() {
                 }
             }
         }
+        //console.log('min dist '+minDist)
         minDist *= this.piece===other.piece?1:1.5;
         
         //TODO, this is rather ill-formed, only works for square tile
@@ -270,11 +289,14 @@ module.exports = function() {
                 var m = s.match(RE_cell);
                 var i0 = (+m[1])-1;
                 var i1 = (+m[2])-1;
+                if (isNaN(i0) || isNaN(i1))
+                    console.log('cell: s: '+s+', '+i0+', '+i1)
                 var p = m[3].toLowerCase();
                 if (p != 'b') {
                     var piece = new PieceDescription(i0,i1,p,board,hlgdl);
                     this.pieces.push(piece);
                     allPieces.push(piece);
+                    return
                 }
             }
             
@@ -309,17 +331,22 @@ module.exports = function() {
                 var sum=0;//average-link
                 for (d of distances)
                     sum+=d;
+                console.log('di '+ (sum/(0.0+distances.length)));
                 return sum/(0.0+distances.length);
             },
             minClusters: Math.floor(4*numOfPieceTypes) //TODO magic number 4
         });
         
         var clusters = levels[levels.length - 1].clusters;
+        console.log(clusters.join())
+        console.log(levels[0].clusters.join())
         clusters = clusters.map(function (cluster) {
           return cluster.map(function (index) {
             return pieces[index];
           });
         });
+        console.log('There are '+clusters.length+' clusters from '+pieces.length+' instances')
+        console.log('There should be '+(4*numOfPieceTypes)+' clusters. There are '+levels.length+' levels')
         return {
                     clusters:clusters,
                     classify: function(piece) {
@@ -398,14 +425,16 @@ module.exports = function() {
             var feats = turnScore.stateParsed.toArray(hlgdl.players,pieceConfigurationClassifier);
             feats.push(turnScore.scores.join(' '));
             allData.push(feats);
-            //console.log(feats.join())
+            console.log(feats.join())
         }
+        console.log('num dim '+pieceConfigurationClassifier.numClasses*numPlayers)
         
         shuffle(allData,turnsScores);
         
         var splitPoint = Math.max(200,allData.length/2);
         var trainingData = allData.slice(0,splitPoint);
-        
+        callback();
+        return;
         var c45 = C45();
         var featuresList=[];
         var featureTypes=[];

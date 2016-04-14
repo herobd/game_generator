@@ -81,6 +81,7 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
         def post = []
         parsed.postconditions.each {p ->
             //post.push(grailsApplication.getArtefact("Domain",p.action)?.getClazz()?.fromJSON(p)) //aka, magic
+            post.push(Class.forName('game.constructs.pieces.action.'+p.action).fromJSON(p))
         }
         return new Move(pre,post)
 	}
