@@ -45,7 +45,7 @@ class GenerateGameMain
 
 		Move move = new Move([[new PieceOrigin()],[new IsOpen(), new IsNeighbor(-1)],[new IsEnemy()]],[new MoveToSelected(1), new Capture(2)]);
 		Piece starter = new Piece([new StartingPosition(StartingPosition.PositionType.Center,1)],[move]);
-		game.Game testgame = new game.Game(new Players(["Red", "Black", "Blue"]), board, TurnOrder.Alternating, [basic,starter], end)
+		Game testgame = new Game(new Players(["Red", "Black", "Blue"]), board, TurnOrder.Alternating, [basic,starter], end)
 		
 		
 		def hagdl= testgame.convertToJSON()
