@@ -1,13 +1,13 @@
 package game.constructs.condition.functions
 
-import game.constructs.condition.Condition
+import game.constructs.condition.PreCondition
 import game.gdl.clauses.GDLClause
 import game.gdl.statement.GameToken
 
 /**
  * @author Lawrence Thatcher
  */
-enum GameFunction implements Function, Condition
+enum GameFunction implements Function, PreCondition
 {
 	N_inARow("in_a_row", {n -> n[0].toString() + "inARow"}, "${GameToken.PLAYER_MARK}"),
 	N_M_test("test", {n -> n[0].toString()+'_'+n[1].toString() + "test"}, "${GameToken.PLAYER_MARK}"),
@@ -70,7 +70,7 @@ enum GameFunction implements Function, Condition
 		if (this.numParams == 0)
 			return (GDLClause){x -> x."$functionName"()}.call(obj)
 		else
-			return (GDLClause){x -> x."$functionName"(defaultArgument)}.call(obj)
+			return (GDLClause){x -> x."$functionName"([defaultArgument])}.call(obj)
 	}
 
 	@Override
@@ -99,5 +99,11 @@ enum GameFunction implements Function, Condition
 			default:
 				return null
 		}
+	}
+	
+	@Override
+	int complexityCount()
+	{
+	    return 1
 	}
 }

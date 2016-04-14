@@ -23,23 +23,10 @@ class TestBoard
 		assert gdl.contains("(<= open\n(true (cell ?x ?y b)))")
 
 		// parametrized
-		gdl = board.getImplementation(GameFunction.N_inARow(3))
+		gdl = board.getImplementation(GameFunction.N_inARow([3]))
 		assert gdl instanceof DynamicComponentsClause
 		assert gdl.contains("(<= (3inARow ?w) (row3 ?x ?y ?w))")
 		assert gdl.statements.size() == 4
 
-	}
-
-	@Test
-	void test_getImplementation__throwsException()
-	{
-		try
-		{
-			def board = new Board()
-			board.getImplementation(GameFunction.N_inARow(5))
-			fail("The default board does not support the in-a-row function")
-		}
-		catch (FunctionNotSupportedException ignore)
-		{}
 	}
 }

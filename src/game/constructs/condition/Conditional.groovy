@@ -1,8 +1,9 @@
 package game.constructs.condition
 
 import game.constructs.condition.functions.Function
-import game.constructs.condition.result.Result
+import game.constructs.condition.result.PostCondition
 import generator.FineTunable
+
 
 /**
  * @author Lawrence Thatcher
@@ -11,10 +12,10 @@ import generator.FineTunable
  */
 class Conditional implements FineTunable
 {
-	private Condition antecedent
-	private Result consequent
+	private PreCondition antecedent
+	private PostCondition consequent
 
-	Conditional(Condition condition, Result result)
+	Conditional(PreCondition condition, PostCondition result)
 	{
 		this.antecedent = condition
 		this.consequent = result
@@ -24,16 +25,16 @@ class Conditional implements FineTunable
 	 * Retrieves the game state condition that this conditional rests upon
 	 * @return a Function type
 	 */
-	Condition getAntecedent()
+	PreCondition getAntecedent()
 	{
 		return antecedent
 	}
 
 	/**
 	 * Retrieves the action or result that happens when the game state condition is met
-	 * @return a Result type
+	 * @return a PostCondition type
 	 */
-	Result getConsequent()
+	PostCondition getConsequent()
 	{
 		return consequent
 	}

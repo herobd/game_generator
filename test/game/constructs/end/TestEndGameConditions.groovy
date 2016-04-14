@@ -2,9 +2,9 @@ package game.constructs.end
 
 import game.constructs.board.Board
 import game.constructs.board.grid.SquareGrid
-import game.constructs.condition.Condition
 import game.constructs.condition.Conditional
 import game.constructs.condition.NegatedCondition
+import game.constructs.condition.PreCondition
 import game.constructs.condition.TerminalConditional
 import game.constructs.condition.functions.GameFunction
 import game.constructs.condition.result.EndGameResult
@@ -19,7 +19,7 @@ import org.junit.Test
  */
 class TestEndGameConditions
 {
-	Condition not_open
+	PreCondition not_open
 	def E
 	Board board
 	EndGameConditions end
@@ -29,7 +29,7 @@ class TestEndGameConditions
 	{
 		not_open = new NegatedCondition(GameFunction.Open)
 		E = [new TerminalConditional(not_open, EndGameResult.Draw),
-				 new TerminalConditional(GameFunction.N_inARow(3), EndGameResult.Win)]
+				 new TerminalConditional(GameFunction.N_inARow([3]), EndGameResult.Win)]
 		board = new SquareGrid(3)
 		end = new EndGameConditions(E, board)
 	}
@@ -50,7 +50,7 @@ class TestEndGameConditions
 		for (def c : conditionals)
 			assert c instanceof Conditional
 		assert conditionals.contains(new TerminalConditional(not_open, EndGameResult.Draw))
-		assert conditionals.contains(new TerminalConditional(GameFunction.N_inARow(3), EndGameResult.Win))
+		assert conditionals.contains(new TerminalConditional(GameFunction.N_inARow([3]), EndGameResult.Win))
 		assert conditionals.size() == 2
 	}
 
@@ -62,10 +62,10 @@ class TestEndGameConditions
 		end = new EndGameConditions([], board)
 		assert !end.hasDrawCondition()
 
-		def conditions = [new TerminalConditional(GameFunction.N_inARow(3), EndGameResult.Win),
-						  new TerminalConditional(GameFunction.N_inARow(4), EndGameResult.Lose),
-						  new TerminalConditional(GameFunction.N_inARow(5), EndGameResult.Win),
-						  new TerminalConditional(GameFunction.N_inARow(6), EndGameResult.Lose)]
+		def conditions = [new TerminalConditional(GameFunction.N_inARow([3]), EndGameResult.Win),
+						  new TerminalConditional(GameFunction.N_inARow([4]), EndGameResult.Lose),
+						  new TerminalConditional(GameFunction.N_inARow([5]), EndGameResult.Win),
+						  new TerminalConditional(GameFunction.N_inARow([6]), EndGameResult.Lose)]
 		end = new EndGameConditions(conditions, board)
 		assert !end.hasDrawCondition()
 	}

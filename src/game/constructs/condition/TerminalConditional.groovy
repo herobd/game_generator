@@ -10,7 +10,7 @@ import game.constructs.condition.result.EndGameResult
  */
 class TerminalConditional extends Conditional
 {
-	TerminalConditional(Condition condition, EndGameResult result)
+	TerminalConditional(PreCondition condition, EndGameResult result)
 	{
 		super(condition, result)
 	}

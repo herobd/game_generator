@@ -1,6 +1,7 @@
 ## IntelliJ files:
 .idea/
 /out/
+/lib/
 
 ## Node files:
 /controller/node_modules/

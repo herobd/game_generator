@@ -16,12 +16,15 @@ import generator.Gene
 import game.Game
 import groovy.json.JsonOutput
 
+
 @Grab(group='org.codehaus.groovy.modules.http-builder', module='http-builder', version='0.7' )
 
 
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.ContentType
 import groovyx.net.http.Method
+import org.apache.http.NoHttpResponseException
+import org.apache.http.conn.HttpHostConnectException
 
 /**
  * @author Brian Davis
@@ -74,7 +77,7 @@ class GeneratorClient
                 else
                     break
             }
-            catch (org.apache.http.NoHttpResponseException | org.apache.http.conn.HttpHostConnectException e)
+            catch (NoHttpResponseException | HttpHostConnectException e)
             {
                 println 'Failed to get connect Controller: '+e.toString()
                 tries--
@@ -97,7 +100,7 @@ class GeneratorClient
                     ]
         def content = [ meta:meta,
                         gdl:game.convertToGDL().toString(),
-                        hlgdl:game.toString()
+                        hlgdl:game.convertToJSON()
                       ]
         def status=''
         def tries=2

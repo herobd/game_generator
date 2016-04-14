@@ -10,7 +10,8 @@ interface FineTunable extends Cloneable
 {
 	/**
 	 * Number of tunable integer parameters
-
+     * 
+     *
 	 * @return a number of params
 	 */
 	int getNumParams()

@@ -253,6 +253,7 @@ var ControllerApp = function(host,port) {
         self.app.get('/getGames', function(req, res) {
             res.setHeader('Content-Type', 'application/json');
             self.database.getTopGames(+req.query.num,function(err,games) {
+                console.log(games);
                 if (!err)
                     res.json({id:"controller",status:"ok",games:games});
                 else
@@ -352,14 +353,29 @@ var ControllerApp = function(host,port) {
                 self.gameCord.addPlayer('l2','localhost',9152,'l6',0,1);
                 self.gameCord.addPlayer('l3','localhost',9153,'l7',0,1);
                 self.gameCord.addPlayer('l4','localhost',9154,'l8',0,1);*/
-                self.gameCord.addPlayer('l','localhost',9147,'l',0,1);
+                //self.gameCord.addPlayer('l','localhost',9147,'l',0,1);
                 
-                /*self.gameCord.addPlayer('montecarlo','normandy',9147,'m');
-                self.gameCord.addPlayer('montecarlotreesearch','normandy',9148,'mt');
-                self.gameCord.addPlayer('heurisitc_prune','normandy',9150,'h_prune');
-                self.gameCord.addPlayer('heurisitc','normandy',9149,'h');
-                self.gameCord.addPlayer('heurisitc_rand','localhost',9147,'h_r');
-                self.gameCord.addPlayer('heurisitc_prop','localhost',9148,'h_prop');*/
+                //self.gameCord.addPlayer('montecarlo','normandy',9147,'m');
+                //self.gameCord.addPlayer('montecarlotreesearch','normandy',9148,'mt');
+                
+                //self.gameCord.addPlayer('heurisitc_prune','normandy',9150,'h_prune');
+                //self.gameCord.addPlayer('heurisitc','normandy',9149,'h');
+                //self.gameCord.addPlayer('heurisitc_rand','localhost',9147,'h_r');
+                //self.gameCord.addPlayer('heurisitc','localhost',9148,'h');
+                
+                //THESE ARE RUNNING
+                /*self.gameCord.addPlayer('PAST','normandy',59834,'past');
+                self.gameCord.addPlayer('UCT','normandy',59835,'uct');
+                self.gameCord.addPlayer('MAST','normandy',59836,'mast');
+                self.gameCord.addPlayer('TO-MAST','normandy',59837,'to-mast');
+                
+                self.gameCord.addPlayer('PAST','normandy',59838,'past2');
+                self.gameCord.addPlayer('UCT','normandy',59839,'uct2');
+                self.gameCord.addPlayer('MAST','normandy',59840,'mast2');
+                self.gameCord.addPlayer('TO-MAST','normandy',59841,'to-mast2');*/
+                
+                //FOR LOCAL
+                self.gameCord.addPlayer('montecarlo','localhost',9147,'m');
                 
                 ////////////////////
                 

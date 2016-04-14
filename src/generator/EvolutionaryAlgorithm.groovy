@@ -25,7 +25,7 @@ class EvolutionaryAlgorithm
 {
 	private Map<String,Evolvable> population = [:]
 	private GeneratorClient client = null
-	private static final Random RANDOM = new Random()
+	protected static final Random RANDOM = new Random()
 	private Boolean cont=true
     private Boolean debug_sub=false
     private Object params = null //This holds the wieghts for insrinsic evaulation and an id (for the params version), as well things like the probabilities for gene selection and so forth
@@ -44,17 +44,6 @@ class EvolutionaryAlgorithm
 
 	public static void main(String[] args)
 	{
-        //ParametrizedFunction ttt = GameFunction.N_inARow(3)
-        //println ttt.getNumParams()
-        Function tttt = GameFunction.Open
-        println tttt.getNumParams()
-        ParametrizedFunction t3 = GameFunction.N_M_test([1,2])
-        println t3.getNumParams()
-        
-        println t3.toString()
-        t3.changeParam(0, 1)
-        println t3.toString()
-        return
         
 		//For now using a hard-coded initial population...
 		def players = new Players(["White", "Black", "Salmon", "Pink"])
@@ -70,8 +59,11 @@ class EvolutionaryAlgorithm
         def controllerAddress="ironsides.cs.byu.edu:8080"
         if (args.length > 0)
             controllerAddress = args[0]
-            
-		EvolutionaryAlgorithm algorithm = new EvolutionaryAlgorithm([p1.getId():p1, p2.getId()::p2],controllerAddress)
+
+		def m = [:]
+		m[p1.id] = p1
+		m[p2.id] = p2
+		EvolutionaryAlgorithm algorithm = new EvolutionaryAlgorithm(m, controllerAddress)
 
 		int iters = 50
 		if (args.length > 1)
@@ -117,7 +109,7 @@ class EvolutionaryAlgorithm
 			    //Evaluation
 			    // TODO: cull inbreds
 			    //controller hook here
-			    def intrinsicScore = instrinsicEvaluator.evaluate(p3)
+			    def intrinsicScore = instrinsicEvaluator.evaluate(p3 as Game)
 			    if (intrinsicScore>maxScore)
 	                maxScore=intrinsicScore
                 if (intrinsicScore<minScore)
@@ -125,12 +117,12 @@ class EvolutionaryAlgorithm
 			    if (intrinsicScore>intrinsicScoreThresh)
 			    {
 			        debug_sub=true
-			        fineTuneInit(p3,intrinsicScore);
+			        fineTuneInit(p3 as Game,intrinsicScore);
 			        sleep(10000);
 		        }
 		        def controllerResScores = client.getControllerResponses()
-			    updateScores(controllerResScores)
-			    fineTuneNext(controllerResScores)
+			    updateScores(controllerResScores as List)
+			    fineTuneNext(controllerResScores as List)
 
 			    //Add to population
 			    population[p3.getId()]=p3
@@ -173,12 +165,12 @@ class EvolutionaryAlgorithm
 	        if (fineTuning.containsKey(gameId))
 	        {
 	            //do next step of finetuning
-	            def ft = fineTuning.remove(gameId)
+	            def ft = fineTuning.remove(gameId) as Map
 	            def numParams=ft.currentVersion.getNumParams()
 	            println 'finetuning game '+ft.currentVersion.getId()+' which has '+numParams+' params'
 	            if (score <= ft.lastScore)
 	            {
-	                if (ft.iters>params.shortFineTuneLimit && ft.lastScore<params.shortFineTuneThresh ||
+	                if (ft.iters >params.shortFineTuneLimit && ft.lastScore<params.shortFineTuneThresh ||
 	                    ft.iters-ft.iterOfLastImprovement>params.fineTuneFamineLimit ||
 	                    (ft.iters>=2 && numParams==1) )
 	                {
@@ -286,7 +278,7 @@ class EvolutionaryAlgorithm
 	//Helper Methods
 	void printPopulationMembers()
 	{
-		for (String id : population.keys())
+		for (String id : population.keySet())
 		{
 			println population[id].toString()
 			println "\n"
@@ -298,10 +290,10 @@ class EvolutionaryAlgorithm
 		//Use stochastic universal sampling to select fitter individuals more often
 		for (int i=0; i<1000; i++)
 		{
-		    double lowerBound = RANDOM.next(minScore,maxScore);
-		    for (int i=0; i<10000; i++)
+		    double lowerBound = minScore + (maxScore - minScore) * RANDOM.nextDouble();
+		    for (int j=0; j<10000; j++)
 		    {
-		        String id = population.keys()[RANDOM.nextInt(population.size())]
+		        String id = this.randomPopulationID
 		        if (population[id].getScore()>=lowerBound)
 		            return population[id];
 		    }
@@ -309,7 +301,20 @@ class EvolutionaryAlgorithm
 		    
 	    }
 	    println 'ERROR, unable to randomly sample from population'
-	    return population[population.keys()[0]];
+	    return population.iterator().next() as Evolvable;
+	}
+
+
+	private def getRandomPopulationID()
+	{
+		int item = RANDOM.nextInt(population.size())
+		int i = 0
+		for (def id : population.keySet())
+		{
+			if (i == item)
+				return id
+			i++
+		}
 	}
 	
 	

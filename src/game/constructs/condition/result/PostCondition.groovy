@@ -5,7 +5,7 @@ package game.constructs.condition.result
  *
  * The consequent of a conditional.
  */
-interface Result
+interface PostCondition
 {
     /*int getNumParams()
     {

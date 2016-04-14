@@ -34,6 +34,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
+//import org.ggp.base.validator.ValidatorException;
+
 public class SentenceDomainModelOptimizer {
     /**
      * Given a SentenceDomainModel, returns an ImmutableSentenceDomainModel
@@ -493,7 +495,22 @@ public class SentenceDomainModelOptimizer {
 
             GdlTerm term = tuple.get(i);
             if (term instanceof GdlConstant) {
-                Set<GdlConstant> oldDomainForTerm = oldDomain.get(form).get(i);
+                Set<GdlConstant> oldDomainForTerm;
+                if (oldDomain.containsKey(form))
+                {
+                    if (oldDomain.get(form).containsKey(i))
+                    {
+                        oldDomainForTerm = oldDomain.get(form).get(i);
+                    }
+                    else
+                    {
+                        throw new InterruptedException("oldDomain.get("+form.getName().toString()+") did not have key "+i);
+                    }
+                }
+                else
+                {
+                    throw new InterruptedException("oldDomain did not have key "+form.getName().toString());
+                }
                 if (oldDomainForTerm.contains(term)) {
                     newConstantsByForm.get(form).put(i, (GdlConstant) term);
                 }

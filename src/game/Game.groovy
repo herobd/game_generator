@@ -1,6 +1,10 @@
 package game
 
 import game.constructs.condition.Conditional
+import game.constructs.pieces.Move
+import game.constructs.pieces.StartingPosition
+import game.constructs.pieces.action.Mark
+import game.constructs.pieces.query.IsOpen
 import game.constructs.player.Players
 import game.constructs.TurnOrder
 import game.constructs.board.Board
@@ -14,6 +18,15 @@ import game.gdl.GDLDescription
 import generator.Evolvable
 import generator.Gene
 import generator.FineTunable
+import game.gdl.clauses.base.BaseClause
+import game.gdl.statement.GeneratorStatement
+import game.gdl.statement.GameToken
+import groovy.json.JsonSlurper
+import game.constructs.condition.NegatedCondition
+import game.constructs.board.grid.SquareGrid
+import game.constructs.condition.functions.GameFunction
+import game.constructs.condition.result.EndGameResult
+import game.constructs.condition.TerminalConditional
 
 /**
  * @author Lawrence Thatcher
@@ -51,10 +64,15 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		this.board = board
 		this.turnOrder = turnOrder
 		if (pieces == null || pieces == [])
-			this.pieces = [NamedPieces.DEFAULT_PIECE]
+		{
+			Move mark = new Move([[], [new IsOpen()]], [new Mark(1)])
+			Piece basic = new Piece([new StartingPosition(0)], [mark])
+			this.pieces = [basic]
+		}
 		else
 			this.pieces = pieces
 		this.end = new EndGameConditions(end, board)
+		namePieces()
 	}
 	
 	Game(Players players, Board board, TurnOrder turnOrder, List<Piece> pieces, List<TerminalConditional> end, double score)
@@ -68,6 +86,36 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 			this.pieces = pieces
 		this.end = new EndGameConditions(end, board)
 		this.score=score
+		namePieces()
+	}
+	
+	static Game fromJSON(String json)
+	{
+	    def jsonSlurper = new JsonSlurper()
+        def parsed = jsonSlurper.parseText(json)
+        def players = new Players(parsed.players)
+        def board
+        if (parsed.board.macroType=="Grid" && parsed.board.tileType=="Square" && parsed.board.layoutShape=="Square")
+            board=new SquareGrid(parsed.board.size)
+        else
+            println 'Error, unsupported board: '+parsed.board
+        def pieces=[]
+        parsed.pieces.each { p ->
+            pieces.push(Piece.fromJSON(p))
+        }
+        //default
+        def end = []
+		end.add(new TerminalConditional(GameFunction.N_inARow([3]), EndGameResult.Win))
+		end.add(new TerminalConditional(new NegatedCondition(GameFunction.Open), EndGameResult.Draw))
+        return new Game(players,board,TurnOrder.Alternating,pieces,end,100)
+	}
+	
+	void namePieces()
+	{
+	    for (int i=0; i<pieces.size(); i++)
+		{
+		    this.pieces[i].setName('p'+i+this.pieces[i].getName())
+		}
 	}
 	
 	int getNumPlayers()
@@ -100,17 +148,39 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 	{
 		List<GDLClause> clauses = []
 		clauses += players.GDLClauses
-		clauses += board.GDLClauses
+		clauses += board.getGDLClauses(pieces,players)
 		clauses += turnOrder.GDLClauses
+		Map<String,GDLClause> globalRules= new HashMap<String,GDLClause>() //This is to prevent duplications of rules
 		for (Piece p : pieces)
 		{
-			clauses += p.GDLClauses
+			clauses += p.getGDLClauses(globalRules,board)
+		}
+		globalRules.each { name, rule ->
+		    clauses += rule
 		}
 		clauses += end.supportedBoardGDLClauses
 		clauses += end.GDLClauses
 
 		GameContextInfo contextInfo = new GameContextInfo(players)
 		return new GDLDescription(name, clauses, contextInfo)
+	}
+	
+	String convertToJSON()
+	{
+	    List<String> ps = []
+		for (Piece p : pieces)
+		{
+			ps.push(p.convertToJSON())
+		}
+		
+		String ret = ''
+		ret +='{\n'
+		ret +='  "players": ["'+players.getPlayerNames().join('", "')+'"],\n'
+		ret +='  "board": '+board.convertToJSON()+',\n'
+		ret +='  "pieces": ['+ps.join(', ')+'],\n'
+		ret +='  "end": "some end"\n'
+		ret +='}'
+		return ret
 	}
 
 	@Override
@@ -125,6 +195,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 			Gene f = pair[1]
 			m.crossOver(f)
 		}
+		child.namePieces()
 		return child
 	}
 	

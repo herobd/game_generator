@@ -2,6 +2,7 @@ package game.constructs.condition
 
 import game.constructs.condition.functions.Function
 import generator.FineTunable
+import game.gdl.clauses.GDLClause
 
 /**
  * @author Lawrence Thatcher
@@ -10,7 +11,8 @@ import generator.FineTunable
  * This can either be a logic conjunction, disjunction, or negation of a predicate (Function),
  * or can be a function in and of itself.
  */
-interface Condition extends FineTunable
+
+interface PreCondition extends FineTunable
 {
 	/**
 	 * Returns a collection of the Functions that are used in this condition.
@@ -30,4 +32,7 @@ interface Condition extends FineTunable
 	 */
 	def getGDL_Signature()
 	
+	int complexityCount()
+	
+	//GDLClause getGDLClauses()
 }

@@ -7,5 +7,5 @@ import game.gdl.clauses.GDLClause
  */
 interface SupportsInARow extends Supports
 {
-	GDLClause in_a_row(int n)
+	GDLClause in_a_row(List n)
 }

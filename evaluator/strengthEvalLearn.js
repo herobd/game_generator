@@ -1,5 +1,6 @@
 module.exports = function() {
 
+    //var C45 = require('c4.5');
     var cluster = require('hierarchical-clustering');
     
     function pieceCounter(i0,i1,board,players) {
@@ -16,20 +17,22 @@ module.exports = function() {
         this.board=board;
         this.i0=+i0;
         this.i1=+i1;
-        
+        if (isNaN(this.i0) || isNaN(this.i1))
+            console.log('Nan: '+i0+', '+i1)
     }
     pieceCounter.prototype.add = function(pos) {
-        var toAdd;
+        console.log('add '+pos[0]+' '+pos[1]);
         var pp=this.getPlayer(pos);
+        
         if (pp!=null){
+            console.log('add for player '+pp)
             
-            toAdd=this.players[pp];
             var pieceType = this.getPiece(pos);
-            if (toAdd.hasOwnProperty(pieceType))
-                toAdd[pieceType]+=1;
+            if (this.players[pp].hasOwnProperty(pieceType))
+                this.players[pp][pieceType]+=1;
             else
-                toAdd[pieceType]=1;
-            toAdd.total+=1;
+                this.players[pp][pieceType]=1;
+            this.players[pp].total+=1;
         }
     }
     pieceCounter.prototype.getPiece = function(dir) {
@@ -53,13 +56,18 @@ module.exports = function() {
             var m= p.match(this.RE_piece);
             if (m!=null)
                 return m[1];//.toLowerCase();
+            console.log('no match for '+p)
         }
+        console.log(this.i0+dir[0] +' , '+this.i1+dir[1])
+        console.log(this.board.length +' x '+this.board[0].length)
         return null;
     }
     pieceCounter.prototype.sqDistancePart = function(countedA,countedB) {
         var ret=0;
         for (var prop in countedA) {
+            
             if (countedA.hasOwnProperty(prop)) {
+                //console.log('prop '+prop+' for A')
                 if (countedB.hasOwnProperty(prop))
                     ret += Math.pow(countedA[prop]-countedB[prop],2);
                 else
@@ -68,6 +76,7 @@ module.exports = function() {
         }
         for (var prop in countedB) {
             if (countedB.hasOwnProperty(prop)) {
+                //console.log('prop '+prop+' for B')
                 if (!countedA.hasOwnProperty(prop))
                     ret += Math.pow(countedB[prop],2);
             }
@@ -76,21 +85,27 @@ module.exports = function() {
     }
     pieceCounter.prototype.sqDistance = function(other) {
         if (this.player!==other.player) {
+            console.log('not matching players: '+this.player+', '+other.player);
             return 0;
         }
         
         var ret=0;
         //ret+=this.sqDistancePart(this.allies,other.allies);
         //ret+=this.sqDistancePart(this.enemies,other.enemies);
-        for (var i=0; i<this.players.length; i++) {
-            ret+=this.sqDistancePart(this.players[i],other.players[i]);
+        //console.log('counter there are '+this.players.length+' players')
+        for (var pname in this.players) {
+            if (this.players.hasOwnProperty(pname)) {
+                ret+=this.sqDistancePart(this.players[pname],other.players[pname]);
+                //console.log('counter dist for player '+pname+': '+this.sqDistancePart(this.players[pname],other.players[pname]));
+            }
         }
         
         return ret;
     }
     
-    function Description(i0,i1,p,board,hlgdl) {
-        
+    function PieceDescription(i0,i1,p,board,hlgdl) {
+        if (isNaN(i0) || isNaN(i1))
+                    console.log('PD, '+i0+', '+i1)
         this.hlgdl=hlgdl;
         this.i0=+i0;
         this.i1=+i1;
@@ -99,7 +114,7 @@ module.exports = function() {
         this.player = p.match(RE_piece)[1];
         this.piece = p.match(RE_piece)[2];
         function makePieceCounter() {
-            return new pieceCounter(this.i0,this.i1,board,hlgdl.players);
+            return new pieceCounter(+i0,+i1,board,hlgdl.players);
         }
         
         
@@ -125,15 +140,17 @@ module.exports = function() {
                 //desc:n,s,w,e,nw,ne,sw,se,count_p1,count_p2,count_p3,count_n,count_s,count_w,count_e,count_nw,count_ne,count_sw,count_se,count_knight
                 
             } else {
-                console.log('ERROR, tile type '+hlgdl.board.tileType+' not implemented for Description.');
+                console.log('ERROR, tile type '+hlgdl.board.tileType+' not implemented for PieceDescription.');
                 this.descAllOr=null;
                 return;
             }
             
+            //console.log('should be adding desc for orientations '+orientations.length)
             for (var directions of orientations) {
                 
             
                 var desc=[];
+                //console.log('should be adding directions '+directions.length)
                 for (dir of directions) {
                     var count=makePieceCounter();
                     count.add(dir);
@@ -160,7 +177,7 @@ module.exports = function() {
                 //var lines=[];
                 for (dir of directions) {
                     var count=makePieceCounter();
-                    var curPos=[this.i0+dir[0],this.i1+dir[1]];
+                    var curPos=[(+i0)+dir[0],(+i1)+dir[1]];
                     if (dir[0]!=0 || dir[1]!=0)
                         while (curPos[0]>=0 && curPos[0]<board.length &&
                                curPos[1]>=0 && curPos[1]<board[curPos[0]].length) {
@@ -180,20 +197,22 @@ module.exports = function() {
             }
         
         } else {
-            console.log('ERROR, macro type '+hlgdl.board.macroType+' not implemented for Description.');
+            console.log('ERROR, macro type '+hlgdl.board.macroType+' not implemented for PieceDescription.');
             this.descAllOr=null;
             return;
         }
     }
-    Description.prototype.sqDistance = function(other) {
-        if (this.player!==other.player) {
-            return 99999; //don't compare pieces of other players
-        }
+    PieceDescription.prototype.sqDistance = function(other) {
+        //if (this.player!==other.player) {
+        //    return 99999; //don't compare pieces of other players
+        //}
         var minDist=999999;
+        //console.log('sqd there are '+this.descAllOr.length+' orientations')
         for (descThis of this.descAllOr) {
             for (descOther of other.descAllOr) {
                 if (descThis.length==descOther.length) {
                     var dist=0;
+                    //console.log('sqd there are '+descThis.length+' counters')
                     for (var i=0; i<descThis.length; i++) {
                         dist+=descThis[i].sqDistance(descOther[i]);
                     }
@@ -205,6 +224,7 @@ module.exports = function() {
                 }
             }
         }
+        //console.log('min dist '+minDist)
         minDist *= this.piece===other.piece?1:1.5;
         
         //TODO, this is rather ill-formed, only works for square tile
@@ -214,19 +234,19 @@ module.exports = function() {
         } else if (this.hlgdl.board.layoutShape==='Rectangle') {
             boardSize=Math.sqrt(this.hlgdl.board.size*this.hlgdl.board.size2);
         } else {
-            console.log('ERROR, layoutShape '+this.hlgdl.board.layoutShape+' not implemented for Description');
+            console.log('ERROR, layoutShape '+this.hlgdl.board.layoutShape+' not implemented for PieceDescription');
             return null;
         }
-        minDist *= Math.sqrt(Math.pow(descThis.i0-descOther.i0,2) + Math.pow(descThis.i1-descOther.i1,2))/boardSize;
+        minDist += Math.sqrt(Math.pow(descThis.i0-descOther.i0,2) + Math.pow(descThis.i1-descOther.i1,2))/boardSize;
         return minDist;
     }
     
     //This returns an array of the pieces' local descriptions
-    function parseState(hlgdl,state) {
+    function StateDescription(hlgdl,state,allPieces) {
         var RE_cells = /\(CELL [0-9]+ [0-9]+ \w+\)/ig;
         var RE_cell =  /\(CELL ([0-9]+) ([0-9]+) (\w+)\)/i;
         var board=null;
-        var ret=[];
+        this.pieces=[];
         //TODO other board types
         if (hlgdl.board.macroType=='Grid') {
             if (hlgdl.board.tileType=='Square') {
@@ -269,169 +289,220 @@ module.exports = function() {
                 var m = s.match(RE_cell);
                 var i0 = (+m[1])-1;
                 var i1 = (+m[2])-1;
+                if (isNaN(i0) || isNaN(i1))
+                    console.log('cell: s: '+s+', '+i0+', '+i1)
                 var p = m[3].toLowerCase();
-                if (p != 'b')
-                    ret.push(new Description(i0,i1,p,board,hlgdl));
-            }
-            
-        }
-        return ret;
-    }
-    
-    function findNearest(piece,otherPieces,matched,unmatched) {
-        var minDist=null;
-        for (var i=0; i<otherPieces.length; i++) {
-            var pieceB=otherPieces[i];
-            if (piece.player===pieceB.player) {
-                var dist = piece.sqDistance(pieceB);
-                if ((minDist==null||dist<minDist) && (matched[i]===undefined || matched[i].dist>dist)) {
-                    minDist=dist;
-                    var doAgain=null;
-                    if (matched[i]!==undefined)
-                        doAgain=matched[i].piece;
-                    matched[i]={piece:piece, dist:dist};
-                    if (doAgain!==null)
-                        findNearest(doAgain,otherPieces,matched,unmatched);
+                if (p != 'b') {
+                    var piece = new PieceDescription(i0,i1,p,board,hlgdl);
+                    this.pieces.push(piece);
+                    allPieces.push(piece);
+                    return
                 }
             }
-        }
-        if (minDist===null) {
-            unmatched.push(piece);
-        }
-    }
-    
-    function stateDistBothWay (piecesA, piecesB) {
-        var ret=0;
-        var matched={};
-        var unmatched=[];
-        for (var pieceA of piecesA) {
-            findNearest(pieceA,piecesB,matched,unmatched);
-        }
-        for (var m in matched) {
-            if (matched.hasOwnProperty(m))
-                ret += matched[m].dist;
+            
         }
         
-        //This gives a heavy penalty to having an uneven number of pieces
-        //so I only count half.
-        if (piecesB.length>0) {
-            for (u of unmatched) {
-                var sum=0;
-                var count=0;
-                for (var pieceB of piecesB) {
-                    if (u.player===pieceB.player) {
-                        count++;
-                        sum+=u.sqDistance(pieceB);
-                    }
-                }
-                ret += sum/(2.0*count);
+        
+        
+        //return ret;
+        this.array=null;
+    }
+    
+    StateDescription.prototype.toArray = function(players,pieceConfigurationClassifier) {
+        if (this.array==null) {
+            this.array = [];
+            for (var i=0; i<pieceConfigurationClassifier.numClasses*players.length; i++) {
+                this.array.push(0);
+            }
+            for (var piece of this.pieces) {
+                var cls = pieceConfigurationClassifier.classify(piece);
+                this.array[cls+players.indexOf(piece.player)*pieceConfigurationClassifier.numClasses]++;
             }
         }
-        if (piecesA.length>0) {
-            for (var bi=0l bi<piecesB.length; bi++) {
-                if (matched[bi]===undefined)
-                {
-                    var sum=0;
-                    var count=0;
-                    for (var pieceA of piecesA) {
-                        if (piecesB[bi].player===pieceA.player) {
-                            count++;
-                            sum+=piecesB[bi].sqDistance(pieceA);
+        return this.array;
+    }
+    
+    function learnPieceConfigurations(numOfPieceTypes,pieces) {
+        var levels = cluster({
+            input: pieces,
+            distance: function(a,b){return a.sqDistance(b);},
+            linkage: function (distances) {
+                //return Math.min.apply(null, distances);//single-link (min) clustering
+                var sum=0;//average-link
+                for (d of distances)
+                    sum+=d;
+                console.log('di '+ (sum/(0.0+distances.length)));
+                return sum/(0.0+distances.length);
+            },
+            minClusters: Math.floor(4*numOfPieceTypes) //TODO magic number 4
+        });
+        
+        var clusters = levels[levels.length - 1].clusters;
+        console.log(clusters.join())
+        console.log(levels[0].clusters.join())
+        clusters = clusters.map(function (cluster) {
+          return cluster.map(function (index) {
+            return pieces[index];
+          });
+        });
+        console.log('There are '+clusters.length+' clusters from '+pieces.length+' instances')
+        console.log('There should be '+(4*numOfPieceTypes)+' clusters. There are '+levels.length+' levels')
+        return {
+                    clusters:clusters,
+                    classify: function(piece) {
+                        var minDist=null;
+                        var minClust=null;
+                        for (var i=0; i<this.clusters.length; i++) {
+                            var dist=0;
+                            for (var cp of this.clusters[i]) {
+                                dist+=piece.sqDistance(cp);
+                            }
+                            dist /= this.clusters[i].length;
+                            if (dist<minDist) {
+                                minDist=dist;
+                                minClust=i;
+                            }
                         }
-                    }
-                    ret += sum/(2.0*count);
-                }
+                        return minClust;
+                    },
+                    numClasses:clusters.length
+        }
+    }
+    
+    
+    function shuffle(a,b) {
+        var j, x, i;
+        for (i = a.length; i; i -= 1) {
+            j = Math.floor(Math.random() * i);
+            x = a[i - 1];
+            x = a[i - 1];
+            a[i - 1] = a[j];
+            a[j] = x;
+            if (b!==undefined) {
+                x = b[i - 1];
+                x = b[i - 1];
+                b[i - 1] = b[j];
+                b[j] = x;
             }
         }
-        return ret;
     }
-    
-    function getStateDistanceMetric(hlgdl,params) {
-        return function (a,b) {
-            //a,b={returnObj:{}, stateParsed:null, state:'(...)', scores:[scores]}
-            
-            var startTime=(new Date()).getTime();
-            if (a.stateParsed==null)
-            {
-                a.stateParsed=parseState(hlgdl,a.state);
-                console.log("parsed A: "+((new Date()).getTime()-startTime));
-            }
-            if (b.stateParsed==null)
-            {
-                b.stateParsed=parseState(hlgdl,b.state);
-                console.log("parsed B: "+((new Date()).getTime()-startTime));
-            }
-            
-            
-            var sumDist=stateDistBothWay(a.stateParsed,b.stateParsed); // + stateDistOneWay(b.stateParsed,a.stateParsed);
-            console.log("computed dist: "+((new Date()).getTime()-startTime));
-            
-            return Math.sqrt(sumDist + Math.pow(a.step-b.step,2)*params.stepDifWeight);
-        };
-    }
-    
-    function learnPositionStrength(hlgdl,matches,numPlayers,params) {
+    function learnPositionStrength(hlgdl,matches,numPlayers,params,callback) {
         //console.log('Learning pos str');
         var turnsScores=[];
+        var allPieces=[];
         var avgNumTurnsPerMatch=0;
-        
+        var maxInstances=1000;
         for (var matchInfo of matches) {
+            if (maxInstances-- < 0)
+                break;
             
             matchInfo.turnsStrengthScored=[]
             var step=0;
             for (turn of matchInfo.turns) {
                 var toAdd={strengthScored:null};
                 matchInfo.turnsStrengthScored.push(toAdd)
+                var desc=new StateDescription(hlgdl,turn,allPieces);
                 turnsScores.push({
                                     returnObj:toAdd,
                                     step:step++,
                                     state:turn,
-                                    stateParsed:null,
+                                    stateParsed:desc,
                                     scores:matchInfo.outcome
                                  });
+                //var feats = desc.toArray();
+                //feats.push(matchInfo.outcome.join(' '));
+                //allData.push(feats);
             }
             avgNumTurnsPerMatch+=matchInfo.turns.length;
             
         }
         avgNumTurnsPerMatch/=0.0+matches.length;
         
-        console.log('cluster, num clust:'+Math.floor(params.clusteringKCoef*avgNumTurnsPerMatch));
-        console.log('cluster, num turnsScores:'+turnsScores.length);
-        var levels = cluster({
-            input: turnsScores,
-            distance: getStateDistanceMetric(hlgdl,params),
-            linkage: function (distances) {
-                //return Math.min.apply(null, distances);//single-link (min) clustering
-                var sum=0;//average-link
-                for (d of distances)
-                    sum+=d;
-                return sum/(0.0+distances.length);
-            },
-            minClusters: Math.floor(params.clusteringKCoef*avgNumTurnsPerMatch)
-        });
-        console.log('finished cluster');
-        
-        var clusters = levels[levels.length - 1].clusters;
-        for (var clust of clusters) {
-            var accumScore= new Array(numPlayers);//Array.apply(null, Array(numPlayers)).map(Number.prototype.valueOf,0);
-            for (var i=0; i<numPlayers; i++)
-                accumScore[i]=0;
-            
-            for (index of clust) {
-                for (var i=0; i<numPlayers; i++) {
-                    accumScore[i]+=+turnsScores[index].scores[i];
-                    
-                }
-            }
-            for (var i=0; i<numPlayers; i++)//normalize
-                accumScore[i]/=0.0+clust.length;
-            
-            //We return the clustering-scoring by setting the value of an object shared with an array by the matchInfo object
-            for (index of clust) {
-                turnsScores[index].returnObj.strengthScored=accumScore;
-            }
+        shuffle(allPieces);
+        var pieceConfigurationClassifier = learnPieceConfigurations(hlgdl.pieces.length,allPieces.slice(0,200));
+        var allData=[];
+        for (var turnScore of turnsScores) {
+            var feats = turnScore.stateParsed.toArray(hlgdl.players,pieceConfigurationClassifier);
+            feats.push(turnScore.scores.join(' '));
+            allData.push(feats);
+            console.log(feats.join())
         }
-        //return clusters;
+        console.log('num dim '+pieceConfigurationClassifier.numClasses*numPlayers)
+        
+        shuffle(allData,turnsScores);
+        
+        var splitPoint = Math.max(200,allData.length/2);
+        var trainingData = allData.slice(0,splitPoint);
+        callback();
+        return;
+        var c45 = C45();
+        var featuresList=[];
+        var featureTypes=[];
+        for (var i=0; i<pieceConfigurationClassifier.numClasses*numPlayers; i++) {
+            featuresList.push('attr'+i);
+            featureTypes.push('number');
+        }
+        c45.train(  {
+                        data: trainingData,
+                        target: 'class',
+                        features: featuresList,
+                        featureTypes: featureTypes
+                    },
+                    function(error, model) {
+                        if (error) {
+                            console.error(error);
+                            return false;
+                        }
+                        
+                        //Change tree; we give it our own labels on each leaf node
+                        var tagger={tags:0, next:function(){return this.tags++}};
+                        function traverseTag(tagger,node) {
+                            if (node.type=='result') {
+                                node.value=tagger.next()
+                            } else {
+                                for (var n in node.values)
+                                    if (node.values.hasOwnProperty(n))
+                                        traverseTag(tagger,node.values[n].child);
+                            }
+                        }
+                        traverseTag(tagger,model.model);
+                        
+                        //We then evalute what is "collected" at each leaf. (the average scores)
+                        var accumScores = new Array(tagger.tags);
+                        var accumScoresCount = new Array(tagger.tags);
+                        for (var i=0; i<allData.length; i++) {
+                            var tag = model.classify(allData[i]);
+                            turnsScores[i].tag=tag;
+                            //console.log(turnsScores[i].state+' with scores:'+turnsScores[i].scores.join()+' given tag: '+tag);
+                            if (accumScores[tag]==undefined || accumScores[tag]==null) {
+                                accumScores[tag]=turnsScores[i].scores.slice();
+                                accumScoresCount[tag]=1;
+                            } else {
+                                for (var si=0; si<turnsScores[i].scores.length; si++) {
+                                    accumScores[tag][si]+=turnsScores[i].scores[si];
+                                }
+                                accumScoresCount[tag]++;
+                            }
+                        }
+                        
+                        for (var tag=0; tag<tagger.tags; tag++) {
+                            if (accumScores[tag]!==undefined)
+                                for (var si=0; si<accumScores[tag].length; si++) {
+                                    accumScores[tag][si]/=0.0+accumScoresCount[tag];
+                                }
+                        }
+                        
+                        //Use the average collected scores as the predicted strength
+                        for (var i=0; i<allData.length; i++) {
+                            
+                            turnsScores[i].returnObj.strengthScored=accumScores[turnsScores[i].tag];
+                        }
+                        
+                        
+                        callback();
+                    }
+        );
+        
     }
     
     return learnPositionStrength;

@@ -7,16 +7,16 @@ import game.constructs.condition.functions.Function
  *
  * Object representing a simple negated condition.
  */
-class NegatedCondition implements Condition
+class NegatedCondition implements PreCondition
 {
-	private Condition condition
+	private PreCondition condition
 
 	/**
 	 * Takes in a condition and negates it.
 	 * The condition can be either another combined condition or a Function itself.
 	 * @param condition A Condition to negate.
 	 */
-	NegatedCondition(Condition condition)
+	NegatedCondition(PreCondition condition)
 	{
 		this.condition = condition
 	}
@@ -87,4 +87,16 @@ class NegatedCondition implements Condition
     {
         condition.changeParam(param,amount)
     }
+    
+    @Override
+    int complexityCount()
+    {
+        return condition.complexityCount()
+    }
+    
+    /*@Override
+    GDLClause getGDLClauses()
+    {
+        return new SimpleStatement("filler for funtion: "+getFunctionName());
+    }*/
 }

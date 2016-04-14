@@ -15,7 +15,7 @@ class TestFunction
 	@Test
 	void test_3inARow()
 	{
-		def f = GameFunction.N_inARow(3)
+		def f = GameFunction.N_inARow([3])
 		assert f == new ParametrizedFunction("3inARow", GameFunction.N_inARow)
 		assert !(f instanceof GameFunction)
 		assert f instanceof Function
@@ -28,7 +28,7 @@ class TestFunction
 		def f = GameFunction.N_inARow
 		assert f instanceof GameFunction
 		println f
-		assert f(4) == new ParametrizedFunction("4inARow", GameFunction.N_inARow)
+		assert f([4]) == new ParametrizedFunction("4inARow", GameFunction.N_inARow)
 	}
 
 	@Test
@@ -45,7 +45,7 @@ class TestFunction
 	{
 		assert GameFunction.Open.type == GameFunction.Open
 		assert GameFunction.N_inARow.type == GameFunction.N_inARow
-		assert GameFunction.N_inARow(3).type == GameFunction.N_inARow
+		assert GameFunction.N_inARow([3]).type == GameFunction.N_inARow
 	}
 
 	@Test
@@ -60,7 +60,7 @@ class TestFunction
 	{
 		assert GameFunction.Open.functionName == "open"
 		assert GameFunction.N_inARow.functionName == "in_a_row"
-		assert GameFunction.N_inARow(3).functionName == "in_a_row"
+		assert GameFunction.N_inARow([3]).functionName == "in_a_row"
 	}
 
 	@Test
@@ -80,7 +80,7 @@ class TestFunction
 		assert !(clause instanceof InitClause)
 
 		// Parametrized function
-		f = GameFunction.N_inARow(4)
+		f = GameFunction.N_inARow([4])
 		clause = f.retrieveBoardGDL(mock2)
 		assert clause instanceof InitClause
 	}
@@ -91,18 +91,18 @@ class TestFunction
 		def f = GameFunction.Open
 		assert f.functions == [GameFunction.Open]
 
-		f = GameFunction.N_inARow(4)
-		assert f.functions == [GameFunction.N_inARow(4)]
-		assert f.functions != [GameFunction.N_inARow(3)]
+		f = GameFunction.N_inARow([4])
+		assert f.functions == [GameFunction.N_inARow([4])]
+		assert f.functions != [GameFunction.N_inARow([3])]
 	}
 
 	@Test
 	void test_hashSet()
 	{
-		def S = new HashSet([GameFunction.Open, GameFunction.N_inARow(3), GameFunction.N_inARow, GameFunction.N_inARow(3)])
+		def S = new HashSet([GameFunction.Open, GameFunction.N_inARow([3]), GameFunction.N_inARow, GameFunction.N_inARow([3])])
 		assert S.size() == 3
 		assert S.contains(GameFunction.Open)
 		assert S.contains(GameFunction.N_inARow)
-		assert S.contains(GameFunction.N_inARow(3))
+		assert S.contains(GameFunction.N_inARow([3]))
 	}
 }

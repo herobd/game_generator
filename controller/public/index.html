@@ -145,24 +145,31 @@ function rankmode() {
     }
 }
 
-function get_games() {
+function get_games(withGDL) {
     var num=document.getElementById("numOfGames").value;
-    var name=document.getElementById("meta_name").value;
-    document.getElementById("game_submit_show").innerHTML = 'getting...';
+    document.getElementById("show_games").innerHTML = 'getting...';
     httpGetAsync('/getGames?num='+num,function(res) {
         var jres=JSON.parse(res);
         if (jres.status=='ok') {
-            document.getElementById("show_games").innerHTML = '';
+            
+            var s='';
             for (var game of jres.games) {
-                var s='<div> <p>ID: '+game.id+'   score:'+game.score+'</p>';
+                s+=     '<div class="game"> <p>ID: '+game.id
+                if (game.score!==undefined)
+                    s+=                   '   score:'+game.score.evalScore;
+                s+=                       '</p>'
                 s+=         '<h3>'+game.name+'</h3>'
                 s+=         '<div class="hlgdl">'+game.hlgdl+'</div>'
-                s+=         '<br><p>GDL</p>';
-                s+=         '<div class="gdl">'+game.gdl+'</div>';
-                s+=     '</div>';
-                document.getElementById("show_games").appendChild(s);
+                if (withGDL) {
+                    s+=     '<br><p>GDL</p>';
+                    s+=     '<div class="gdl">'+game.gdl.replace(/\n/g,'<br>')+'</div>';
+                }
+                if (game.score!==undefined)
+                    s+=     '<p>Score breakdown:'+JSON.stringify(game.score)+'</p>';
+                s+=     '</div><br>';
+                //document.getElementById("show_games").appendChild(s);
             }
-            
+            document.getElementById("show_games").innerHTML = s;
         } else {
             document.getElementById("show_games").innerHTML = jres.status;
         }
@@ -376,7 +383,8 @@ function get_games() {
                     "tileType":"Square",
                     "layoutShape":"Square",
                     "size":3
-                 }
+                 },
+        "pieces":[{"name":"0"}]
     }
     </textarea> <br>
     <button type="button" onclick="submit_game()" id="submit_game_button">Submit</button><br>
@@ -385,7 +393,8 @@ function get_games() {
 <div>
     <h2>Get games</h2>
     Number: <input type="text" id="numOfGames" value="3"><br>
-    <button type="button" onclick="get_games()" id="get_games_button">Return games</button><br>
+    <button type="button" onclick="get_games(true)" id="get_games_button">Return games (with GDL)</button>
+    <button type="button" onclick="get_games(false)" id="get_games_buttonNoGDL">Return games (without GDL)</button><br>
     <div id="show_games"></div>
 </div>
 </body>
