@@ -100,7 +100,7 @@ class GeneratorClient
                     ]
         def content = [ meta:meta,
                         gdl:game.convertToGDL().toString(),
-                        hlgdl:game.toString()
+                        hlgdl:game.convertToJSON()
                       ]
         def status=''
         def tries=2

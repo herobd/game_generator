@@ -28,4 +28,8 @@ interface Action extends FineTunable
     
     
     int complexityCount();
+    
+    String convertToJSON()
+    
+    //static Action fromJSON(def parsed)
 }

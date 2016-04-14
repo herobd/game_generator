@@ -46,4 +46,16 @@ class MoveToSelected implements Action
     {
         
     }
+    
+    @Override
+    String convertToJSON()
+    {
+        return '{"action":"MoveToSelected", "parameter":'+n+'}'
+    }
+    
+    //@Override
+    static Action fromJSON(def parsed)
+    {
+        return new MoveToSelected(parsed.parameter)
+    }
 }

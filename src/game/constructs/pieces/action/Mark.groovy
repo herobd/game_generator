@@ -48,4 +48,16 @@ class Mark implements Action
     {
         
     }
+    
+    @Override
+    String convertToJSON()
+    {
+        return '{"action":"Mark", "parameter":'+n+'}'
+    }
+    
+    //@Override
+    static Action fromJSON(def parsed)
+    {
+        return new Mark(parsed.parameter)
+    }
 }

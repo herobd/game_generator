@@ -35,4 +35,16 @@ class IsEnemy implements Query
     {
         
     }
+    
+    @Override
+    String convertToJSON()
+    {
+        return '{"query":"IsEnemy"}'
+    }
+    
+    //@Override
+    static Query fromJSON(def parsed)
+    {
+        return new IsEnemy()
+    }
 }
