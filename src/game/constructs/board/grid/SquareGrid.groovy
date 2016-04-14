@@ -496,4 +496,11 @@ class SquareGrid extends Grid implements
 		result.add(new CrossOver(c))
 		return result
 	}
+    
+    @Override 
+    String convertToJSON()
+    {
+        return '{ "macroType": "Grid", "tileType": "Square", "layoutShape": "Square", "size": '+size+'}'
+    }
+
 }

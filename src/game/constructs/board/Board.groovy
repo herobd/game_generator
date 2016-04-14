@@ -9,6 +9,8 @@ import game.constructs.pieces.Piece
 import game.constructs.player.Players
 import generator.Gene
 
+
+
 /**
  * @author Lawrence Thatcher
  *
@@ -55,6 +57,8 @@ abstract class Board implements  Supports, FineTunable, Gene //HasClausesWithDep
 			return false
 		}
 	}
+	
+	abstract String convertToJSON()
 	
 	abstract String getGeneralSpaceGDL()
 	abstract String getGeneralSpaceGDLIndex(int i)

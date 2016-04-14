@@ -65,6 +65,25 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	    this.preconditions = preconditions
 	    this.postconditions = postconditions
 	}
+	
+	static Move fromJSON(def parsed)
+	{
+	    def pre = []
+	    parsed.preconditions.each { p ->
+	        def level=[]
+	        p.each { q ->
+	            //level.push(grailsApplication.getArtefact("Domain",q.query)?.getClazz()?.fromJSON(q)) //aka, magic
+	            level.push(Class.forName('game.constructs.pieces.query.'+q.query).fromJSON(q))
+            }
+            pre.push(level)
+        }
+        def post = []
+        parsed.postconditions.each {p ->
+            //post.push(grailsApplication.getArtefact("Domain",p.action)?.getClazz()?.fromJSON(p)) //aka, magic
+            post.push(Class.forName('game.constructs.pieces.action.'+p.action).fromJSON(p))
+        }
+        return new Move(pre,post)
+	}
 
     String getId() 
     {
@@ -310,5 +329,26 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
             sofar-=a.getNumParams()
         }
         
+    }
+    
+    String convertToJSON()
+    {
+        def test=0
+        List< String > acs = new ArrayList<String>()
+        for (Action a : postconditions)
+            acs.push(a.convertToJSON())
+        
+        List<String> qqs = []
+        for (List<Query> qls : preconditions)
+        {
+            
+            List<String> qs = []
+            for (Query q : qls)
+                qs.push(q.convertToJSON())
+            
+            qqs.push('['+qs.join(', ')+']')
+        }
+        
+        return '{"preconditions": ['+qqs.join(', ')+'], "postconditions": ['+acs.join(', ')+']}'
     }
 }

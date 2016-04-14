@@ -27,4 +27,8 @@ interface Query extends FineTunable
     void setGlobalRules(Map<String,GDLClause> globalRules, Board board);
     
     int complexityCount();
+    
+    String convertToJSON()
+    
+    //static Query fromJSON(def parsed)
 }

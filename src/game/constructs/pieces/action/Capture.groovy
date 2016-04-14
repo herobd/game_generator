@@ -46,4 +46,16 @@ class Capture implements Action
     {
         
     }
+    
+    @Override
+    String convertToJSON()
+    {
+        return '{"action":"Capture", "parameter":'+n+'}'
+    }
+    
+    //@Override
+    static Action fromJSON(def parsed)
+    {
+        return new Capture(parsed.parameter)
+    }
 }

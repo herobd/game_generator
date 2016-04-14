@@ -21,7 +21,7 @@ class Piece implements  FineTunable //HasClausesWithDep
 	
 	//private MoveType moveType
 	private List<Move> moves
-	private List<Piece> children =[]
+	//private List<Piece> children =[]
 
 	Piece(String name, List<StartingPosition> startPositions, List<Move> moves)
 	{
@@ -56,6 +56,19 @@ class Piece implements  FineTunable //HasClausesWithDep
 		this.startPositions = [new StartingPosition()]
 		this.moves = [move]
 		nameMoves()
+	}
+	
+	static Piece fromJSON(def parsed)
+	{
+	    def startPositions =[]
+	    parsed.startPositions.each { sp ->
+	        startPositions.push(StartingPosition.fromJSON(sp))
+        }
+        def moves =[]
+	    parsed.moves.each { m ->
+	        moves.push(Move.fromJSON(m))
+        }
+        return new Piece(startPositions,moves)
 	}
 	
 	private void nameMoves()
@@ -190,5 +203,21 @@ class Piece implements  FineTunable //HasClausesWithDep
             else
                 sofar-=sp.getNumParams()
         }
+    }
+    
+    String convertToJSON()
+    {
+        
+        List<String> ms = []
+		for (Move move : moves)
+		{
+			ms.push(move.convertToJSON())
+		}
+		List<String> ss = []
+		for (StartingPosition s : startPositions)
+		{
+			ss.push(s.convertToJSON())
+		}
+		String ret='{"moves": ['+ms.join(', ')+'], "startPositions": ['+ss.join(', ')+'] }'
     }
 }
