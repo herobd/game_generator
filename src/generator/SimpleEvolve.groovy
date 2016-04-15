@@ -54,7 +54,7 @@ class SimpleEvolve
 	public static void main(String[] args)
 	{
 		SimpleEvolve s = new SimpleEvolve()
-		s.run(20)
+		s.run(50)
 		for (def p : s.population)
 		{
 			println p.toString()

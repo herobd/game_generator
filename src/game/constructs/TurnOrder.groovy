@@ -15,6 +15,7 @@ import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.statement.GameToken
 import game.gdl.statement.SubstitutionStatement
+import generator.FineTunable
 
 /**
  * @author Lawrence Thatcher
@@ -24,7 +25,7 @@ import game.gdl.statement.SubstitutionStatement
  * Alternating - Players alternate/cycle taking turns
  * (Future types might also include concurrent, speed, etc..)
  */
-enum TurnOrder implements HasClauses, HasLegalClause, HasDynCompClause, HasBaseClause, HasInitClause
+enum TurnOrder implements HasClauses, HasLegalClause, HasDynCompClause, HasBaseClause, HasInitClause, FineTunable
 {
 	Alternating([noopStatement], [nextStatement], [control_base, input_noop], [control_init])
 
@@ -103,5 +104,11 @@ enum TurnOrder implements HasClauses, HasLegalClause, HasDynCompClause, HasBaseC
 	int getNumParams()
 	{
 	    return 0;
+	}
+
+	@Override
+	void changeParam(int param, int amount)
+	{
+		// TODO
 	}
 }
