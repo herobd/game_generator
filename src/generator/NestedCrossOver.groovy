@@ -27,4 +27,10 @@ class NestedCrossOver extends CrossOver
 			}
 		}
 	}
+
+	@Override
+	String toString()
+	{
+		return mine.toString() + other.toString()
+	}
 }

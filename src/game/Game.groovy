@@ -251,6 +251,9 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		result += "Board: " + board.toString() + "\n"
 		result += "TurnOrder: " + turnOrder.toString() + "\n"
 		result += "Pieces: \n"
+
+		// TODO: add Pieces class
+
 		for (Piece p : pieces)
 		{
 			result += "\t" + p.toString() + "\n"

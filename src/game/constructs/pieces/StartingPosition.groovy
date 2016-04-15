@@ -3,6 +3,7 @@ package game.constructs.pieces
 import generator.CrossOver
 import generator.FineTunable
 import generator.Gene
+import generator.Mutation
 
 class StartingPosition implements FineTunable, Gene
 {
@@ -56,6 +57,11 @@ class StartingPosition implements FineTunable, Gene
         return type
     }
 
+	def changeType()
+	{
+		this.type = VALUES.get(RANDOM.nextInt(SIZE))
+	}
+
     @Override
     int getNumParams()
 	{
@@ -67,6 +73,14 @@ class StartingPosition implements FineTunable, Gene
     {
         number+=amount;
     }
+
+	@Override
+	List<Mutation> getPossibleMutations()
+	{
+		def result = parameterMutations
+		result.add(mutationMethod("changeType"))
+		return result
+	}
 
 	@Override
 	List<CrossOver> getPossibleCrossOvers(Gene other)

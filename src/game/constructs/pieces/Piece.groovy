@@ -232,6 +232,8 @@ class Piece implements  FineTunable, Gene //HasClausesWithDep
 //        }
     }
 
+	// TODO: add getPossibleMutations() method
+
 	@Override
 	List<CrossOver> getPossibleCrossOvers(Gene other)
 	{
