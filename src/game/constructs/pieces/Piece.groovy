@@ -10,6 +10,7 @@ import generator.FineTunable
 import game.constructs.board.Board
 import game.constructs.pieces.StartingPosition
 import generator.Gene
+import generator.Mutation
 import generator.NestedCrossOver
 
 /**
@@ -232,7 +233,30 @@ class Piece implements  FineTunable, Gene //HasClausesWithDep
 //        }
     }
 
-	// TODO: add getPossibleMutations() method
+	def addRandomStartPosition()
+	{
+		startPositions.add(new StartingPosition())
+	}
+
+	def removeRandomStartPosition()
+	{
+		if (startPositions.size() > 1)
+		{
+			int idx = RANDOM.nextInt(startPositions.size())
+			startPositions.removeAt(idx)
+		}
+	}
+
+	@Override
+	List<Mutation> getPossibleMutations()
+	{
+		def result = getParameterMutations()
+		if (startPositions.size() > 1)
+			result.add(mutationMethod("removeRandomStartPosition"))
+		result.add(mutationMethod("addRandomStartPosition"))
+		// TODO: add/remove Moves
+		return result
+	}
 
 	@Override
 	List<CrossOver> getPossibleCrossOvers(Gene other)
