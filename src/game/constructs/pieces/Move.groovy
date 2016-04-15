@@ -1,5 +1,7 @@
 package game.constructs.pieces
 
+import game.constructs.pieces.query.PieceOrigin
+import game.constructs.pieces.query.Queries
 import game.gdl.clauses.GDLClause
 //import game.gdl.clauses.HasClausesWithDep
 import game.gdl.clauses.base.BaseClause
@@ -13,18 +15,20 @@ import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.statement.GameToken
 import game.constructs.board.Board
+import generator.CrossOver
 import generator.FineTunable
 import game.constructs.pieces.action.Action
 import game.constructs.pieces.query.Query
+import generator.Gene
 
 import java.util.HashSet
 
 /**
- * @author Lawrence Thatcher
+ * @author Brain
  *
  * Contains the GDL descriptions of a legal move that can be performed by a piece
  */
-class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalClause, HasClausesWithDep
+class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasLegalClause, HasClausesWithDep
 {
 	/*private def inputs = []
 	private DynamicComponentsClause dynComp
@@ -57,7 +61,19 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	
 	Move()
 	{
-	
+		// --Preconditions--
+
+		//set whether has piece-origin or not
+		def pre = []
+		if (RANDOM.nextBoolean())
+			pre.add([new PieceOrigin()])
+		else
+			pre.add([])
+
+
+
+
+		// --Postconditions--
 	}
 	
 	Move(List<List<Query>> preconditions, List<Action> postconditions)
@@ -287,6 +303,27 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
             ret+=a.complexityCount()
         return ret
     }
+
+	/**
+	 * Provides a list of valid sections in a pre-conditions clause
+	 * @return a list of indexes of each non-empty section
+	 */
+	static List<Integer> sections(List<List<Query>> preconditions)
+	{
+		def result = []
+		for (int n = 0; n < preconditions.size(); n++)
+		{
+			if (preconditions[n].size() > 0)
+				result.add(n)
+		}
+		return result
+	}
+
+	int rand_num_sections()
+	{
+		def a = RANDOM.nextGaussian()
+		return Math.abs(a.intValue())+1
+	}
     
     @Override
     int getNumParams()
@@ -330,8 +367,14 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
         }
         
     }
-    
-    String convertToJSON()
+
+	@Override
+	List<CrossOver> getPossibleCrossOvers(Gene other)
+	{
+		return []
+	}
+
+	String convertToJSON()
     {
         def test=0
         List< String > acs = new ArrayList<String>()
