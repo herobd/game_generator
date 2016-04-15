@@ -1,5 +1,8 @@
 package game.constructs.pieces.query
 
+import game.constructs.condition.PreCondition
+import game.constructs.pieces.Move
+
 /**
  * @author Lawrence Thatcher
  *
@@ -30,10 +33,23 @@ enum Queries
 		}
 	}
 
-	static Query getRandomQuery()
+	static Query getRandomQuery(List<List<Query>> preconditions, int n)
 	{
+		def sections = Move.sections(preconditions)
+		def valid_sections = []
+		for (int sec : sections)
+			if (sec > n)
+				valid_sections.add(sec - preconditions.size())
+
 		def q = VALUES.get(RANDOM.nextInt(SIZE))
-		return q.query
+		while (!((valid_sections.size() > 0) || q != IsNeighbor))
+			q = VALUES.get(RANDOM.nextInt(SIZE))
+
+		if (q != IsNeighbor)
+			return q.query
+
+		int idx = valid_sections.get(RANDOM.nextInt(valid_sections.size())) as int
+		return new IsNeighbor(idx)
 	}
 }
 

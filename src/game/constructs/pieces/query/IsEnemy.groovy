@@ -35,6 +35,12 @@ class IsEnemy implements Query
     {
         
     }
+
+    @Override
+    String toString()
+    {
+        return "IsEnemy"
+    }
     
     @Override
     String convertToJSON()

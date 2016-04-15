@@ -33,6 +33,12 @@ class IsOpen implements Query
     {
         
     }
+
+    @Override
+    String toString()
+    {
+        return "IsOpen"
+    }
     
     @Override
     String convertToJSON()

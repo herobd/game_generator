@@ -120,6 +120,19 @@ class IsNeighbor implements Query
     {
         
     }
+
+    @Override
+    String toString()
+    {
+        String result = "IsNeighbor("
+        result += Integer.toString(this.neighborOf)
+        result += ")"
+        if (nbors)
+            result += " nbors"
+        if (i_nbors)
+            result += " i_nbors"
+        return result
+    }
     
     @Override
     String convertToJSON()

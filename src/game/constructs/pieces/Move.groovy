@@ -64,12 +64,15 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
 		// --Preconditions--
 
 		//set whether has piece-origin or not
-		def pre = []
+		this.preconditions = []
 		if (RANDOM.nextBoolean())
-			pre.add([new PieceOrigin()])
+			preconditions.add([new PieceOrigin()])
 		else
-			pre.add([])
+			preconditions.add([])
 
+		//add sections
+		for (int i = 0; i < rand_positive(); i++)
+			addPreconditionSection()
 
 
 
@@ -291,6 +294,29 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
 		return this.legal
 	}*/
 
+	List<List<Query>> getPreconditions()
+	{
+		return preconditions
+	}
+
+	List<Action> getPostconditions()
+	{
+		return postconditions
+	}
+
+	void addPreconditionSection()
+	{
+		int idx = RANDOM.nextInt(preconditions.size()) + 1
+
+		def section = []
+		for (int i = 0; i < rand_positive(); i++)
+		{
+			Query q = Queries.getRandomQuery(preconditions, idx)
+			section.add(q)
+		}
+		preconditions.add(idx, section)
+	}
+
     int complexityCount()
     {
         int ret = 1
@@ -319,7 +345,7 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
 		return result
 	}
 
-	int rand_num_sections()
+	int rand_positive()
 	{
 		def a = RANDOM.nextGaussian()
 		return Math.abs(a.intValue())+1
