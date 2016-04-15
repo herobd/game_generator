@@ -237,7 +237,10 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 	@Override
 	List<Gene> getGenes()
 	{
-		return [players, board]
+		List<Gene> result = [players, board]
+		for (Piece p : pieces)
+			result.add(p)
+		return result
 	}
 
 	@Override
@@ -247,7 +250,11 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		result += "Players: " + players.toString() + "\n"
 		result += "Board: " + board.toString() + "\n"
 		result += "TurnOrder: " + turnOrder.toString() + "\n"
-		result += "Pieces: " + pieces.toString() + "\n"
+		result += "Pieces: \n"
+		for (Piece p : pieces)
+		{
+			result += "\t" + p.toString() + "\n"
+		}
 		result += "End:\n"
 		for (Conditional c : end.conditionals)
 		{

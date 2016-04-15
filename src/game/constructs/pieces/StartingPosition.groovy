@@ -88,7 +88,7 @@ class StartingPosition implements FineTunable, Gene
 	@Override
 	String toString()
 	{
-		return "Starting Position: " + convertToJSON()
+		return convertToJSON()
 	}
     
     String convertToJSON()

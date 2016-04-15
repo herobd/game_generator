@@ -10,6 +10,7 @@ import generator.FineTunable
 import game.constructs.board.Board
 import game.constructs.pieces.StartingPosition
 import generator.Gene
+import generator.NestedCrossOver
 
 /**
  * @author Lawrence Thatcher
@@ -237,17 +238,34 @@ class Piece implements  FineTunable, Gene //HasClausesWithDep
 		other = other as Piece
 		List<CrossOver> result = []
 		// Start-Position Individual Cross Overs
-		for (StartingPosition sp : startPositions)
-		{
-			for (StartingPosition os : other.startPositions)
-			{
-				result.addAll(sp.getPossibleCrossOvers(os))
-			}
-		}
+		result.add(new NestedCrossOver(this.startPositions, other.startPositions))
 		// All Start-Position Cross Over
 		def c = {Piece p -> this.startPositions = p.startPositions}
 		c.curry(other)
 		result.add(new CrossOver(c))
+
+		return result
+	}
+
+	@Override
+	String toString()
+	{
+		// Starting Positions
+		String result = "Starting Positions: ["
+		for (def sp : startPositions)
+		{
+			result += sp.toString() + ","
+		}
+		result = result.substring(0, result.length()-1)
+		result += "] "
+		// Moves
+		result += "Moves: ["
+		for (def m : moves)
+		{
+			result += m.toString() + ","
+		}
+		result = result.substring(0, result.length()-1)
+		result += "]"
 
 		return result
 	}
