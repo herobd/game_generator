@@ -406,7 +406,10 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
 	@Override
 	List<Mutation> getPossibleMutations()
 	{
-		return null
+		def result = parameterMutations
+		result += mutationMethod("addPreconditionSection")
+		result += mutationMethod("addPostCondition")
+		return result
 	}
 
 	@Override

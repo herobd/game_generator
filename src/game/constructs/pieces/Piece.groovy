@@ -61,6 +61,13 @@ class Piece implements  FineTunable, Gene //HasClausesWithDep
 		this.moves = [move]
 		nameMoves()
 	}
+
+	Piece()
+	{
+		this.startPositions = [new StartingPosition()]
+		this.moves = [new Move()]
+		nameMoves()
+	}
 	
 	static Piece fromJSON(def parsed)
 	{
@@ -238,6 +245,11 @@ class Piece implements  FineTunable, Gene //HasClausesWithDep
 		startPositions.add(new StartingPosition())
 	}
 
+	def addMove()
+	{
+		moves.add(new Move())
+	}
+
 	def removeRandomStartPosition()
 	{
 		if (startPositions.size() > 1)
@@ -251,10 +263,16 @@ class Piece implements  FineTunable, Gene //HasClausesWithDep
 	List<Mutation> getPossibleMutations()
 	{
 		def result = getParameterMutations()
+
+		for (StartingPosition sp : startPositions)
+			result.addAll(sp.possibleMutations)
+		for (Move m : moves)
+			result.addAll(m.possibleMutations)
+
 		if (startPositions.size() > 1)
 			result.add(mutationMethod("removeRandomStartPosition"))
 		result.add(mutationMethod("addRandomStartPosition"))
-		// TODO: add/remove Moves
+		result.add(mutationMethod("addMove"))
 		return result
 	}
 
@@ -267,6 +285,10 @@ class Piece implements  FineTunable, Gene //HasClausesWithDep
 		result.add(new NestedCrossOver(this.startPositions, other.startPositions))
 		// All Start-Position Cross Over
 		def c = {Piece p -> this.startPositions = p.startPositions}
+		c.curry(other)
+		result.add(new CrossOver(c))
+		// All Moves Cross Over
+		c = {Piece p -> this.moves = p.moves}
 		c.curry(other)
 		result.add(new CrossOver(c))
 
