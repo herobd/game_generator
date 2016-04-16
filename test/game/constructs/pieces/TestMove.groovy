@@ -33,7 +33,7 @@ class TestMove
 		for (int i = 0; i < 20; i++)
 		{
 			m = new Move()
-			println m.preconditions
+			println m.toString()
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package game.constructs.pieces
 
+import game.constructs.pieces.action.Actions
 import game.constructs.pieces.query.PieceOrigin
 import game.constructs.pieces.query.Queries
 import game.gdl.clauses.GDLClause
@@ -20,6 +21,7 @@ import generator.FineTunable
 import game.constructs.pieces.action.Action
 import game.constructs.pieces.query.Query
 import generator.Gene
+import generator.Mutation
 
 import java.util.HashSet
 
@@ -75,8 +77,9 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
 			addPreconditionSection()
 
 
-
 		// --Postconditions--
+		for (int i = 0; i < rand_positive(); i++)
+			addPostCondition()
 	}
 	
 	Move(List<List<Query>> preconditions, List<Action> postconditions)
@@ -317,6 +320,12 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
 		preconditions.add(idx, section)
 	}
 
+	void addPostCondition()
+	{
+		Action a = Actions.getRandomAction(preconditions)
+		postconditions.add(a)
+	}
+
     int complexityCount()
     {
         int ret = 1
@@ -395,9 +404,26 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
     }
 
 	@Override
+	List<Mutation> getPossibleMutations()
+	{
+		return null
+	}
+
+	@Override
 	List<CrossOver> getPossibleCrossOvers(Gene other)
 	{
 		return []
+	}
+
+	@Override
+	String toString()
+	{
+		String result = "{Pre:"
+		result += preconditions.toString()
+		result += " Post:"
+		result += postconditions.toString()
+		result += "}"
+		return result
 	}
 
 	String convertToJSON()
