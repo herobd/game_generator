@@ -178,11 +178,11 @@ module.exports =  function() {
                             durationWeight:0.2,
                             resilienceWeight:0.1,
                             completionWeight:0.08,
-                            favorsPositionWeight:-0.3,
-                            uncertaintyLateWeight:0.2,
-                            leadChangeWeight:-0.28,
+                            favorsPositionWeight:-0.15,//-0.3,
+                            uncertaintyLateWeight:-0.1,//0.2,
+                            leadChangeWeight:-0.14,//-0.28,
                             permananceWeight:0.1,
-                            killMovesWeight:0.36,
+                            killMovesWeight:0.18,//0.36,
                             
                             clusteringKCoef:0.4,
                             strengthEvalDrawWeight:0.5,
@@ -199,10 +199,10 @@ module.exports =  function() {
                             
                             //Instrinsic eval
                             idealNumPlayers:2,
-                            numPlayersDrop:0.4,
+                            numPlayersDrop:0.08,
                             invalidWeight:-100.0,
-                            numPlayersWeight:1.0,
-                            complexityWeight:-0.3
+                            numPlayersWeight:0.2,
+                            complexityWeight:-0.06
                           });
         }
     };

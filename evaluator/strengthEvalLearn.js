@@ -410,8 +410,8 @@ module.exports = function() {
             }
             console.log('}')
         }*/
-        console.log('There are '+clusters.length+' clusters from '+pieces.length+' instances')
-        console.log('There should be '+(4*numOfPieceTypes)+' clusters. There are '+levels.length+' levels')
+        //console.log('There are '+clusters.length+' clusters from '+pieces.length+' instances')
+        //console.log('There should be '+(4*numOfPieceTypes)+' clusters. There are '+levels.length+' levels')
         return {
                     clusters:clusters,
                     classify: function(piece) {
@@ -508,12 +508,12 @@ module.exports = function() {
         
         shuffle(allData,turnsScores);
         
-        var splitPoint = Math.max(200,allData.length/2);
+        var splitPoint = Math.max(allData.length/2);
         var trainingData = allData.slice(0,splitPoint);
         
-        for (var datum of trainingData) {
-            console.log(datum.join())
-        }
+        //for (var datum of trainingData) {
+         //   console.log(datum.join())
+        //}
         
         var c45 = C45();
         var featuresList=[];
@@ -548,7 +548,7 @@ module.exports = function() {
                             }
                         }
                         traverseTag(tagger,model.model);
-                        console.log('tagged '+tagger.tags+' leaves')
+                        //console.log('tagged '+tagger.tags+' leaves')
                         
                         //We then evalute what is "collected" at each leaf. (the average scores)
                         var accumScores = new Array(tagger.tags);
@@ -570,7 +570,7 @@ module.exports = function() {
                                 }
                                 accumScoresCount[tag]++;
                             }
-                            console.log('instnace '+i+' class as tag '+tag+', accumscore is '+accumScores[tag].join())
+                            //console.log('instnace '+i+' class as tag '+tag+', accumscore is '+accumScores[tag].join())
                         }
                         
                         

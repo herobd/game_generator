@@ -373,6 +373,8 @@ var EvaluatorServer = function(host,port) {
         var permSum=0.0;
         var killerSum=0.0;
         
+        var overallMaxScore=0;
+        
         learnPositionStrength(JSON.parse(gameMeta.hlgdl),self.matches[gameMeta.id],gameMeta.numPlayers,self.params, function () {
         
             for (var matchInfo of self.matches[gameMeta.id]) {
@@ -526,7 +528,8 @@ var EvaluatorServer = function(host,port) {
                         if (turn.strengthScored[i]<winPosMin || winPosMin==null)
                             winPosMin=turn.strengthScored[i];
                     }
-                    winPos/=winningIndexes.length;
+                    if (winningIndexes.length>0)
+                        winPos/=winningIndexes.length;
                     var otherPos=0.0;
                     var otherPosMax=null;
                     var otherPosMin=null;
@@ -537,7 +540,8 @@ var EvaluatorServer = function(host,port) {
                         if (turn.strengthScored[i]<otherPosMin || otherPosMin==null)
                             otherPosMin=turn.strengthScored[i];
                     }
-                    otherPos/=losingIndexes.length;
+                    if (losingIndexes.length>0)
+                        otherPos/=losingIndexes.length;
                     
                     leadAvg.push(winPos-otherPos);
                     
@@ -561,7 +565,7 @@ var EvaluatorServer = function(host,port) {
                     str1=leadMin[Math.floor(turn)];
                     str2=leadMin[Math.ceil(turn)];
                     var intrLeadMin=(str2-str1)*(turn-Math.floor(turn)) + str1;
-                    sumLeadAtT[i]+=Math.max(intrLeadAvg,intrLeadMax,intrLeadMin)/maxScore;
+                    sumLeadAtT[i]+=Math.max(intrLeadAvg,intrLeadMax,intrLeadMin);
                     if (sumLeadAtT[i]!=sumLeadAtT[i] || linearScoreAtT[i]!=linearScoreAtT[i]) {
                         console.log('ERROR, NaN: i='+i+' turn='+turn+' maxScore:'+maxScore);
                         console.log(intrLeadAvg+' '+intrLeadMax+' '+intrLeadMin);
@@ -611,6 +615,8 @@ var EvaluatorServer = function(host,port) {
                 }
                 killerSum += Math.max(getKiller(leadAvg),getKiller(leadMax),getKiller(leadMin))/maxScore;
                 
+                if (maxScore > overallMaxScore)
+                    overallMaxScore=maxScore
             }//end match evals
             
             var positionWinsMost=null;
@@ -646,6 +652,7 @@ var EvaluatorServer = function(host,port) {
             for (var i=0; i<100; i++) {
                 uncertainty+=(linearScoreAtT[i]-sumLeadAtT[i])/totalMatchesPlayed;
             }
+            uncertainty /= overallMaxScore;
             retScore.uncertaintyLate=uncertainty/100.0;
             
             retScore.leadChange=leadChangeSum/totalMatchesPlayed;
