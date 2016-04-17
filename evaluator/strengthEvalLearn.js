@@ -237,17 +237,15 @@ module.exports = function() {
         }
     }
     
-    PieceDescription.prototype.sqDistance = function(other) {
+    PieceDescription.prototype.distance = function(other) {
         //if (this.player!==other.player) {
         //    return 99999; //don't compare pieces of other players
         //}
-        var minDist=999999;
-        
-        
+        var minDist=null;       
         
         //console.log('sqd there are '+this.descAllOr.length+' orientations')
-        for (var descThis of this.descAllOr) {
-            for (var descOther of other.descAllOr) {
+        for (var descThis of this.sparse) {
+            for (var descOther of other.sparse) {
                 if (descThis.length==descOther.length) {
                     var dist=0;
                     //console.log('sqd there are '+descThis.length+' counters')
@@ -257,20 +255,20 @@ module.exports = function() {
                     for (var index in descThis) {
                         if (descThis.hasOwnProperty(index)) {
                             if (descOther.hasOwnProperty(index))
-                                dist+=Math.pow(descThis[index]-descOther[index],2);
+                                dist+=Math.abs(descThis[index]-descOther[index]);
                             else
-                                dist+=Math.pos(descThis[index],2);
+                                dist+=descThis[index];
                         }
                     }
                     for (var index in descOther) {
                         if (descOther.hasOwnProperty(index)) {
                             if (!descThis.hasOwnProperty(index))
-                                dist+=Math.pos(descOther[index],2);
+                                dist+=descOther[index];
                         }
                     }
                     
                     
-                    if (dist<minDist)
+                    if (dist<minDist || minDist==null)
                         minDist=dist;
                 } else {
                     console.log("ERROR, descs are different lengths (this shouldn't happen)");
@@ -278,7 +276,7 @@ module.exports = function() {
                 }
             }
         }
-        minDist *= this.piece===other.piece?1:1.5;
+        minDist *= this.piece===other.piece?1:3;
         
         //TODO, this is rather ill-formed, only works for square tile
         var boardSize;
@@ -381,11 +379,11 @@ module.exports = function() {
     function learnPieceConfigurations(numOfPieceTypes,pieces) {
         var levels = cluster({
             input: pieces,
-            distance: function(a,b){return a.sqDistance(b);},
+            distance: function(a,b){return a.distance(b);},
             linkage: function (distances) {
                 //return Math.min.apply(null, distances);//single-link (min) clustering
                 var sum=0;//average-link
-                for (d of distances)
+                for (var d of distances)
                     sum+=d;
                 //console.log('di '+ (sum/(0.0+distances.length)));
                 return sum/(0.0+distances.length);
@@ -401,24 +399,47 @@ module.exports = function() {
             return pieces[index];
           });
         });
-        //console.log('There are '+clusters.length+' clusters from '+pieces.length+' instances')
-        //console.log('There should be '+(4*numOfPieceTypes)+' clusters. There are '+levels.length+' levels')
+        /*for (var c of clusters) {
+            console.log('{')
+            for (var i of c) {
+                var bb='';
+                for (var x in c)
+                    if (c.hasOwnProperty(x))
+                        bb+=c[x]+','
+                console.log('  ['+bb+']')            
+            }
+            console.log('}')
+        }*/
+        console.log('There are '+clusters.length+' clusters from '+pieces.length+' instances')
+        console.log('There should be '+(4*numOfPieceTypes)+' clusters. There are '+levels.length+' levels')
         return {
                     clusters:clusters,
                     classify: function(piece) {
                         var minDist=null;
                         var minClust=null;
+                        
+                        //var minDist2=null;
+                        //var minClust2=null;
                         for (var i=0; i<this.clusters.length; i++) {
-                            var dist=0;
+                            var dist=null;
                             for (var cp of this.clusters[i]) {
-                                dist+=piece.sqDistance(cp);
+                                var tmpDist=piece.distance(cp);
+                                if (tmpDist<dist || dist==null)
+                                    dist=tmpDist;
                             }
-                            dist /= this.clusters[i].length;
-                            if (dist<minDist) {
+                            if (dist<minDist || minDist==null) {
+                                //minDist2=minDist;
+                                //minClust2=minClust;
+                            
                                 minDist=dist;
                                 minClust=i;
-                            }
+                            } //else if (dist<minDist2 || minDist2==null) {
+                            //    minDist2=dist;
+                            //    minClust2=i;
+                            //}
                         }
+                        //console.log ('this piece looks like '+minClust+' with dist '+minDist)
+                        //console.log ('runner up is '+minClust2+' with dist '+minDist2)
                         return minClust;
                     },
                     numClasses:clusters.length
@@ -490,6 +511,9 @@ module.exports = function() {
         var splitPoint = Math.max(200,allData.length/2);
         var trainingData = allData.slice(0,splitPoint);
         
+        for (var datum of trainingData) {
+            console.log(datum.join())
+        }
         
         var c45 = C45();
         var featuresList=[];
@@ -522,6 +546,7 @@ module.exports = function() {
                             }
                         }
                         traverseTag(tagger,model.model);
+                        console.log('tagged '+tagger.tags+' leaves')
                         
                         //We then evalute what is "collected" at each leaf. (the average scores)
                         var accumScores = new Array(tagger.tags);
@@ -531,7 +556,7 @@ module.exports = function() {
                             turnsScores[i].tag=tag;
                             //console.log(turnsScores[i].state+' with scores:'+turnsScores[i].scores.join()+' given tag: '+tag);
                             if (accumScores[tag]==undefined || accumScores[tag]==null) {
-                                accumScores[tag]=turnsScores[i].scores.slice();
+                                accumScores[tag]=turnsScores[i].scores.slice();//.slice() clones the array
                                 accumScoresCount[tag]=1;
                             } else {
                                 for (var si=0; si<turnsScores[i].scores.length; si++) {

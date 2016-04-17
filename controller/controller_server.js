@@ -376,6 +376,7 @@ var ControllerApp = function(host,port) {
                 
                 //FOR LOCAL
                 self.gameCord.addPlayer('montecarlo','localhost',9147,'m');
+                self.gameCord.addPlayer('montecarlo','localhost',9148,'m2');
                 
                 ////////////////////
                 
