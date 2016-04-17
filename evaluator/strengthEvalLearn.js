@@ -522,6 +522,8 @@ module.exports = function() {
             featuresList.push('attr'+i);
             featureTypes.push('number');
         }
+        featuresList.push('class');
+        featureTypes.push('category');
         c45.train(  {
                         data: trainingData,
                         target: 'class',
@@ -553,6 +555,10 @@ module.exports = function() {
                         var accumScoresCount = new Array(tagger.tags);
                         for (var i=0; i<allData.length; i++) {
                             var tag = model.classify(allData[i]);
+                            //console.log('instnace '+i+' ['+allData[i].join()+'] class as '+tag)
+                            //continue
+                            
+                            
                             turnsScores[i].tag=tag;
                             //console.log(turnsScores[i].state+' with scores:'+turnsScores[i].scores.join()+' given tag: '+tag);
                             if (accumScores[tag]==undefined || accumScores[tag]==null) {
@@ -564,7 +570,9 @@ module.exports = function() {
                                 }
                                 accumScoresCount[tag]++;
                             }
+                            console.log('instnace '+i+' class as tag '+tag+', accumscore is '+accumScores[tag].join())
                         }
+                        
                         
                         for (var tag=0; tag<tagger.tags; tag++) {
                             if (accumScores[tag]!==undefined)
