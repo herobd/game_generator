@@ -7,9 +7,9 @@ package generator
  */
 class Mutation
 {
-	private Closure closure
-	private def parent
-	private String name
+	protected Closure closure
+	protected def parent
+	protected String name
 
 	/**
 	 * Creates a callable Closure that calls the method in the provided class based on the name
@@ -21,6 +21,11 @@ class Mutation
 		this.parent = parent
 		this.name = methodName
 		this.closure = {p -> p."$methodName"()}
+	}
+
+	protected Mutation(def parent)
+	{
+		this.parent = parent
 	}
 
 	def call()

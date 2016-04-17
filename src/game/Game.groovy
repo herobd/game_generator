@@ -237,7 +237,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 	@Override
 	List<Gene> getGenes()
 	{
-		return [players]
+		return [players, board]
 	}
 
 	@Override
