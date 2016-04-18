@@ -1,8 +1,10 @@
 package game.constructs.condition
 
 import game.constructs.condition.functions.Function
+import game.constructs.condition.result.EndGameResult
 import game.constructs.condition.result.PostCondition
 import game.constructs.pieces.Piece
+import game.constructs.pieces.query.Queries
 import generator.CrossOver
 import generator.FineTunable
 import generator.Gene
@@ -23,6 +25,12 @@ class Conditional implements FineTunable, Gene
 	{
 		this.antecedent = condition
 		this.consequent = result
+	}
+
+	Conditional()
+	{
+		this.antecedent = Queries.randomGlobalQuery
+		this.consequent = EndGameResult.random
 	}
 
 	/**

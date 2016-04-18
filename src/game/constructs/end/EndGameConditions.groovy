@@ -139,6 +139,16 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
 		return true
 	}
 
+	protected boolean hasWinCondition()
+	{
+		for (Conditional c : supportedConditionals)
+		{
+			if (c.consequent == EndGameResult.Win)
+				return true
+		}
+		return false
+	}
+
 	protected boolean hasDrawCondition()
 	{
 		for (Conditional c : supportedConditionals)
@@ -192,10 +202,14 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
 		def T = []
 
 		// Score 100 for win
-		String g = "(<= (goal ?p 100)\n"
-		g += "\t(role ?p)\n"
-		g += "\t(Win ?p))\n"
-		T.add(new SimpleStatement(g))
+		String g
+		if (hasWinCondition())
+		{
+			g = "(<= (goal ?p 100)\n"
+			g += "\t(role ?p)\n"
+			g += "\t(Win ?p))\n"
+			T.add(new SimpleStatement(g))
+		}
 
 		// Score 50 for draw (if applicable)
 		// TODO: divide 100 by # of players?
@@ -225,7 +239,7 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
 		T.add(new SimpleStatement(g))
 
 		// Exclusive-Win premise
-		if (exclusiveWin)
+		if (exclusiveWin && hasWinCondition())
 		{
 			g = "(<= (Lose ?p)\n"
 			g += "\t(role ?p)\n"
