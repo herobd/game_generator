@@ -241,7 +241,7 @@ module.exports =  function() {
                      gameMeta.testLength==='quick') {
                     numOfRuns=1;
                     startclock=9;
-                    playclock=4;
+                    playclock=3;
                     maxSteps=100;
                 } else if (gameMeta.testLength==='med' || 
                            gameMeta.testLength==='medium' || 

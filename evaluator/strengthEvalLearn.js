@@ -1,6 +1,7 @@
 module.exports = function() {
 
-    var C45 = require('c4.5');
+    var MLP = require('mlp');
+    //var brain = require('brain');
     var cluster = require('hierarchical-clustering');
     
     function pieceCounter(i0,i1,board,players) {
@@ -469,19 +470,30 @@ module.exports = function() {
         var allPieces=[];
         var avgNumTurnsPerMatch=0;
         var maxInstances=1000;
+        var maxScore=0;
+        var minScore=0;
+        var matchNum=0;
         for (var matchInfo of matches) {
             if (maxInstances-- < 0)
                 break;
             
-            matchInfo.turnsStrengthScored=[]
+            matchInfo.turnsStrengthScored=new Array(matchInfo.turns.length)
             var step=0;
-            for (turn of matchInfo.turns) {
-                var toAdd={strengthScored:null};
-                matchInfo.turnsStrengthScored.push(toAdd)
+            for (var turn of matchInfo.turns) {
+                //var toAdd={strengthScored:null};
+                //matchInfo.turnsStrengthScored.push(toAdd)
                 var desc=new StateDescription(hlgdl,turn,allPieces);
+                for (var score of matchInfo.outcome) {
+                    if (score>maxScore)
+                        maxScore=score;
+                    if (score<minScore)
+                        minScore=score;
+                }
+                
                 turnsScores.push({
-                                    returnObj:toAdd,
+                                    //returnObj:toAdd,
                                     step:step++,
+                                    matchNum:matchNum,
                                     state:turn,
                                     stateParsed:desc,
                                     scores:matchInfo.outcome
@@ -491,106 +503,138 @@ module.exports = function() {
                 //allData.push(feats);
             }
             avgNumTurnsPerMatch+=matchInfo.turns.length;
-            
+            matchNum++;
         }
         avgNumTurnsPerMatch/=0.0+matches.length;
         
         shuffle(allPieces);
         var pieceConfigurationClassifier = learnPieceConfigurations(hlgdl.pieces.length,allPieces.slice(0,200));
-        var allData=[];
+        var featDim=pieceConfigurationClassifier.numClasses*numPlayers;
+        var minValues=new Array(featDim);
+        var maxValues=new Array(featDim);
+        var trainingData=[];
         for (var turnScore of turnsScores) {
             var feats = turnScore.stateParsed.toArray(hlgdl.players,pieceConfigurationClassifier);
-            feats.push(turnScore.scores.join(' '));
-            allData.push(feats);
+            var normalizedScores = turnScore.scores.slice();
+            for (var i=0; i<normalizedScores.length; i++)
+                normalizedScores[i] = (normalizedScores[i]-minScore+0.0)/maxScore;
+            trainingData.push({input:feats, output:normalizedScores});
+            for (var i=0; i<feats.length; i++) {
+                if (feats[i]>maxValues[i] || maxValues[i]==undefined ||maxValues[i]==null)
+                    maxValues[i]=feats[i];
+                if (feats[i]<minValues[i] || minValues[i]==undefined ||minValues[i]==null)
+                    minValues[i]=feats[i];
+            }
+            //feats.push(turnScore.scores.join(' '));
+            //allData.push(feats);
             //	console.log(feats.join())
         }
         //console.log('num dim '+pieceConfigurationClassifier.numClasses*numPlayers)
         
-        shuffle(allData,turnsScores);
+        //shuffle(allData,turnsScores);
         
-        var splitPoint = Math.max(allData.length/2);
-        var trainingData = allData.slice(0,splitPoint);
+        //var splitPoint = Math.max(allData.length/2);
+        //var trainingData = allData.slice(0,splitPoint);
         
-        //for (var datum of trainingData) {
-         //   console.log(datum.join())
-        //}
-        
-        var c45 = C45();
-        var featuresList=[];
-        var featureTypes=[];
-        for (var i=0; i<pieceConfigurationClassifier.numClasses*numPlayers; i++) {
-            featuresList.push('attr'+i);
-            featureTypes.push('number');
+        //normalize features
+        for (var datum of trainingData) {
+            for (var i=0; i<datum.input.length; i++) {
+                if (maxValues[i]!=0)
+                    datum.input[i] = (datum.input[i]-minValues[i]+0.0)/maxValues[i];
+            }
+            //console.log ('['+datum.input.join()+'] : {'+datum.output.join()+'}')
         }
-        featuresList.push('class');
-        featureTypes.push('category');
-        c45.train(  {
-                        data: trainingData,
-                        target: 'class',
-                        features: featuresList,
-                        featureTypes: featureTypes
-                    },
-                    function(error, model) {
-                        if (error) {
-                            console.error(error);
-                            return false;
-                        }
-                        
-                        //Change tree; we give it our own labels on each leaf node
-                        var tagger={tags:0, next:function(){return this.tags++}};
-                        function traverseTag(tagger,node) {
-                            if (node.type=='result') {
-                                node.value=tagger.next()
-                            } else {
-                                for (var n in node.values)
-                                    if (node.values.hasOwnProperty(n))
-                                        traverseTag(tagger,node.values[n].child);
-                            }
-                        }
-                        traverseTag(tagger,model.model);
-                        //console.log('tagged '+tagger.tags+' leaves')
-                        
-                        //We then evalute what is "collected" at each leaf. (the average scores)
-                        var accumScores = new Array(tagger.tags);
-                        var accumScoresCount = new Array(tagger.tags);
-                        for (var i=0; i<allData.length; i++) {
-                            var tag = model.classify(allData[i]);
-                            //console.log('instnace '+i+' ['+allData[i].join()+'] class as '+tag)
-                            //continue
-                            
-                            
-                            turnsScores[i].tag=tag;
-                            //console.log(turnsScores[i].state+' with scores:'+turnsScores[i].scores.join()+' given tag: '+tag);
-                            if (accumScores[tag]==undefined || accumScores[tag]==null) {
-                                accumScores[tag]=turnsScores[i].scores.slice();//.slice() clones the array
-                                accumScoresCount[tag]=1;
-                            } else {
-                                for (var si=0; si<turnsScores[i].scores.length; si++) {
-                                    accumScores[tag][si]+=turnsScores[i].scores[si];
-                                }
-                                accumScoresCount[tag]++;
-                            }
-                            //console.log('instnace '+i+' class as tag '+tag+', accumscore is '+accumScores[tag].join())
-                        }
-                        
-                        
-                        for (var tag=0; tag<tagger.tags; tag++) {
-                            if (accumScores[tag]!==undefined)
-                                for (var si=0; si<accumScores[tag].length; si++) {
-                                    accumScores[tag][si]/=0.0+accumScoresCount[tag];
-                                }
-                        }
-                        
-                        //Use the average collected scores as the predicted strength
-                        for (var i=0; i<allData.length; i++) {
-                            
-                            turnsScores[i].returnObj.strengthScored=accumScores[turnsScores[i].tag];
-                        }
-                        
-                        
-                        callback();
-                    }
-        );
+        
+        var mlp = new MLP(featDim,numPlayers);
+        mlp.addHiddenLayer(featDim*2);
+        mlp.init();
+        
+        //shuffle(trainingData,turnsScores);
+        for (var inst of trainingData) {
+            mlp.addToTrainingSet(inst.input, inst.output);
+        }
+        
+        // train the perceptron
+        var learnRate = 0.001;
+        var error = Number.MAX_VALUE;
+        var lastError = Number.MAX_VALUE;
+        var inARow = false;
+        for (var i=0; i<4000&&error > 0.1; i++) {
+            if (i==1000)
+                learnRate/=5;
+	        error = mlp.train(learnRate);
+	        //if (i%250==0)
+	            //console.log (i+': '+error);
+	            
+            if (lastError-error<0.0001 && lastError>error && i>500) {
+                if (inARow)
+                    break;
+                else
+                    inARow=true;
+            }
+            else
+                inARow=false;
+            lastError=error;
+        }
+        //console.log("trained with error: "
+        //                + error);
+        
+        
+        for (var i=0; i<turnsScores.length; i++) {
+            var res = mlp.classify(trainingData[i].input);
+            //turnsScores[i].returnObj.strengthScored=res;
+            matches[turnsScores[i].matchNum].turnsStrengthScored[turnsScores[i].step]={strengthScored:res.slice()};
+            //console.log ('['+trainingData[i].input.join()+'] > {'+res.join()+'}')
+        }
+        
+        
+        callback();
+
+        /*var net = new brain.NeuralNetwork({
+          hiddenLayers: [pieceConfigurationClassifier.numClasses*numPlayers*2],
+          learningRate: 0.1 // global learning rate, useful when training using streams 
+        });
+        var trainStream = net.createTrainStream({
+          floodCallback: function() {
+            shuffle(trainingData,turnsScores);
+            flood(trainStream, trainingData);
+          },
+
+          
+          doneTrainingCallback: function(obj) {
+            console.log("trained in " + obj.iterations + " iterations with error: "
+                        + obj.error);
+
+            
+            for (var i=0; i<turnsScores.length; i++) {
+                
+                turnsScores[i].returnObj.strengthScored=net.run(trainingData[i].input);
+            }
+            
+            
+            callback();
+
+          },
+          
+          errorThresh: 0.05,  // error threshold to reach 
+          iterations: 10000,   // maximum training iterations
+          learningRate: 0.1    // learning rate
+        });
+
+        // kick it off
+        flood(trainStream, trainingData);
+
+
+        function flood(stream, data) {
+          for (var i = 0; i < data.length; i++) {
+            stream.write(data[i]);
+          }
+          // let it know we've reached the end of the data
+          stream.write(null);
+        }*/
+        
+        
+        
         
     }
     
