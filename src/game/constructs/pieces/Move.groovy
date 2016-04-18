@@ -207,6 +207,14 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
             clauseCell += "\t(does ${GameToken.PLAYER} (${id} "
 	        clauseCell += moveParams
 	        clauseCell +="))\n\t"
+
+			for (def k : cells.keySet())
+			{
+				k = k.toString()
+				def parts = k.split(" ")
+				for (String part : parts)
+					clauseCell += "(index " + part + ")\n\t"
+			}
 	        
 	        clauseCell+=definitions.join("\n\t")
 	        clauseCell+="\n)"
@@ -225,7 +233,15 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
                 clauseOther += "\t(does ${GameToken.PLAYER} (${id} "
 	            clauseOther += moveParams
 	            clauseOther +="))\n\t"
-	            
+
+				for (def k : cells.keySet())
+				{
+					k = k.toString()
+					def parts = k.split(" ")
+					for (String part : parts)
+						clauseOther += "(index " + part + ")\n\t"
+				}
+
 	            clauseOther+=definitions.join("\n\t")
 	            clauseOther+="\n)"
 	            ret.push(new DynamicComponentsClause([new GeneratorStatement(clauseOther)]))
@@ -329,7 +345,8 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
 	    }
 	    else
 	    {
-	        preconditions.add(idx, [new PieceOrigin()])
+	        //preconditions.add(idx, [new PieceOrigin()])
+			preconditions[0] = [new PieceOrigin()]
 	    }
 		
 	}
