@@ -1,10 +1,11 @@
 package game.constructs.pieces.query
 
 import game.constructs.board.Board
+import game.constructs.condition.PreCondition
 import generator.FineTunable
 import game.gdl.clauses.GDLClause
 
-interface Query extends FineTunable
+interface Query extends FineTunable, PreCondition
 {
     
     /**

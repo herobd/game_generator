@@ -2,8 +2,12 @@ package game.constructs.pieces.query
 
 
 import game.constructs.board.Board
+import game.constructs.board.grid.SquareGrid
+import game.constructs.condition.functions.Function
 import game.constructs.pieces.query.Query
 import game.gdl.clauses.GDLClause
+import game.gdl.clauses.dynamic.DynamicComponentsClause
+import game.gdl.statement.SimpleStatement
 
 class IsOpen implements Query
 {
@@ -15,7 +19,13 @@ class IsOpen implements Query
     }
     
     @Override 
-    void setGlobalRules(Map<String,GDLClause> globalRules, Board board) {}
+    void setGlobalRules(Map<String,GDLClause> globalRules, Board board)
+	{
+		if (!globalRules.containsKey("open"))
+		{
+			globalRules["open"] = new DynamicComponentsClause([new SimpleStatement("(<= open (true (cell ?x ?y b)))")])
+		}
+	}
     
     int complexityCount()
     {
@@ -32,6 +42,24 @@ class IsOpen implements Query
     void changeParam(int param, int amount)
     {
         
+    }
+
+	@Override
+	Collection<Function> getFunctions()
+	{
+		return []
+	}
+
+	@Override
+	def getGDL_Signature()
+	{
+		return "open"
+	}
+
+    @Override
+    String toString()
+    {
+        return "IsOpen"
     }
     
     @Override

@@ -48,6 +48,12 @@ class Mark implements Action
     {
         
     }
+
+    @Override
+    String toString()
+    {
+        return "Mark(" + Integer.toString(n) + ")"
+    }
     
     @Override
     String convertToJSON()

@@ -1,6 +1,7 @@
 package game.constructs.condition
 
 import game.constructs.condition.functions.Function
+import game.constructs.pieces.query.IsOpen
 
 /**
  * @author Lawrence Thatcher
@@ -31,7 +32,7 @@ class NegatedCondition implements PreCondition
 	String toString()
 	{
 		String result = "not "
-		if (condition instanceof Function)
+		if (condition instanceof Function || condition instanceof IsOpen)
 			result += condition.toString()
 		else
 			result += "(" + condition.toString() + ")"
@@ -42,7 +43,7 @@ class NegatedCondition implements PreCondition
 	def getGDL_Signature()
 	{
 		def result = "not "
-		if (condition instanceof Function)
+		if (condition instanceof Function || condition instanceof IsOpen)
 			result += condition.GDL_Signature
 		else
 			result += "(" + condition.GDL_Signature + ")"

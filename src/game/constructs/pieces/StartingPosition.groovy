@@ -1,20 +1,22 @@
 package game.constructs.pieces
 
+import generator.CrossOver
 import generator.FineTunable
+import generator.Gene
+import generator.Mutation
 
-class StartingPosition implements FineTunable
+class StartingPosition implements FineTunable, Gene
 {
-    public static enum PositionType {
+	public static enum PositionType {
         HomeRow, HomeCorner, OppRow, OppCorner, Center
     }
     
     private static final List<PositionType> VALUES =
-        Collections.unmodifiableList(Arrays.asList(PositionType.values()));
+        Collections.unmodifiableList(Arrays.asList(PositionType.values())) as List<PositionType>
     private static final int SIZE = VALUES.size();
-    private static final Random RANDOM = new Random();
 
-    private PositionType type=PositionType.HomeRow
-    private int number=0
+    private PositionType type = PositionType.HomeRow
+    private int number = 0
     
     StartingPosition() {
         type = VALUES.get(RANDOM.nextInt(SIZE))
@@ -55,6 +57,11 @@ class StartingPosition implements FineTunable
         return type
     }
 
+	def changeType()
+	{
+		this.type = VALUES.get(RANDOM.nextInt(SIZE))
+	}
+
     @Override
     int getNumParams()
 	{
@@ -66,6 +73,37 @@ class StartingPosition implements FineTunable
     {
         number+=amount;
     }
+
+	@Override
+	List<Mutation> getPossibleMutations()
+	{
+		def result = parameterMutations
+		result.add(mutationMethod("changeType"))
+		return result
+	}
+
+	@Override
+	List<CrossOver> getPossibleCrossOvers(Gene other)
+	{
+		other = other as StartingPosition
+		def result = []
+
+		def c = {StartingPosition sp -> this.type = sp.type}
+		c.curry(other)
+		result.add(new CrossOver(c))
+
+		c = {StartingPosition sp -> this.number = sp.number}
+		c.curry(other)
+		result.add(new CrossOver(c))
+
+		return result
+	}
+
+	@Override
+	String toString()
+	{
+		return convertToJSON()
+	}
     
     String convertToJSON()
     {

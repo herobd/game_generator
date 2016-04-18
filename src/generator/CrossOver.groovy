@@ -14,6 +14,9 @@ class CrossOver
 		this.closure = action
 	}
 
+	protected CrossOver()
+	{}
+
 	def call(args)
 	{
 		return closure.call(args)

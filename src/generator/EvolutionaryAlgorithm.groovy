@@ -168,16 +168,17 @@ class EvolutionaryAlgorithm
 	            //do next step of finetuning
 	            def ft = fineTuning.remove(gameId) as Map
 	            def numParams=ft.currentVersion.getNumParams()
-	            println 'finetuning game '+ft.currentVersion.getId()+' which has '+numParams+' params'
+	            //println 'finetuning game '+ft.currentVersion.getId()+' which has '+numParams+' params'
 	            if (score <= ft.lastScore)
 	            {
-	                if (ft.iters >params.shortFineTuneLimit && ft.lastScore<params.shortFineTuneThresh ||
+	                if ((ft.iters >params.shortFineTuneLimit && ft.lastScore<params.shortFineTuneThresh) ||
 	                    ft.iters-ft.iterOfLastImprovement>params.fineTuneFamineLimit ||
-	                    (ft.iters>=2 && numParams==1) )
+	                    (ft.iters>=2 && numParams==1) ||
+	                    ft.iters > ft.iterOfLastImprovement && ft.iterOfLastImprovement > params.fineTuneTotalLimit)
 	                {
 	                    if (ft.iters>2)//this is different enough
 	                        population[ft.lastVersion.getId()]=ft.lastVersion
-                        println 'actually, done finetuning'
+                        //println 'actually, done finetuning'
 	                    continue;//we're done fine tuning this game
 	                }
 	                ft.currentVersion=ft.lastVersion.clone()

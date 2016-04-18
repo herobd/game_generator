@@ -9,6 +9,9 @@ import game.constructs.condition.NegatedCondition
 import game.constructs.condition.TerminalConditional
 import game.constructs.condition.functions.GameFunction
 import game.constructs.condition.result.EndGameResult
+import game.constructs.pieces.query.InARow
+import game.constructs.pieces.query.Queries
+import game.constructs.pieces.query.Query
 import game.constructs.player.Players
 import game.constructs.pieces.Piece
 import game.constructs.pieces.Move
@@ -37,21 +40,21 @@ class GenerateGameMain
 	{
 		def board = new SquareGrid(4, true)
 		def end = []
-		end.add(new TerminalConditional(GameFunction.N_inARow([3]), EndGameResult.Win))
-		end.add(new TerminalConditional(new NegatedCondition(GameFunction.Open), EndGameResult.Draw))
+		end.add(new TerminalConditional(new InARow(4), EndGameResult.Win))
+		end.add(new TerminalConditional(new NegatedCondition(Queries.IsOpen.query), EndGameResult.Draw))
 		
 		Move mark = new Move([[],[new IsOpen()]],[new Mark(1)])
 		Piece basic = new Piece([new StartingPosition(0)],[mark])
 
 		Move move = new Move([[new PieceOrigin()],[new IsOpen(), new IsNeighbor(-1)],[new IsEnemy()]],[new MoveToSelected(1), new Capture(2)]);
 		Piece starter = new Piece([new StartingPosition(StartingPosition.PositionType.Center,1)],[move]);
-		game.Game testgame = new game.Game(new Players(["Red", "Black", "Blue"]), board, TurnOrder.Alternating, [basic,starter], end)
+		Game testgame = new Game(new Players(["Red", "Black", "Blue"]), board, TurnOrder.Alternating, [basic,starter], end)
 		
 		
 		def hagdl= testgame.convertToJSON()
 		println hagdl
 		
-		testgame = Game.fromJSON(hagdl)
+		//testgame = Game.fromJSON(hagdl)
 		GDLDescription gdl = testgame.convertToGDL()
 		
 		println gdl.toString()

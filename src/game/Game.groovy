@@ -2,9 +2,11 @@ package game
 
 import game.constructs.condition.Conditional
 import game.constructs.pieces.Move
+import game.constructs.pieces.Pieces
 import game.constructs.pieces.StartingPosition
 import game.constructs.pieces.action.Mark
 import game.constructs.pieces.query.IsOpen
+import game.constructs.player.Player
 import game.constructs.player.Players
 import game.constructs.TurnOrder
 import game.constructs.board.Board
@@ -42,7 +44,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 	private Players players
 	private Board board
 	private TurnOrder turnOrder
-	private List<Piece> pieces
+	private Pieces pieces
 	private EndGameConditions end
 	private double score=0
 	
@@ -67,10 +69,10 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		{
 			Move mark = new Move([[], [new IsOpen()]], [new Mark(1)])
 			Piece basic = new Piece([new StartingPosition(0)], [mark])
-			this.pieces = [basic]
+			this.pieces = new Pieces([basic])
 		}
 		else
-			this.pieces = pieces
+			this.pieces = new Pieces(pieces)
 		this.end = new EndGameConditions(end, board)
 		namePieces()
 	}
@@ -81,9 +83,9 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		this.board = board
 		this.turnOrder = turnOrder
 		if (pieces == null || pieces == [])
-			this.pieces = [NamedPieces.DEFAULT_PIECE]
+			this.pieces = new Pieces([NamedPieces.DEFAULT_PIECE])
 		else
-			this.pieces = pieces
+			this.pieces = new Pieces(pieces)
 		this.end = new EndGameConditions(end, board)
 		this.score=score
 		namePieces()
@@ -112,10 +114,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 	
 	void namePieces()
 	{
-	    for (int i=0; i<pieces.size(); i++)
-		{
-		    this.pieces[i].setName('p'+i+this.pieces[i].getName())
-		}
+	    this.pieces.namePieces()
 	}
 	
 	int getNumPlayers()
@@ -148,13 +147,14 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 	{
 		List<GDLClause> clauses = []
 		clauses += players.GDLClauses
-		clauses += board.getGDLClauses(pieces,players)
+		clauses += board.getGDLClauses(pieces.pieces, players)
 		clauses += turnOrder.GDLClauses
 		Map<String,GDLClause> globalRules= new HashMap<String,GDLClause>() //This is to prevent duplications of rules
 		for (Piece p : pieces)
 		{
 			clauses += p.getGDLClauses(globalRules,board)
 		}
+		end.setGlobalRules(globalRules)
 		globalRules.each { name, rule ->
 		    clauses += rule
 		}
@@ -237,7 +237,8 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 	@Override
 	List<Gene> getGenes()
 	{
-		return [players, board]
+		List<Gene> result = [players, board, pieces]
+		return result
 	}
 
 	@Override
@@ -247,7 +248,14 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		result += "Players: " + players.toString() + "\n"
 		result += "Board: " + board.toString() + "\n"
 		result += "TurnOrder: " + turnOrder.toString() + "\n"
-		result += "Pieces: " + pieces.toString() + "\n"
+		result += "Pieces: \n"
+
+		// TODO: add Pieces class
+
+		for (Piece p : pieces)
+		{
+			result += "\t" + p.toString() + "\n"
+		}
 		result += "End:\n"
 		for (Conditional c : end.conditionals)
 		{
@@ -290,8 +298,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
         ret+=players.getNumParams();
         ret+=board.getNumParams();
         ret+=turnOrder.getNumParams();
-        for (Piece p : pieces)
-            ret+=p.getNumParams();
+		ret+=pieces.getNumParams();
         ret+=end.getNumParams();
         return ret
     }
@@ -299,48 +306,45 @@ class Game implements Evolvable, GDLConvertable, FineTunable
     @Override
     void changeParam(int param, int amount)
     {
-        int sofar=param
-        if (sofar-players.getNumParams()<0)
-        {
-            players.changeParam(sofar,amount)
-            return
-        }
-        else
-            sofar-=players.getNumParams()
-        
-        if (sofar-board.getNumParams()<0)
-        {
-            board.changeParam(sofar,amount)
-            return
-        }
-        else
-            sofar-=board.getNumParams()
-            
-        if (sofar-turnOrder.getNumParams()<0)
-        {
-            turnOrder.changeParam(sofar,amount)
-            return
-        }
-        else
-            sofar-=turnOrder.getNumParams()
-        
-        for (Piece p : pieces)
-        {
-            if (sofar-p.getNumParams()<0)
-            {
-                p.changeParam(sofar,amount)
-                return
-            }
-            else
-                sofar-=p.getNumParams()
-        }
-        
-        if (sofar-end.getNumParams()<0)
-        {
-            end.changeParam(sofar,amount)
-            return
-        }
-        else
-            sofar-=end.getNumParams()
+		int i = 0
+		// Players
+		if (param >= i+players.numParams)
+			i+= players.numParams
+		else
+		{
+			players.changeParam(param-i, amount)
+			return
+		}
+		// Board
+		if (param >= i+board.numParams)
+			i+= board.numParams
+		else
+		{
+			board.changeParam(param-i, amount)
+			return
+		}
+		// Turn Order
+		if (param >= i+turnOrder.numParams)
+			i+= turnOrder.numParams
+		else
+		{
+			turnOrder.changeParam(param-i, amount)
+			return
+		}
+		// Pieces
+		if (param >= i+pieces.numParams)
+			i+= pieces.numParams
+		else
+		{
+			pieces.changeParam(param-i, amount)
+			return
+		}
+		// End
+		if (param >= i+end.numParams)
+			i+= end.numParams
+		else
+		{
+			end.changeParam(param-i, amount)
+		}
     }
 }

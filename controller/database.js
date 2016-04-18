@@ -196,6 +196,7 @@ module.exports =  function() {
                             shortFineTuneLimit:3,
                             shortFineTuneThresh:0.0,
                             fineTuneFamineLimit:7,
+                            fineTuneTotalLimit:30,
                             
                             //Instrinsic eval
                             idealNumPlayers:2,

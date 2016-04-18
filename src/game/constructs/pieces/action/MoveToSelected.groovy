@@ -46,6 +46,12 @@ class MoveToSelected implements Action
     {
         
     }
+
+    @Override
+    String toString()
+    {
+        return "Move(" + Integer.toString(n) + ")"
+    }
     
     @Override
     String convertToJSON()

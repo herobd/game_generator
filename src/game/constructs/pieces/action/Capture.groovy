@@ -52,6 +52,12 @@ class Capture implements Action
     {
         return '{"action":"Capture", "parameter":'+n+'}'
     }
+
+    @Override
+    String toString()
+    {
+        return "Capture(" + Integer.toString(n) + ")"
+    }
     
     //@Override
     static Action fromJSON(def parsed)
