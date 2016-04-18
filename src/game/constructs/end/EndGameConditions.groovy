@@ -354,7 +354,24 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
 		{
 			result.addAll(c.possibleMutations)
 		}
+		result.add(mutationMethod("addCondition"))
+		result.add(mutationMethod("removeCondition"))
 		return result
+	}
+
+	void addCondition()
+	{
+		def cond = new TerminalConditional()
+		this.conditions.add(cond)
+	}
+
+	void removeCondition()
+	{
+		if (this.conditions.size() > 1)
+		{
+			int idx = RANDOM.nextInt(this.conditions.size())
+			this.conditions.removeAt(idx)
+		}
 	}
     
     String convertToJSON()
