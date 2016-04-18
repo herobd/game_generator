@@ -4,6 +4,7 @@ import game.constructs.board.Board
 import game.constructs.board.grid.Increment
 import game.constructs.board.grid.Index
 import game.constructs.board.grid.SquareGrid
+import game.constructs.condition.functions.Function
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.dynamic.DynamicComponentsClause
 import game.gdl.statement.GameToken
@@ -162,5 +163,16 @@ class InARow implements Query
 		result += s
 		result += ")\n"
 		return new SimpleStatement(result)
+	}
+
+	@Override
+	Collection<Function> getFunctions() {
+		return []
+	}
+
+	@Override
+	def getGDL_Signature() {
+		//TODO
+		return null
 	}
 }

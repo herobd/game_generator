@@ -2,6 +2,7 @@ package game.constructs.pieces.query
 
 
 import game.constructs.board.Board
+import game.constructs.condition.functions.Function
 import game.constructs.pieces.query.Query
 import game.gdl.clauses.GDLClause
 
@@ -33,4 +34,17 @@ class IsOpen implements Query
     {
         
     }
+
+	@Override
+	Collection<Function> getFunctions()
+	{
+		return []
+	}
+
+	@Override
+	def getGDL_Signature()
+	{
+		// TODO
+		return null
+	}
 }
