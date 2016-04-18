@@ -9,6 +9,7 @@ import game.constructs.condition.NegatedCondition
 import game.constructs.condition.TerminalConditional
 import game.constructs.condition.functions.GameFunction
 import game.constructs.condition.result.EndGameResult
+import game.constructs.pieces.query.AnyEnemies
 import game.constructs.pieces.query.InARow
 import game.constructs.pieces.query.Queries
 import game.constructs.pieces.query.Query
@@ -41,7 +42,8 @@ class GenerateGameMain
 		def board = new SquareGrid(4, true)
 		def end = []
 		end.add(new TerminalConditional(new InARow(4), EndGameResult.Win))
-		end.add(new TerminalConditional(new NegatedCondition(Queries.IsOpen.query), EndGameResult.Draw))
+		end.add(new TerminalConditional(new NegatedCondition(Queries.IsOpen.query), EndGameResult.Win))
+		end.add(new TerminalConditional(new AnyEnemies(), EndGameResult.Win))
 		
 		Move mark = new Move([[],[new IsOpen()]],[new Mark(1)])
 		Piece basic = new Piece([new StartingPosition(0)],[mark])
