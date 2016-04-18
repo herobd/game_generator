@@ -13,7 +13,8 @@ enum Queries
 	IsEnemy,
 	IsNeighbor,
 	IsOpen,
-	InARow
+	InARow,
+	AnyEnemies
 
 	private static final Random RANDOM = new Random()
 	private static final List<Queries> VALUES = Collections.unmodifiableList(Arrays.asList(values())) as List<Queries>
@@ -31,6 +32,8 @@ enum Queries
 				return new IsOpen()
 			case InARow:
 				return new InARow(3)
+			case AnyEnemies:
+				return new AnyEnemies()
 			default:
 				return new IsOpen()
 		}
@@ -42,6 +45,7 @@ enum Queries
 		{
 			case IsOpen:
 			case InARow:
+			case AnyEnemies:
 				return true
 			default:
 				return false

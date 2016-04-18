@@ -2,7 +2,11 @@ package game.constructs.condition
 
 import game.constructs.condition.functions.Function
 import game.constructs.condition.result.PostCondition
+import game.constructs.pieces.Piece
+import generator.CrossOver
 import generator.FineTunable
+import generator.Gene
+import generator.Mutation
 
 
 /**
@@ -10,7 +14,7 @@ import generator.FineTunable
  *
  * A class for representing game state conditionals, that consist of a condition (antecedent), and a result (consequent)
  */
-class Conditional implements FineTunable
+class Conditional implements FineTunable, Gene
 {
 	private PreCondition antecedent
 	private PostCondition consequent
@@ -126,4 +130,30 @@ class Conditional implements FineTunable
         //    sofar-=consequent.getNumParams()
             
     }
+
+	@Override
+	List<CrossOver> getPossibleCrossOvers(Gene other)
+	{
+		other = other as Conditional
+		def result = []
+		def c = {Conditional cc -> this.antecedent = cc.antecedent}
+		c.curry(other)
+		result.add(c)
+
+		c = {Conditional cc -> this.consequent = cc.consequent}
+		c.curry(other)
+		result.add(c)
+
+		return result
+	}
+
+	@Override
+	List<Mutation> getPossibleMutations()
+	{
+		def result = parameterMutations
+
+
+
+		return result
+	}
 }

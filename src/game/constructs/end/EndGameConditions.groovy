@@ -15,14 +15,18 @@ import game.gdl.clauses.terminal.TerminalClause
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.statement.GameToken
+import generator.CrossOver
 import generator.FineTunable
+import generator.Gene
+import generator.Mutation
+import generator.NestedCrossOver
 
 /**
  * @author Lawrence Thatcher
  *
  * A class used to store and represent the ending conditions for a game.
  */
-class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause, FineTunable
+class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause, FineTunable, Gene
 {
 	private exclusiveWin = true
 	private List<TerminalConditional> conditions
@@ -314,4 +318,27 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
                 sofar-=cond.getNumParams()
         }
     }
+
+	@Override
+	List<CrossOver> getPossibleCrossOvers(Gene other)
+	{
+		other = other as EndGameConditions
+		def result = []
+		for (Conditional c : supportedConditionals)
+		{
+			result.add(new NestedCrossOver(this.supportedConditionals, other.supportedConditionals))
+		}
+		return result
+	}
+
+	@Override
+	List<Mutation> getPossibleMutations()
+	{
+		def result = parameterMutations
+		for (Conditional c : supportedConditionals)
+		{
+			result.addAll(c.possibleMutations)
+		}
+		return result
+	}
 }
