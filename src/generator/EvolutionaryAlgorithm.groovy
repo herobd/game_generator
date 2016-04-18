@@ -49,12 +49,13 @@ class EvolutionaryAlgorithm
 		def players = new Players(["White", "Black", "Salmon", "Pink"])
 		def board = new SquareGrid(3, true)
 		def end = []
-		end.add(new TerminalConditional(GameFunction.N_inARow(3), EndGameResult.Win))
+		end.add(new TerminalConditional(GameFunction.N_inARow([3]), EndGameResult.Win))
 		end.add(new TerminalConditional(new NegatedCondition(GameFunction.Open), EndGameResult.Draw))
 		Game p1 = new Game(players, board, TurnOrder.Alternating, [], end)
 
 		players = new Players(["Red", "Orange", "Green", "Yellow", "Gold"])
-		Game p2 = new Game(players, board, TurnOrder.Alternating, [], end)
+		def board2 = new SquareGrid(5, false)
+		Game p2 = new Game(players, board2, TurnOrder.Alternating, [], end)
         
         def controllerAddress="ironsides.cs.byu.edu:8080"
         if (args.length > 0)

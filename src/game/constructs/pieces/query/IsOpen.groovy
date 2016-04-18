@@ -47,4 +47,22 @@ class IsOpen implements Query
 		// TODO
 		return null
 	}
+
+    @Override
+    String toString()
+    {
+        return "IsOpen"
+    }
+    
+    @Override
+    String convertToJSON()
+    {
+        return '{"query":"IsOpen"}'
+    }
+    
+    //@Override
+    static Query fromJSON(def parsed)
+    {
+        return new IsOpen()
+    }
 }

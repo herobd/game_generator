@@ -1,5 +1,8 @@
 package game.constructs.pieces
 
+import game.constructs.pieces.action.Actions
+import game.constructs.pieces.query.PieceOrigin
+import game.constructs.pieces.query.Queries
 import game.gdl.clauses.GDLClause
 //import game.gdl.clauses.HasClausesWithDep
 import game.gdl.clauses.base.BaseClause
@@ -13,18 +16,21 @@ import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.statement.GameToken
 import game.constructs.board.Board
+import generator.CrossOver
 import generator.FineTunable
 import game.constructs.pieces.action.Action
 import game.constructs.pieces.query.Query
+import generator.Gene
+import generator.Mutation
 
 import java.util.HashSet
 
 /**
- * @author Lawrence Thatcher
+ * @author Brain
  *
  * Contains the GDL descriptions of a legal move that can be performed by a piece
  */
-class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalClause, HasClausesWithDep
+class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasLegalClause, HasClausesWithDep
 {
 	/*private def inputs = []
 	private DynamicComponentsClause dynComp
@@ -57,13 +63,48 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 	
 	Move()
 	{
-	
+		// --Preconditions--
+
+		//set whether has piece-origin or not
+		this.preconditions = []
+		if (RANDOM.nextBoolean())
+			preconditions.add([new PieceOrigin()])
+		else
+			preconditions.add([])
+
+		//add sections
+		for (int i = 0; i < rand_positive(); i++)
+			addPreconditionSection()
+
+
+		// --Postconditions--
+		for (int i = 0; i < rand_positive(); i++)
+			addPostCondition()
 	}
 	
 	Move(List<List<Query>> preconditions, List<Action> postconditions)
 	{
 	    this.preconditions = preconditions
 	    this.postconditions = postconditions
+	}
+	
+	static Move fromJSON(def parsed)
+	{
+	    def pre = []
+	    parsed.preconditions.each { p ->
+	        def level=[]
+	        p.each { q ->
+	            //level.push(grailsApplication.getArtefact("Domain",q.query)?.getClazz()?.fromJSON(q)) //aka, magic
+	            level.push(Class.forName('game.constructs.pieces.query.'+q.query).fromJSON(q))
+            }
+            pre.push(level)
+        }
+        def post = []
+        parsed.postconditions.each {p ->
+            //post.push(grailsApplication.getArtefact("Domain",p.action)?.getClazz()?.fromJSON(p)) //aka, magic
+            post.push(Class.forName('game.constructs.pieces.action.'+p.action).fromJSON(p))
+        }
+        return new Move(pre,post)
 	}
 
     String getId() 
@@ -256,6 +297,35 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
 		return this.legal
 	}*/
 
+	List<List<Query>> getPreconditions()
+	{
+		return preconditions
+	}
+
+	List<Action> getPostconditions()
+	{
+		return postconditions
+	}
+
+	void addPreconditionSection()
+	{
+		int idx = RANDOM.nextInt(preconditions.size()) + 1
+
+		def section = []
+		for (int i = 0; i < rand_positive(); i++)
+		{
+			Query q = Queries.getRandomQuery(preconditions, idx)
+			section.add(q)
+		}
+		preconditions.add(idx, section)
+	}
+
+	void addPostCondition()
+	{
+		Action a = Actions.getRandomAction(preconditions)
+		postconditions.add(a)
+	}
+
     int complexityCount()
     {
         int ret = 1
@@ -268,6 +338,27 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
             ret+=a.complexityCount()
         return ret
     }
+
+	/**
+	 * Provides a list of valid sections in a pre-conditions clause
+	 * @return a list of indexes of each non-empty section
+	 */
+	static List<Integer> sections(List<List<Query>> preconditions)
+	{
+		def result = []
+		for (int n = 0; n < preconditions.size(); n++)
+		{
+			if (preconditions[n].size() > 0)
+				result.add(n)
+		}
+		return result
+	}
+
+	int rand_positive()
+	{
+		def a = RANDOM.nextGaussian()
+		return Math.abs(a.intValue())+1
+	}
     
     @Override
     int getNumParams()
@@ -310,5 +401,52 @@ class Move implements  FineTunable //HasDynCompClause, HasBaseClause, HasLegalCl
             sofar-=a.getNumParams()
         }
         
+    }
+
+	@Override
+	List<Mutation> getPossibleMutations()
+	{
+		def result = parameterMutations
+		result += mutationMethod("addPreconditionSection")
+		result += mutationMethod("addPostCondition")
+		return result
+	}
+
+	@Override
+	List<CrossOver> getPossibleCrossOvers(Gene other)
+	{
+		return []
+	}
+
+	@Override
+	String toString()
+	{
+		String result = "{Pre:"
+		result += preconditions.toString()
+		result += " Post:"
+		result += postconditions.toString()
+		result += "}"
+		return result
+	}
+
+	String convertToJSON()
+    {
+        def test=0
+        List< String > acs = new ArrayList<String>()
+        for (Action a : postconditions)
+            acs.push(a.convertToJSON())
+        
+        List<String> qqs = []
+        for (List<Query> qls : preconditions)
+        {
+            
+            List<String> qs = []
+            for (Query q : qls)
+                qs.push(q.convertToJSON())
+            
+            qqs.push('['+qs.join(', ')+']')
+        }
+        
+        return '{"preconditions": ['+qqs.join(', ')+'], "postconditions": ['+acs.join(', ')+']}'
     }
 }

@@ -166,13 +166,21 @@ class InARow implements Query
 	}
 
 	@Override
-	Collection<Function> getFunctions() {
+	Collection<Function> getFunctions()
+	{
 		return []
 	}
 
 	@Override
-	def getGDL_Signature() {
+	def getGDL_Signature()
+	{
 		//TODO
 		return null
+	}
+
+	@Override
+	String convertToJSON()
+	{
+		return '{"query":"InARow", "num":'+Integer.toString(num)+', "nbors":"'+nbors+'", "i_nbors":"'+i_nbors+'"}'
 	}
 }

@@ -5,23 +5,27 @@ import game.gdl.clauses.GDLClause
 import game.gdl.clauses.base.BaseClause
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.GameToken
+import generator.CrossOver
 import generator.FineTunable
 import game.constructs.board.Board
 import game.constructs.pieces.StartingPosition
+import generator.Gene
+import generator.Mutation
+import generator.NestedCrossOver
 
 /**
  * @author Lawrence Thatcher
  *
  * An abstract representation of a game piece.
  */
-class Piece implements  FineTunable //HasClausesWithDep
+class Piece implements  FineTunable, Gene //HasClausesWithDep
 {
 	private String name = ""	//perhaps change to type later..?
 	private List<StartingPosition> startPositions
 	
 	//private MoveType moveType
 	private List<Move> moves
-	private List<Piece> children =[]
+	//private List<Piece> children =[]
 
 	Piece(String name, List<StartingPosition> startPositions, List<Move> moves)
 	{
@@ -56,6 +60,26 @@ class Piece implements  FineTunable //HasClausesWithDep
 		this.startPositions = [new StartingPosition()]
 		this.moves = [move]
 		nameMoves()
+	}
+
+	Piece()
+	{
+		this.startPositions = [new StartingPosition()]
+		this.moves = [new Move()]
+		nameMoves()
+	}
+	
+	static Piece fromJSON(def parsed)
+	{
+	    def startPositions =[]
+	    parsed.startPositions.each { sp ->
+	        startPositions.push(StartingPosition.fromJSON(sp))
+        }
+        def moves =[]
+	    parsed.moves.each { m ->
+	        moves.push(Move.fromJSON(m))
+        }
+        return new Piece(startPositions,moves)
 	}
 	
 	private void nameMoves()
@@ -145,50 +169,169 @@ class Piece implements  FineTunable //HasClausesWithDep
     @Override
     int getNumParams()
 	{
-	    
-	    int ret=startPositions.getNumParams()
-	    //TODO, initail position?
-	    
+		int ret = 0
+		for (StartingPosition sp : startPositions)
+		{
+			ret += sp.getNumParams()
+		}
         for (Move move : moves)
         {
             ret += move.getNumParams()
         }
-        for (StartingPosition sp : startPositions)
-        {
-            ret += sp.getNumParams()
-        }
+
         return ret
 	}
 	
 	@Override
     void changeParam(int param, int amount)
     {
-        int sofar=param
-        if (sofar-startPositions.getNumParams()<0)
-        {
-            startPositions.changeParam(sofar,amount)
-            return
-        }
-        sofar-=startPositions.getNumParams()
-        for (Move move : moves)
-        {
-            if (sofar-move.getNumParams()<0)
-            {
-                move.changeParam(sofar,amount)
-                return
-            }
-            else
-                sofar-=move.getNumParams()
-        }
-        for (StartingPosition sp : startPositions)
-        {
-            if (sofar-sp.getNumParams()<0)
-            {
-                sp.changeParam(sofar,amount)
-                return
-            }
-            else
-                sofar-=sp.getNumParams()
-        }
+		int i = 0
+		for (StartingPosition sp : startPositions)
+		{
+			if (param >= i+sp.numParams)
+			{
+				i += sp.numParams
+			}
+			else //within range
+			{
+				int idx = param - i
+				sp.changeParam(idx, amount)
+			}
+		}
+		for (Move m : moves)
+		{
+			if (param >= i+m.numParams)
+			{
+				i += m.numParams
+			}
+			else //within range
+			{
+				int idx = param - i
+				m.changeParam(idx, amount)
+			}
+		}
+
+//        int sofar=param
+//        if (sofar-startPositions.getNumParams()<0)
+//        {
+//            startPositions.changeParam(sofar,amount)
+//            return
+//        }
+//        sofar-=startPositions.getNumParams()
+//        for (Move move : moves)
+//        {
+//            if (sofar-move.getNumParams()<0)
+//            {
+//                move.changeParam(sofar,amount)
+//                return
+//            }
+//            else
+//                sofar-=move.getNumParams()
+//        }
+//        for (StartingPosition sp : startPositions)
+//        {
+//            if (sofar-sp.getNumParams()<0)
+//            {
+//                sp.changeParam(sofar,amount)
+//                return
+//            }
+//            else
+//                sofar-=sp.getNumParams()
+//        }
+    }
+
+	def addRandomStartPosition()
+	{
+		startPositions.add(new StartingPosition())
+	}
+
+	def addMove()
+	{
+		moves.add(new Move())
+	}
+
+	def removeRandomStartPosition()
+	{
+		if (startPositions.size() > 1)
+		{
+			int idx = RANDOM.nextInt(startPositions.size())
+			startPositions.removeAt(idx)
+		}
+	}
+
+	@Override
+	List<Mutation> getPossibleMutations()
+	{
+		def result = getParameterMutations()
+
+		for (StartingPosition sp : startPositions)
+			result.addAll(sp.possibleMutations)
+		for (Move m : moves)
+			result.addAll(m.possibleMutations)
+
+		if (startPositions.size() > 1)
+			result.add(mutationMethod("removeRandomStartPosition"))
+		result.add(mutationMethod("addRandomStartPosition"))
+		result.add(mutationMethod("addMove"))
+		return result
+	}
+
+	@Override
+	List<CrossOver> getPossibleCrossOvers(Gene other)
+	{
+		other = other as Piece
+		List<CrossOver> result = []
+		// Start-Position Individual Cross Overs
+		result.add(new NestedCrossOver(this.startPositions, other.startPositions))
+		// All Start-Position Cross Over
+		def c = {Piece p -> this.startPositions = p.startPositions}
+		c.curry(other)
+		result.add(new CrossOver(c))
+		// All Moves Cross Over
+		c = {Piece p -> this.moves = p.moves}
+		c.curry(other)
+		result.add(new CrossOver(c))
+
+		return result
+	}
+
+	@Override
+	String toString()
+	{
+		// Starting Positions
+		String result = "Starting Positions: ["
+		for (def sp : startPositions)
+		{
+			result += sp.toString() + ","
+		}
+		result = result.substring(0, result.length()-1)
+		result += "] "
+		// Moves
+		result += "Moves: ["
+		for (def m : moves)
+		{
+			result += m.toString() + ","
+		}
+		result = result.substring(0, result.length()-1)
+		result += "]"
+
+		return result
+	}
+
+	String convertToJSON()
+    {
+        
+        List<String> ms = []
+		for (Move move : moves)
+		{
+			ms.push(move.convertToJSON())
+		}
+		List<String> ss = []
+		for (StartingPosition s : startPositions)
+		{
+			ss.push(s.convertToJSON())
+		}
+		String ret='{"moves": ['+ms.join(', ')+'], "startPositions": ['+ss.join(', ')+'] }'
+		return ret
     }
 }

@@ -7,13 +7,16 @@ import game.gdl.clauses.GDLClause
 import generator.FineTunable
 import game.constructs.pieces.Piece
 import game.constructs.player.Players
+import generator.Gene
+
+
 
 /**
  * @author Lawrence Thatcher
  *
  * Stores information about the game board.
  */
-abstract class Board implements  Supports, FineTunable //HasClausesWithDep
+abstract class Board implements  Supports, FineTunable, Gene //HasClausesWithDep
 {
 	/**
 	 * Retrieves the GDL-description and implementation of a particular function
@@ -54,6 +57,8 @@ abstract class Board implements  Supports, FineTunable //HasClausesWithDep
 			return false
 		}
 	}
+	
+	abstract String convertToJSON()
 	
 	abstract String getGeneralSpaceGDL()
 	abstract String getGeneralSpaceGDLIndex(int i)

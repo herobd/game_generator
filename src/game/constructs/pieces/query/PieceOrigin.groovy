@@ -50,4 +50,22 @@ class PieceOrigin implements Query
 		// TODO
 		return null
 	}
+
+    @Override
+    String toString()
+    {
+        return "PieceOrigin"
+    }
+    
+    @Override
+    String convertToJSON()
+    {
+        return '{"query":"PieceOrigin"}'
+    }
+    
+    //@Override
+    static Query fromJSON(def parsed)
+    {
+        return new PieceOrigin()
+    }
 }

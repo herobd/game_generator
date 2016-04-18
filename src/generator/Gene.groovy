@@ -6,8 +6,8 @@ package generator
  * Interface that game constructs implement in order to facilitate the generator evolutionary process.
  */
 trait Gene {
-	private final static double DEFAULT_MUTATION_PROBABILITY = 0.1
-	private final static double DEFAULT_CROSS_OVER_PROBABILITY = 0.1
+	private final static double DEFAULT_MUTATION_PROBABILITY = 0.5
+	private final static double DEFAULT_CROSS_OVER_PROBABILITY = 0.5
 	private final static Random RANDOM = new Random()
 
 	/**
@@ -15,7 +15,10 @@ trait Gene {
 	 * representing the possible mutations available in the implementing class.
 	 * @return a list of Mutation objects
 	 */
-	abstract List<Mutation> getPossibleMutations()
+	List<Mutation> getPossibleMutations()
+	{
+		return parameterMutations
+	}
 
 	/**
 	 * Should return a list of callable CrossOver objects,
@@ -112,5 +115,19 @@ trait Gene {
 	boolean compatible(Gene other)
 	{
 		return (other.class == this.class)
+	}
+
+	List<Mutation> getParameterMutations()
+	{
+		def result = []
+		if (this instanceof FineTunable)
+		{
+			def me = this as FineTunable
+			for (int i = 0; i < me.numParams; i++)
+			{
+				result.add(new ParameterMutation(this, i))
+			}
+		}
+		return result
 	}
 }

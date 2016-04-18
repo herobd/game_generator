@@ -364,7 +364,7 @@ var ControllerApp = function(host,port) {
                 //self.gameCord.addPlayer('heurisitc','localhost',9148,'h');
                 
                 //THESE ARE RUNNING
-                self.gameCord.addPlayer('PAST','normandy',59834,'past');
+                /*self.gameCord.addPlayer('PAST','normandy',59834,'past');
                 self.gameCord.addPlayer('UCT','normandy',59835,'uct');
                 self.gameCord.addPlayer('MAST','normandy',59836,'mast');
                 self.gameCord.addPlayer('TO-MAST','normandy',59837,'to-mast');
@@ -372,7 +372,10 @@ var ControllerApp = function(host,port) {
                 self.gameCord.addPlayer('PAST','normandy',59838,'past2');
                 self.gameCord.addPlayer('UCT','normandy',59839,'uct2');
                 self.gameCord.addPlayer('MAST','normandy',59840,'mast2');
-                self.gameCord.addPlayer('TO-MAST','normandy',59841,'to-mast2');
+                self.gameCord.addPlayer('TO-MAST','normandy',59841,'to-mast2');*/
+                
+                //FOR LOCAL
+                self.gameCord.addPlayer('montecarlo','localhost',9147,'m');
                 
                 ////////////////////
                 

@@ -20,6 +20,14 @@ class IsNeighbor implements Query
             this.neighborOf=neighborOf
     }
     
+    IsNeighbor(int neighborOf, boolean nbors, boolean i_nbors)
+    {
+        if (neighborOf<0)
+            this.neighborOf=neighborOf
+        this.nbors=nbors
+        this.i_nbors=i_nbors
+    }
+    
     @Override
     GString toGDL(Board board,String piece_id, int n)
     {
@@ -62,18 +70,18 @@ class IsNeighbor implements Query
     GDLClause getNborRuleSq()
 	{
 	    return new DynamicComponentsClause( [
-	        new SimpleStatement("(<= (nbor ?n ?m ?othern ?otherm)\n\
+	        new SimpleStatement("(<= (nbor ?n ?m ?othern ?m)\n\
 	            \t(index ?n) (index ?m) (index ?otherm) (index ?othern) \n\
-	            \t(succ ?n ?othern) (?m ?otherm))"),
-            new SimpleStatement("(<= (nbor ?n ?m ?othern ?otherm)\n\
+	            \t(succ ?n ?othern) )"),//(?m ?otherm)
+            new SimpleStatement("(<= (nbor ?n ?m ?othern ?m)\n\
                 \t(index ?n) (index ?m) (index ?otherm) (index ?othern) \n\
-	            \t(succ ?othern ?n) (?m ?otherm))"),
-            new SimpleStatement("(<= (nbor ?n ?m ?othern ?otherm)\n\
+	            \t(succ ?othern ?n) )"),//(?m ?otherm)
+            new SimpleStatement("(<= (nbor ?n ?m ?n ?otherm)\n\
                 \t(index ?n) (index ?m) (index ?otherm) (index ?othern) \n\
-	            \t(?n ?othern) (succ ?m ?otherm))"),
-            new SimpleStatement("(<= (nbor ?n ?m ?othern ?otherm)\n\
+	            \t (succ ?m ?otherm))"),//(?n ?othern)
+            new SimpleStatement("(<= (nbor ?n ?m ?n ?otherm)\n\
                 \t(index ?n) (index ?m) (index ?otherm) (index ?othern) \n\
-	            \t(?n ?othern) (succ ?otherm ?m))")
+	            \t (succ ?otherm ?m))")//(?n ?othern)
             ] );
             
 	}
@@ -126,4 +134,29 @@ class IsNeighbor implements Query
 		// TODO
 		return null
 	}
+
+    @Override
+    String toString()
+    {
+        String result = "IsNeighbor("
+        result += Integer.toString(this.neighborOf)
+        result += ")"
+        if (nbors)
+            result += " nbors"
+        if (i_nbors)
+            result += " i_nbors"
+        return result
+    }
+    
+    @Override
+    String convertToJSON()
+    {
+        return '{"query":"IsNeighbor", "neighborOf":'+neighborOf+', "nbors":"'+nbors+'", "i_nbors":"'+i_nbors+'"}'
+    }
+    
+    //@Override
+    static Query fromJSON(def parsed)
+    {
+        return new IsNeighbor(parsed.neighborOf, parsed.nbors=='true', parsed.i_nbors=='true')
+    }
 }
