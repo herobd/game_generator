@@ -1,8 +1,12 @@
 package generator
 
-import game.Game;
-import org.ggp.base.validator.ValidatorException;
-import org.ggp.base.validator.StaticValidator;
+//import game.Game;
+import org.ggp.base.validator.ValidatorException
+import org.ggp.base.validator.ValidatorWarning
+import org.ggp.base.validator.StaticValidator
+import org.ggp.base.validator.BasesInputsValidator
+import org.ggp.base.validator.OPNFValidator
+import org.ggp.base.validator.SimulationValidator
 
 
 /**
@@ -24,13 +28,19 @@ class InstrinsicEvaluator
         this.params=params
     }
 	
-    double evaluate(Game game)
+    double evaluate(game.Game game)
     {
-        StaticValidator v = new StaticValidator();
+        StaticValidator v = new StaticValidator()
+        BasesInputsValidator v2 = new BasesInputsValidator(2000)
+        SimulationValidator v4 = new SimulationValidator(100,4)
         def invalid=0.0
+        def gdl = game.convertToGDL().toString();
+        org.ggp.base.util.game.Game theGame = org.ggp.base.util.game.Game.createEphemeralGame(org.ggp.base.util.game.Game.preprocessRulesheet(gdl));
         try
         {
-            v.checkValidity_string(game.convertToGDL().toString())
+            v.checkValidity_string(gdl)
+            v2.checkValidity(theGame)
+            v4.checkValidity(theGame)
             //println game.getId()+' is valid!'
         }
         catch (ValidatorException e)

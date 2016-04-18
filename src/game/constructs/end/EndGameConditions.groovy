@@ -300,4 +300,9 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
                 sofar-=cond.getNumParams()
         }
     }
+    
+    String convertToJSON()
+    {
+        
+    }
 }
