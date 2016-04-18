@@ -328,8 +328,11 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
 		    preconditions.add(idx, section)
 	    }
 	    else
-	    {
-	        preconditions.add(idx, [new PieceOrigin()])
+	    {   
+	        if (preconditions.size()==0)
+	            preconditions.add(0, [new PieceOrigin()])
+            else
+                preconditions[0].push(new PieceOrigin())
 	    }
 		
 	}

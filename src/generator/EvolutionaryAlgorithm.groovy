@@ -46,16 +46,14 @@ class EvolutionaryAlgorithm
 	{
         
 		//For now using a hard-coded initial population...
-		def players = new Players(["White", "Black", "Salmon", "Pink"])
+		def players = new Players(["White", "Black"])
 		def board = new SquareGrid(3, true)
 		def end = []
 		end.add(new TerminalConditional(GameFunction.N_inARow([3]), EndGameResult.Win))
 		end.add(new TerminalConditional(new NegatedCondition(GameFunction.Open), EndGameResult.Draw))
 		Game p1 = new Game(players, board, TurnOrder.Alternating, [], end)
-
-		players = new Players(["Red", "Orange", "Green", "Yellow", "Gold"])
-		def board2 = new SquareGrid(5, false)
-		Game p2 = new Game(players, board2, TurnOrder.Alternating, [], end)
+        p1.setId("tictactoe")
+		
         
         def controllerAddress="ironsides.cs.byu.edu:8080"
         if (args.length > 0)
@@ -63,7 +61,12 @@ class EvolutionaryAlgorithm
 
 		def m = [:]
 		m[p1.id] = p1
-		m[p2.id] = p2
+		for (int i=0; i<200; i++)
+		{
+		    Game randGame = new Game();
+		    randGame.setId("initGame_"+i)
+		    m[randGame.id] = randGame
+		}
 		EvolutionaryAlgorithm algorithm = new EvolutionaryAlgorithm(m, controllerAddress)
 
 		int iters = 50
@@ -78,7 +81,7 @@ class EvolutionaryAlgorithm
 		if (args.length > 3)
 			intrinsicScoreThresh = new Integer(args[3])
 			
-		println "Doing " + Integer.toString(iters) + " iterations."
+		//println "Doing " + Integer.toString(iters) + " iterations."
 
 		algorithm.run(iters,itersTillLongEval,intrinsicScoreThresh)
 
@@ -89,7 +92,7 @@ class EvolutionaryAlgorithm
 	def run(int iterations, int tillLong, double intrinsicScoreThresh)
 	{
 	    def idGen=0
-		for (int i = 0; i < iterations && cont; i++)
+		for (int i = 0; i < iterations || cont; i++)
 		{
 		    for (int j = 0; j < tillLong && cont; j++)
 		    {
@@ -105,7 +108,7 @@ class EvolutionaryAlgorithm
 			    
 			    //christen
 			    //TODO make & set name
-			    p3.setId("testGame_"+(idGen++))
+			    p3.setId("evoGame_"+(idGen++))
 
 			    //Evaluation
 			    // TODO: cull inbreds

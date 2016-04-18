@@ -242,7 +242,7 @@ module.exports =  function() {
                     numOfRuns=1;
                     startclock=9;
                     playclock=3;
-                    maxSteps=100;
+                    maxSteps=90;
                 } else if (gameMeta.testLength==='med' || 
                            gameMeta.testLength==='medium' || 
                            gameMeta.testLength==='m') {
