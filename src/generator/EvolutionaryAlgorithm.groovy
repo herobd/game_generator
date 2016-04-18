@@ -15,6 +15,18 @@ import generator.InstrinsicEvaluator
 
 import game.constructs.condition.functions.Function
 import game.constructs.condition.functions.ParametrizedFunction
+import game.constructs.pieces.query.InARow
+import game.constructs.pieces.query.Queries
+import game.constructs.pieces.action.Mark
+import game.constructs.pieces.action.MoveToSelected
+import game.constructs.pieces.action.Capture
+import game.constructs.pieces.query.IsOpen
+import game.constructs.pieces.query.PieceOrigin
+import game.constructs.pieces.query.IsNeighbor
+import game.constructs.pieces.query.IsEnemy
+import game.constructs.pieces.StartingPosition
+import game.constructs.pieces.Piece
+import game.constructs.pieces.Move
 
 /**
  * A class that does an evolutionary algorithm.
@@ -49,10 +61,22 @@ class EvolutionaryAlgorithm
 		def players = new Players(["White", "Black"])
 		def board = new SquareGrid(3, true)
 		def end = []
-		end.add(new TerminalConditional(GameFunction.N_inARow([3]), EndGameResult.Win))
-		end.add(new TerminalConditional(new NegatedCondition(GameFunction.Open), EndGameResult.Draw))
-		Game p1 = new Game(players, board, TurnOrder.Alternating, [], end)
+		end.add(new TerminalConditional(new InARow(3), EndGameResult.Win))
+		end.add(new TerminalConditional(new NegatedCondition(Queries.IsOpen.query), EndGameResult.Draw))
+		Move mark = new Move([[],[new IsOpen()]],[new Mark(1)])
+		Piece basic = new Piece([new StartingPosition(0)],[mark])
+		Game p1 = new Game(players, board, TurnOrder.Alternating, [basic], end)
         p1.setId("tictactoe")
+        
+        def players2 = new Players(["White", "Black"])
+		def board2 = new SquareGrid(5, true)
+		def end2 = []
+		end2.add(new TerminalConditional(new InARow(4), EndGameResult.Win))
+		end2.add(new TerminalConditional(new NegatedCondition(Queries.IsOpen.query), EndGameResult.Draw))
+		Move move = new Move([[new PieceOrigin()],[new IsOpen(), new IsNeighbor(-1)],[new IsEnemy()]],[new MoveToSelected(1), new Capture(2)]);
+		Piece starter = new Piece([new StartingPosition(StartingPosition.PositionType.Center,2)],[move]);
+		Game p2 = new Game(players2, board2, TurnOrder.Alternating, [basic,starter], end2)
+        p2.setId("starterGame")
 		
         
         def controllerAddress="ironsides.cs.byu.edu:8080"
@@ -61,6 +85,7 @@ class EvolutionaryAlgorithm
 
 		def m = [:]
 		m[p1.id] = p1
+		m[p2.id] = p2
 		for (int i=0; i<200; i++)
 		{
 		    Game randGame = new Game();
@@ -73,7 +98,7 @@ class EvolutionaryAlgorithm
 		if (args.length > 1)
 			iters = new Integer(args[1])
 			
-		int itersTillLongEval = 100
+		int itersTillLongEval = 200
 		if (args.length > 2)
 			itersTillLongEval = new Integer(args[2])
 			
@@ -96,42 +121,55 @@ class EvolutionaryAlgorithm
 		{
 		    for (int j = 0; j < tillLong && cont; j++)
 		    {
-			    //Parent Selection
-			    def p1 = randomMember
-			    def p2 = randomMember
-			    while (p2 == p1)
-				    p2 = randomMember
+		        try
+		        {
+		            //println "making evoGame_"+(idGen++)
+			        //Parent Selection
+			        def p1 = randomMember
+			        def p2 = randomMember
+			        while (p2 == p1)
+				        p2 = randomMember
 
-			    //Cross-Over and Mutation
-			    def p3 = p1.crossOver(p2)
-			    p3.mutate()
-			    
-			    //christen
-			    //TODO make & set name
-			    p3.setId("evoGame_"+(idGen++))
+			        //Cross-Over and Mutation
+			        def p3 = p1.crossOver(p2)
+			        p3.mutate()
+			        
+			        //christen
+			        //TODO make & set name
+			        p3.setId("evoGame_"+(idGen++))
 
-			    //Evaluation
-			    // TODO: cull inbreds
-			    //controller hook here
-			    def intrinsicScore = instrinsicEvaluator.evaluate(p3 as Game)
-			    if (intrinsicScore>maxScore)
-	                maxScore=intrinsicScore
-                if (intrinsicScore<minScore)
-                    minScore=intrinsicScore	
-			    if (intrinsicScore>intrinsicScoreThresh)
-			    {
-			        debug_sub=true
-			        fineTuneInit(p3 as Game,intrinsicScore);
-			        sleep(10000);
+			        //Evaluation
+			        // TODO: cull inbreds
+			        //controller hook here
+			        //println "ieval this evoGame_"+(idGen++)
+			        def intrinsicScore = instrinsicEvaluator.evaluate(p3 as Game)
+			        
+			        if (intrinsicScore>maxScore)
+	                    maxScore=intrinsicScore
+                    if (intrinsicScore<minScore)
+                        minScore=intrinsicScore	
+			        if (intrinsicScore>intrinsicScoreThresh)
+			        {
+			            debug_sub=true
+			            //println 'iscore '+intrinsicScore
+			            fineTuneInit(p3 as Game,intrinsicScore);
+			            
+		            }
+		            def controllerResScores = client.getControllerResponses()
+			        updateScores(controllerResScores as List)
+			        fineTuneNext(controllerResScores as List)
+
+			        //Add to populationnnn
+			        population[p3.getId()]=p3
 		        }
-		        def controllerResScores = client.getControllerResponses()
-			    updateScores(controllerResScores as List)
-			    fineTuneNext(controllerResScores as List)
-
-			    //Add to population
-			    population[p3.getId()]=p3
+		        catch (Exception ex)
+		        {
+		            println ex.toString()
+		        }
 		    }
 		    //client.doLongEval(topXFromPopulation())
+		    println 'iter '+(i*200)
+		    sleep(120000);
 		}
 	}
 	

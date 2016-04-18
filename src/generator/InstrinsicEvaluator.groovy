@@ -47,7 +47,7 @@ class InstrinsicEvaluator
         {
             //e.printStackTrace();
             invalid=1.0
-            println game.getId()+' is not valid :('
+            //println game.getId()+' is not valid :('
         }
         
         double numPlayers

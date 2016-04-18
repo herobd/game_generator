@@ -173,8 +173,8 @@ module.exports =  function() {
                             skillDifWeight:0.3,
                             prefLength:60,
                             
-                            drawishWeight:-0.1,
-                            luckWeight:-0.1,
+                            drawishWeight:-0.2,
+                            luckWeight:-0.2,
                             durationWeight:0.2,
                             resilienceWeight:0.1,
                             completionWeight:0.08,
@@ -202,8 +202,8 @@ module.exports =  function() {
                             idealNumPlayers:2,
                             numPlayersDrop:0.08,
                             invalidWeight:-100.0,
-                            numPlayersWeight:0.2,
-                            complexityWeight:-0.06
+                            numPlayersWeight:0.1,
+                            complexityWeight:-0.08
                           });
         }
     };
