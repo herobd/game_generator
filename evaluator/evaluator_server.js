@@ -511,6 +511,9 @@ var EvaluatorServer = function(host,port) {
                         losingIndexes.push(i);
                 }
                 
+                if (maxScore==0)
+                    maxScore=1;
+                
                 var leadAvg = []
                 var leadMin = []
                 var leadMax = []
