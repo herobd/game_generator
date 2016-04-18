@@ -267,6 +267,371 @@ var ControllerApp = function(host,port) {
             res.send('ok');
         });
         
+        ///TEST///
+    self.app.get('/testGame', function(req,res) {
+        var meta = 
+            {
+                id:'test', 
+                name:'battle',
+                intrinsicScore:0.1,
+                generatorParamId:0, 
+                numPlayers:2, 
+                gdlVersion:1,
+                testLength:'short'
+            };
+        var game = {
+                meta:meta,
+                gdl: '; A synthetic game of survival.\n\n\
+\n\n\
+; Roles\n\n\
+(role north)\n\n\
+(role south)\n\
+\n\
+; Initial state\n\
+(init (step 0))\n\
+(init (capture_count north 0))\n\
+(init (capture_count south 0))\n\
+\n\
+(init (cell 2 1 south_p))\n\
+(init (cell 3 1 south_k))\n\
+(init (cell 4 1 south_k))\n\
+(init (cell 5 1 south_k))\n\
+(init (cell 6 1 south_k))\n\
+(init (cell 7 1 south_p))\n\
+(init (cell 3 2 south_p))\n\
+(init (cell 4 2 south_p))\n\
+(init (cell 5 2 south_p))\n\
+(init (cell 6 2 south_p))\n\
+\n\
+(init (cell 2 8 north_p))\n\
+(init (cell 3 8 north_k))\n\
+(init (cell 4 8 north_k))\n\
+(init (cell 5 8 north_k))\n\
+(init (cell 6 8 north_k))\n\
+(init (cell 7 8 north_p))\n\
+(init (cell 3 7 north_p))\n\
+(init (cell 4 7 north_p))\n\
+(init (cell 5 7 north_p))\n\
+(init (cell 6 7 north_p))\n\
+\n\
+(init (cell 1 2 south_p))\n\
+(init (cell 1 3 south_k))\n\
+(init (cell 1 4 south_k))\n\
+(init (cell 1 5 south_k))\n\
+(init (cell 1 6 south_k))\n\
+(init (cell 1 7 south_p))\n\
+(init (cell 2 3 south_p))\n\
+(init (cell 2 4 south_p))\n\
+(init (cell 2 5 south_p))\n\
+(init (cell 2 6 south_p))\n\
+\n\
+(init (cell 8 2 north_p))\n\
+(init (cell 8 3 north_k))\n\
+(init (cell 8 4 north_k))\n\
+(init (cell 8 5 north_k))\n\
+(init (cell 8 6 north_k))\n\
+(init (cell 8 7 north_p))\n\
+(init (cell 7 3 north_p))\n\
+(init (cell 7 4 north_p))\n\
+(init (cell 7 5 north_p))\n\
+(init (cell 7 6 north_p))\n\
+\n\
+; Legal moves\n\
+(<= (legal ?role (move ?x ?y ?u ?v))\n\
+    (role ?role)\n\
+    (coordinate ?u)\n\
+    (coordinate ?v)\n\
+    (owns ?role ?piece)\n\
+    (true (cell ?x ?y ?piece))\n\
+    (are_distinct ?x ?y ?u ?v)\n\
+    (valid_move ?piece ?x ?y ?u ?v)\n\
+    (not (cell_owned_by ?u ?v ?role)))\n\
+\n\
+(<= (cell_owned_by ?u ?v ?role)\n\
+    (true (cell ?u ?v ?p))\n\
+    (owns ?role ?p))\n\
+\n\
+(<= (legal ?role (defend ?x ?y))\n\
+    (true (cell ?x ?y ?piece))\n\
+    (owns ?role ?piece))\n\
+\n\
+; Transition rules\n\
+(<= (next (cell ?x ?y ?piece))\n\
+    (true (cell ?x ?y ?piece))\n\
+    (not (someone_moves_from ?x ?y))\n\
+    (not (someone_moves_to ?x ?y)))\n\
+\n\
+(<= (someone_moves_from ?x ?y)\n\
+    (does ?r (move ?x ?y ?u ?v)))\n\
+\n\
+(<= (someone_moves_to ?u ?v)\n\
+    (does ?r (move ?x ?y ?u ?v)))\n\
+\n\
+(<= (next (cell ?x ?y ?piece))\n\
+    (true (cell ?x ?y ?piece))\n\
+    (does ?role (defend ?x ?y)))\n\
+(<= (next (cell ?x ?y ?piece))\n\
+    (does ?role (move ?x0 ?y0 ?x ?y))\n\
+    (true (cell ?x0 ?y0 ?piece))\n\
+    (not (someone_defends ?x ?y))\n\
+    (not (someone_different_moves_to ?role ?x ?y)))\n\
+\n\
+(<= (someone_defends ?x ?y)\n\
+    (does ?owner (defend ?x ?y)))\n\
+\n\
+(<= (next (step ?b))\n\
+    (true (step ?a))\n\
+    (succ ?a ?b))\n\
+(<= (next (capture_count ?role ?new_count))\n\
+    (true (capture_count ?role ?old_count))\n\
+    (did_capture ?role)\n\
+    (succ ?old_count ?new_count))\n\
+(<= (next (capture_count ?role ?count))\n\
+    (true (capture_count ?role ?count))\n\
+    (not (did_capture ?role)))\n\
+\n\
+; Termination\n\
+(<= terminal\n\
+    (true (step 30)))\n\
+(<= terminal\n\
+    (role ?role)\n\
+    (not (any_cell_owned_by ?role)))\n\
+\n\
+(<= (any_cell_owned_by ?role)\n\
+    (cell_owned_by ?x ?y ?role))\n\
+\n\
+(<= terminal\n\
+    (role ?role)\n\
+    (goal ?role 100))\n\
+\n\
+; Payoffs\n\
+(<= (goal ?role ?payoff)\n\
+    (true (capture_count ?role ?count))\n\
+    (payoff ?count ?payoff))\n\
+\n\
+; Domain knowledge\n\
+(owns south south_p)\n\
+(owns north north_p)\n\
+(owns west wp)\n\
+(owns east ep)\n\
+\n\
+(owns south south_k)\n\
+(owns north north_k)\n\
+(owns west wk)\n\
+(owns east ek)\n\
+\n\
+(pawn south_p)\n\
+(pawn north_p)\n\
+(pawn ep)\n\
+(pawn wp)\n\
+\n\
+(king south_k)\n\
+(king north_k)\n\
+(king ek)\n\
+(king wk)\n\
+\n\
+(payoff 0 0)\n\
+(payoff 1 10)\n\
+(payoff 2 20)\n\
+(payoff 3 30)\n\
+(payoff 4 40)\n\
+(payoff 5 50)\n\
+(payoff 6 60)\n\
+(payoff 7 70)\n\
+(payoff 8 80)\n\
+(payoff 9 90)\n\
+(payoff 10 100)\n\
+\n\
+; Valid moves\n\
+; Kings can move vertically, horizontally, or diagonally.\n\
+(<= (valid_move ?piece ?x ?y ?u ?v)\n\
+    (king ?piece)\n\
+    (within_one ?x ?u)\n\
+    (within_one ?y ?v))\n\
+; Pawns can move vertically or horizontally.\n\
+(<= (valid_move ?piece ?x ?y ?u ?y)\n\
+    (pawn ?piece)\n\
+    (within_one ?x ?u)\n\
+    (coordinate ?y))\n\
+(<= (valid_move ?piece ?x ?y ?x ?v)\n\
+    (pawn ?piece)\n\
+    (coordinate ?x)\n\
+    (within_one ?y ?v))\n\
+\n\
+(<= (within_one ?x ?x)\n\
+    (number ?x))\n\
+(<= (within_one ?x ?u)\n\
+    (succ ?x ?u))\n\
+(<= (within_one ?x ?u)\n\
+    (succ ?u ?x))\n\
+\n\
+(<= (are_distinct ?x1 ?y1 ?x2 ?y2)\n\
+    (coordinate ?x1)\n\
+    (coordinate ?x2)\n\
+    (coordinate ?y1)\n\
+    (coordinate ?y2)\n\
+    (distinct ?x1 ?x2))\n\
+\n\
+(<= (are_distinct ?x1 ?y1 ?x2 ?y2)\n\
+    (coordinate ?x1)\n\
+    (coordinate ?x2)\n\
+    (coordinate ?y1)\n\
+    (coordinate ?y2)\n\
+    (distinct ?y1 ?y2))\n\
+\n\
+(<= (did_capture ?role)\n\
+    (does ?role (move ?x ?y ?u ?v))\n\
+    (true (cell ?u ?v ?piece))\n\
+    (owns ?opponent ?piece)\n\
+    (not (does ?opponent (defend ?u ?v)))\n\
+    (not (move_from ?opponent ?u ?v))\n\
+    (not (someone_different_moves_to ?role ?u ?v)))\n\
+(<= (did_capture ?defender)\n\
+    (does ?attacker (move ?x ?y ?u ?v))\n\
+    (does ?defender (defend ?u ?v)))\n\
+\n\
+(<= (move_from ?role ?u ?v)\n\
+    (does ?role (move ?u ?v ?u2 ?v2)))\n\
+\n\
+(<= (someone_different_moves_to ?role ?u ?v)\n\
+    (role ?role)\n\
+    (role ?op2)\n\
+    (distinct ?role ?op2)\n\
+    (does ?op2 (move ?xx ?yy ?u ?v)))\n\
+\n\
+(<= (sum ?x 0 ?x)\n\
+    (number ?x))\n\
+(<= (sum ?a 1 ?b)\n\
+    (succ ?a ?b))\n\
+(<= (sum ?a 2 ?c)\n\
+    (succ ?a ?b)\n\
+    (succ ?b ?c))\n\
+(<= (sum ?a 3 ?d)\n\
+    (succ ?a ?b)\n\
+    (succ ?b ?c)\n\
+    (succ ?c ?d))\n\
+\n\
+(coordinate 1)\n\
+(coordinate 2)\n\
+(coordinate 3)\n\
+(coordinate 4)\n\
+(coordinate 5)\n\
+(coordinate 6)\n\
+(coordinate 7)\n\
+(coordinate 8)\n\
+\n\
+(succ 0 1)\n\
+(succ 1 2)\n\
+(succ 2 3)\n\
+(succ 3 4)\n\
+(succ 4 5)\n\
+(succ 5 6)\n\
+(succ 6 7)\n\
+(succ 7 8)\n\
+(succ 8 9)\n\
+(succ 9 10)\n\
+(succ 10 11)\n\
+(succ 11 12)\n\
+(succ 12 13)\n\
+(succ 13 14)\n\
+(succ 14 15)\n\
+(succ 15 16)\n\
+(succ 16 17)\n\
+(succ 17 18)\n\
+(succ 18 19)\n\
+(succ 19 20)\n\
+(succ 20 21)\n\
+(succ 21 22)\n\
+(succ 22 23)\n\
+(succ 23 24)\n\
+(succ 24 25)\n\
+(succ 25 26)\n\
+(succ 26 27)\n\
+(succ 27 28)\n\
+(succ 28 29)\n\
+(succ 29 30)\n\
+(succ 30 31)\n\
+(succ 31 32)\n\
+(succ 32 33)\n\
+(succ 33 34)\n\
+(succ 34 35)\n\
+(succ 35 36)\n\
+(succ 36 37)\n\
+(succ 37 38)\n\
+(succ 38 39)\n\
+(succ 39 40)\n\
+(succ 40 41)\n\
+(succ 41 42)\n\
+(succ 42 43)\n\
+(succ 43 44)\n\
+(succ 44 45)\n\
+(succ 45 46)\n\
+(succ 46 47)\n\
+(succ 47 48)\n\
+(succ 48 49)\n\
+(succ 49 50)\n\
+\n\
+(number 0)\n\
+(number 1)\n\
+(number 2)\n\
+(number 3)\n\
+(number 4)\n\
+(number 5)\n\
+(number 6)\n\
+(number 7)\n\
+(number 8)\n\
+(number 9)\n\
+(number 10)\n\
+(number 11)\n\
+(number 12)\n\
+(number 13)\n\
+(number 14)\n\
+(number 15)\n\
+(number 16)\n\
+(number 17)\n\
+(number 18)\n\
+(number 19)\n\
+(number 20)\n\
+(number 21)\n\
+(number 22)\n\
+(number 23)\n\
+(number 24)\n\
+(number 25)\n\
+(number 26)\n\
+(number 27)\n\
+(number 28)\n\
+(number 29)\n\
+(number 30)\n\
+(number 31)\n\
+(number 32)\n\
+(number 33)\n\
+(number 34)\n\
+(number 35)\n\
+(number 36)\n\
+(number 37)\n\
+(number 38)\n\
+(number 39)\n\
+(number 40)\n\
+(number 41)\n\
+(number 42)\n\
+(number 43)\n\
+(number 44)\n\
+(number 45)\n\
+(number 46)\n\
+(number 47)\n\
+(number 48)\n\
+(number 49)\n\
+(number 50)',
+                hlgdl: '{\n"players": ["north","south"],\n"board": {\n"macroType":"Grid",\n"tileType":"Square",\n"layoutShape":"Square",\n"size":8\n},\n"pieces":[{"name":"p"},{"name":"k"}]\n}'
+            };
+        self.database.storeGame(game.meta,game.gdl,game.hlgdl, function(err) {
+            var err=self.gameCord.enqueue(game.meta);
+        
+            res.json({id:game.meta.id, status:err});
+        });
+    });
+    //END TEST///
+        
         
         
         //POST
@@ -390,9 +755,13 @@ var ControllerApp = function(host,port) {
                         }
                     }
                 });
+                
+                
             });
         });
     };
+    
+    
     
     
     //////////////////////////////additional functions
