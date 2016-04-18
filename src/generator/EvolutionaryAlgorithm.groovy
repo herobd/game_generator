@@ -174,7 +174,7 @@ class EvolutionaryAlgorithm
 	                if ((ft.iters >params.shortFineTuneLimit && ft.lastScore<params.shortFineTuneThresh) ||
 	                    ft.iters-ft.iterOfLastImprovement>params.fineTuneFamineLimit ||
 	                    (ft.iters>=2 && numParams==1) ||
-	                    ft.iters > ft.iterOfLastImprovement>params.fineTuneTotalLimit)
+	                    ft.iters > ft.iterOfLastImprovement && ft.iterOfLastImprovement > params.fineTuneTotalLimit)
 	                {
 	                    if (ft.iters>2)//this is different enough
 	                        population[ft.lastVersion.getId()]=ft.lastVersion
