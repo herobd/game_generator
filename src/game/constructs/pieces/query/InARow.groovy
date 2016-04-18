@@ -55,19 +55,20 @@ class InARow implements Query
 	@Override
 	int complexityCount()
 	{
-		return 0
+		return 1
 	}
 
 	@Override
 	int getNumParams()
 	{
-		return 0
+		return 1
 	}
 
 	@Override
 	void changeParam(int param, int amount)
 	{
-
+		if (param == 0)
+			this.num += amount
 	}
 
 	String getName()

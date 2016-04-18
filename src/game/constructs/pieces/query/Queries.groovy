@@ -12,7 +12,8 @@ enum Queries
 {
 	IsEnemy,
 	IsNeighbor,
-	IsOpen
+	IsOpen,
+	InARow
 
 	private static final Random RANDOM = new Random()
 	private static final List<Queries> VALUES = Collections.unmodifiableList(Arrays.asList(values())) as List<Queries>
@@ -28,8 +29,22 @@ enum Queries
 				return new IsNeighbor(-1)
 			case IsOpen:
 				return new IsOpen()
+			case InARow:
+				return new InARow(3)
 			default:
 				return new IsOpen()
+		}
+	}
+
+	boolean isGlobal()
+	{
+		switch (this)
+		{
+			case IsOpen:
+			case InARow:
+				return true
+			default:
+				return false
 		}
 	}
 
@@ -50,6 +65,14 @@ enum Queries
 
 		int idx = valid_sections.get(RANDOM.nextInt(valid_sections.size())) as int
 		return new IsNeighbor(idx)
+	}
+
+	static Query getRandomGlobalQuery()
+	{
+		def q = VALUES.get(RANDOM.nextInt(SIZE))
+		while (!q.global)
+			q = VALUES.get(RANDOM.nextInt(SIZE))
+		return q.query
 	}
 }
 
