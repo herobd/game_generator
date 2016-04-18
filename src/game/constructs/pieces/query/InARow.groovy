@@ -6,6 +6,7 @@ import game.constructs.board.grid.Index
 import game.constructs.board.grid.SquareGrid
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.dynamic.DynamicComponentsClause
+import game.gdl.statement.GameToken
 import game.gdl.statement.SimpleStatement
 
 /**
@@ -15,13 +16,25 @@ class InARow implements Query
 {
 	private int num = 3
 	private boolean nbors=true
-	private boolean i_nbors=false
+	private boolean i_nbors=true
 	private boolean any_piece=false
+
+	InARow(int num)
+	{
+		this.num = num
+	}
+
+	InARow(int num, boolean nbors, boolean i_nbors)
+	{
+		this.num = num
+		this.nbors = nbors
+		this.i_nbors = i_nbors
+	}
 
 	@Override
 	GString toGDL(Board board, String piece_id, int n)
 	{
-		return null
+		return "(true ($name ${board.getSelectedSpaceGDL(n).join(' ')} ${GameToken.PLAYER}_${piece_id}))"
 	}
 
 	@Override
@@ -29,7 +42,8 @@ class InARow implements Query
 	{
 		if (board instanceof SquareGrid)
 		{
-
+			if (!globalRules.containsKey(name))
+				globalRules[name] = this.in_a_row(num)
 		}
 		else
 		{
@@ -57,13 +71,20 @@ class InARow implements Query
 
 	String getName()
 	{
-		return Integer.toString(num) + "inARow"
+		String result = Integer.toString(num) + "inARow"
+		if (!nbors || !i_nbors)
+		{
+			result += "_"
+			if (!nbors)
+				result += "n"
+			if (!i_nbors)
+				result += "i"
+		}
+		return result
 	}
 
 	GDLClause in_a_row(int l)
 	{
-		String name = Integer.toString(l) + "inARow"
-
 		def s = []
 		if (this.nbors)
 		{
@@ -77,6 +98,7 @@ class InARow implements Query
 		}
 		if (this.nbors)
 		{
+			//TODO: add support for any piece type bool
 			s.add(new SimpleStatement("(<= (" + name + " ?w) (row${l} ?x ?y ?w))"))
 			s.add(new SimpleStatement("(<= (" + name + " ?w) (column${l} ?x ?y ?w))"))
 		}
