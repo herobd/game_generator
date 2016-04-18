@@ -7,9 +7,7 @@
   	"body-parser": "*",
   	"multer": "*",
   	"request": "*",
-  	"hierarchical-clustering": "*",
-  	"c4.5": "*",
-  	"lodash": "*"
+  	"hierarchical-clustering": "*"
    },
   "engine": "node >=0.12.x"
 }

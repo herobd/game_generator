@@ -240,20 +240,20 @@ module.exports =  function() {
                      gameMeta.testLength==='s' ||
                      gameMeta.testLength==='quick') {
                     numOfRuns=1;
-                    startclock=5;
-                    playclock=2;
+                    startclock=9;
+                    playclock=3;
                     maxSteps=100;
                 } else if (gameMeta.testLength==='med' || 
                            gameMeta.testLength==='medium' || 
                            gameMeta.testLength==='m') {
-                    numOfRuns=2;
+                    numOfRuns=1;
                     startclock=9;
                     playclock=3;
                     maxSteps=110;
                 } else if (gameMeta.testLength==='long' || 
                            gameMeta.testLength==='l' || 
                            gameMeta.testLength==='full') {
-                    numOfRuns=3;
+                    numOfRuns=1;
                     startclock=13;
                     playclock=4;
                     maxSteps=120;
@@ -303,7 +303,7 @@ module.exports =  function() {
     GameCord.prototype.enqueue = function(meta) {
         var err='ok';
         if (meta.testLength===undefined)
-            meta.testLength='med';
+            meta.testLength='s';
         else
             meta.testLength=meta.testLength.toLowerCase();
         if (meta.numPlayers===undefined) {

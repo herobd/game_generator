@@ -511,19 +511,12 @@ var EvaluatorServer = function(host,port) {
                         losingIndexes.push(i);
                 }
                 
-                if (maxScore==0)
-                    maxScore=1;
-                
                 var leadAvg = []
                 var leadMin = []
                 var leadMax = []
-                for (var turn of matchInfo.turnsStrengthScored) {
-                    /*var strPrint='';
-                    for (var x in turn.strengthScored)
-                        if (turn.strengthScored.hasOwnProperty(x))
-                            strPrint = x+':'+turn.strengthScored[x]+', ';
-                    console.log('str: {'+strPrint+'}');*/
-                    console.log('str: ['+turn.strengthScored.join()+']');
+                for (turn of matchInfo.turnsStrengthScored) {
+                    
+                    console.log('str: '+turn.strengthScored);
                     
                     var winPos=0.0;
                     var winPosMax=null;
@@ -572,7 +565,7 @@ var EvaluatorServer = function(host,port) {
                     str1=leadMin[Math.floor(turn)];
                     str2=leadMin[Math.ceil(turn)];
                     var intrLeadMin=(str2-str1)*(turn-Math.floor(turn)) + str1;
-                    sumLeadAtT[i]+=Math.min(intrLeadAvg,intrLeadMax,intrLeadMin);
+                    sumLeadAtT[i]+=Math.max(intrLeadAvg,intrLeadMax,intrLeadMin);
                     if (sumLeadAtT[i]!=sumLeadAtT[i] || linearScoreAtT[i]!=linearScoreAtT[i]) {
                         console.log('ERROR, NaN: i='+i+' turn='+turn+' maxScore:'+maxScore);
                         console.log(intrLeadAvg+' '+intrLeadMax+' '+intrLeadMin);
@@ -587,11 +580,11 @@ var EvaluatorServer = function(host,port) {
                     var lastLead=Math.sign(lead[0]);
                     var countChanges=0;
                     for (var turn=1; turn<lead.length; turn++) {
-                        var thisLead=Math.sign(lead[turn]);
+                        var thisLead=Math.sign(lead[i]);
                         if (thisLead!=0) {
                             if (thisLead!=lastLead) {
                                 countChanges++;
-                                //console.log('lead change '+lead[turn-1]+':'+lastLead+' '+lead[turn]+':'+thisLead);
+                                //console.log('lead change '+lead[turn-1]+' '+lead[turn]);
                             }
                             lastLead=thisLead;
                         }
