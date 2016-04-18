@@ -420,11 +420,11 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
 
 		def c = {Move m -> this.preconditions = m.preconditions}
 		c.curry(other)
-		result.add(c)
+		result.add(new CrossOver(c))
 
 		c = {Move m -> this.postconditions = m.postconditions}
 		c.curry(other)
-		result.add(c)
+		result.add(new CrossOver(c))
 
 		return result
 	}

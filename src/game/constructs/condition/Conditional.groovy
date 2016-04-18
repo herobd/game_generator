@@ -138,11 +138,11 @@ class Conditional implements FineTunable, Gene
 		def result = []
 		def c = {Conditional cc -> this.antecedent = cc.antecedent}
 		c.curry(other)
-		result.add(c)
+		result.add(new CrossOver(c))
 
 		c = {Conditional cc -> this.consequent = cc.consequent}
 		c.curry(other)
-		result.add(c)
+		result.add(new CrossOver(c))
 
 		return result
 	}
@@ -152,8 +152,17 @@ class Conditional implements FineTunable, Gene
 	{
 		def result = parameterMutations
 
-
+		result.add(mutationMethod("negateAntecedent"))
 
 		return result
 	}
+
+	void negateAntecedent()
+	{
+		if (antecedent instanceof NegatedCondition)
+			antecedent = antecedent.condition
+		else
+			antecedent = new NegatedCondition(antecedent)
+	}
+
 }
