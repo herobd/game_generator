@@ -6,8 +6,8 @@ package generator
  * Interface that game constructs implement in order to facilitate the generator evolutionary process.
  */
 trait Gene {
-	private final static double DEFAULT_MUTATION_PROBABILITY = 0.5
-	private final static double DEFAULT_CROSS_OVER_PROBABILITY = 0.5
+	private final static double DEFAULT_MUTATION_PROBABILITY = 0.15
+	private final static double DEFAULT_CROSS_OVER_PROBABILITY = 0.15
 	private final static Random RANDOM = new Random()
 
 	/**
