@@ -5,6 +5,7 @@ import game.constructs.condition.Conditional
 import game.constructs.condition.TerminalConditional
 import game.constructs.condition.functions.Function
 import game.constructs.condition.result.EndGameResult
+import game.constructs.pieces.query.Query
 import game.gdl.clauses.GDLClause
 import game.gdl.clauses.HasClauses
 import game.gdl.clauses.goal.GoalClause
@@ -62,13 +63,14 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
 	 */
 	Collection<Conditional> getSupportedConditionals()
 	{
-		def S = new HashSet()
-		for (Conditional c : conditions)
-		{
-			if (supportsAllFunctions(c))
-				S += c
-		}
-		return S
+//		def S = new HashSet()
+//		for (Conditional c : conditions)
+//		{
+//			if (supportsAllFunctions(c))
+//				S += c
+//		}
+//		return S
+		return this.conditions
 	}
 	//TODO: add some sort of reducer to get a partial conditional..?
 
@@ -88,6 +90,18 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
 			}
 		}
 		return clauses
+	}
+
+	void setGlobalRules(Map<String,GDLClause> globalRules)
+	{
+		for (Conditional c : supportedConditionals)
+		{
+			if (c.antecedent instanceof Query)
+			{
+				Query q = c.antecedent as Query
+				q.setGlobalRules(globalRules, board)
+			}
+		}
 	}
 
 	@Override

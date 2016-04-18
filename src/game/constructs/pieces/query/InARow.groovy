@@ -174,8 +174,7 @@ class InARow implements Query
 	@Override
 	def getGDL_Signature()
 	{
-		//TODO
-		return null
+		return "$name ?piece)\n\t(${GameToken.PLAYER_MARK} ?piece"
 	}
 
 	@Override

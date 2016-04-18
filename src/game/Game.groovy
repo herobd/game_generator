@@ -154,6 +154,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		{
 			clauses += p.getGDLClauses(globalRules,board)
 		}
+		end.setGlobalRules(globalRules)
 		globalRules.each { name, rule ->
 		    clauses += rule
 		}
