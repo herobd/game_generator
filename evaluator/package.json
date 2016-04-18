@@ -7,8 +7,7 @@
   	"body-parser": "*",
   	"multer": "*",
   	"request": "*",
-  	"hierarchical-clustering": "*",
-  	"mlp": "*"
+  	"hierarchical-clustering": "*"
    },
   "engine": "node >=0.12.x"
 }
