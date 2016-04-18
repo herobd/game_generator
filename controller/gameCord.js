@@ -240,8 +240,8 @@ module.exports =  function() {
                      gameMeta.testLength==='s' ||
                      gameMeta.testLength==='quick') {
                     numOfRuns=1;
-                    startclock=5;
-                    playclock=2;
+                    startclock=9;
+                    playclock=3;
                     maxSteps=100;
                 } else if (gameMeta.testLength==='med' || 
                            gameMeta.testLength==='medium' || 

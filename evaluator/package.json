@@ -8,8 +8,7 @@
   	"multer": "*",
   	"request": "*",
   	"hierarchical-clustering": "*",
-  	"c4.5": "*",
-  	"lodash": "*"
+  	"mlp": "*"
    },
   "engine": "node >=0.12.x"
 }
