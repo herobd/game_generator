@@ -432,7 +432,18 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
 	@Override
 	List<CrossOver> getPossibleCrossOvers(Gene other)
 	{
-		return []
+		other = other as Move
+		def result = []
+
+		def c = {Move m -> this.preconditions = m.preconditions}
+		c.curry(other)
+		result.add(new CrossOver(c))
+
+		c = {Move m -> this.postconditions = m.postconditions}
+		c.curry(other)
+		result.add(new CrossOver(c))
+
+		return result
 	}
 
 	@Override

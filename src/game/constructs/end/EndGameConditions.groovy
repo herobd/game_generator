@@ -15,14 +15,18 @@ import game.gdl.clauses.terminal.TerminalClause
 import game.gdl.statement.GeneratorStatement
 import game.gdl.statement.SimpleStatement
 import game.gdl.statement.GameToken
+import generator.CrossOver
 import generator.FineTunable
+import generator.Gene
+import generator.Mutation
+import generator.NestedCrossOver
 
 /**
  * @author Lawrence Thatcher
  *
  * A class used to store and represent the ending conditions for a game.
  */
-class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause, FineTunable
+class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause, FineTunable, Gene
 {
 	private exclusiveWin = true
 	private List<TerminalConditional> conditions
@@ -135,6 +139,16 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
 		return true
 	}
 
+	protected boolean hasWinCondition()
+	{
+		for (Conditional c : supportedConditionals)
+		{
+			if (c.consequent == EndGameResult.Win)
+				return true
+		}
+		return false
+	}
+
 	protected boolean hasDrawCondition()
 	{
 		for (Conditional c : supportedConditionals)
@@ -188,10 +202,14 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
 		def T = []
 
 		// Score 100 for win
-		String g = "(<= (goal ?p 100)\n"
-		g += "\t(role ?p)\n"
-		g += "\t(Win ?p))\n"
-		T.add(new SimpleStatement(g))
+		String g
+		if (hasWinCondition())
+		{
+			g = "(<= (goal ?p 100)\n"
+			g += "\t(role ?p)\n"
+			g += "\t(Win ?p))\n"
+			T.add(new SimpleStatement(g))
+		}
 
 		// Score 50 for draw (if applicable)
 		// TODO: divide 100 by # of players?
@@ -221,7 +239,7 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
 		T.add(new SimpleStatement(g))
 
 		// Exclusive-Win premise
-		if (exclusiveWin)
+		if (exclusiveWin && hasWinCondition())
 		{
 			g = "(<= (Lose ?p)\n"
 			g += "\t(role ?p)\n"
@@ -315,6 +333,29 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
                 sofar-=cond.getNumParams()
         }
     }
+
+	@Override
+	List<CrossOver> getPossibleCrossOvers(Gene other)
+	{
+		other = other as EndGameConditions
+		def result = []
+		for (Conditional c : supportedConditionals)
+		{
+			result.add(new NestedCrossOver(this.supportedConditionals, other.supportedConditionals))
+		}
+		return result
+	}
+
+	@Override
+	List<Mutation> getPossibleMutations()
+	{
+		def result = parameterMutations
+		for (Conditional c : supportedConditionals)
+		{
+			result.addAll(c.possibleMutations)
+		}
+		return result
+	}
     
     String convertToJSON()
     {

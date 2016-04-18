@@ -99,7 +99,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 	    this.turnOrder = TurnOrder.Alternating
 	    this.players = new Players(Math.max(2,(int) (Math.round(RANDOM.nextGaussian() * 1) + 2)))
 	    this.board = new SquareGrid(Math.max(2,(int) (Math.round(RANDOM.nextGaussian() * 4) + 6)))
-	    this.end = new EndGameConditions([new TerminalConditional(new NegatedCondition(Queries.IsOpen.query), EndGameResult.Lose)],this.board)
+	    this.end = new EndGameConditions([new TerminalConditional(new NegatedCondition(Queries.IsOpen.query), EndGameResult.Draw)],this.board)
 	    
 	    this.pieces = new Pieces(Math.max(1,(int) (Math.round(RANDOM.nextGaussian() * 3) + 1)))
 	    
@@ -252,7 +252,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 	@Override
 	List<Gene> getGenes()
 	{
-		List<Gene> result = [players, board, pieces]
+		List<Gene> result = [players, board, pieces, end]
 		return result
 	}
 

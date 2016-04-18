@@ -14,4 +14,9 @@ class TerminalConditional extends Conditional
 	{
 		super(condition, result)
 	}
+
+	TerminalConditional()
+	{
+		super()
+	}
 }

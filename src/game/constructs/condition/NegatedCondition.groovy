@@ -22,6 +22,11 @@ class NegatedCondition implements PreCondition
 		this.condition = condition
 	}
 
+	PreCondition getCondition()
+	{
+		return condition
+	}
+
 	@Override
 	Collection<Function> getFunctions()
 	{
