@@ -11,6 +11,8 @@ interface PostCondition
     {
         return 0
     }*/
+    
+    //String convertToJSON()
 }
 
 

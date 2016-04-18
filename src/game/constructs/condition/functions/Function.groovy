@@ -30,6 +30,12 @@ trait Function implements PreCondition {
 	@Override
     void changeParam(int param, int amount){}
     
+    @Override
+    String convertToJSON()
+    {
+        return '{"function":"'+getFunctionName()+'"}'
+    }
+    
     /*@Override
     GDLClause getGDLClauses()
     {

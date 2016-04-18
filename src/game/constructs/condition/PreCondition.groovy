@@ -25,6 +25,8 @@ interface PreCondition extends FineTunable
 	 * Should provide a custom implementation of toString()
 	 */
 	String toString()
+	
+	String convertToJSON()
 
 	/**
 	 * Converts the Condition string representation to a valid GDL format (since these might not always be the same)

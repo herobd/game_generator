@@ -43,6 +43,12 @@ class NegatedCondition implements PreCondition
 			result += "(" + condition.toString() + ")"
 		return result
 	}
+	
+	@Override
+	String convertToJSON()
+	{
+	    return '{"not":'+condition.convertToJSON()+'}'
+	}
 
 	@Override
 	def getGDL_Signature()

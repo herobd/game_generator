@@ -36,6 +36,7 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
 		this.conditions = conditions
 		this.board = board
 	}
+	
 
 	/**
 	 * Retrieves a list of all the Functions used within the conditionals,
@@ -341,4 +342,15 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
 		}
 		return result
 	}
+    
+    String convertToJSON()
+    {
+        
+        def cs=[]
+        for (Conditional c : conditions)
+        {
+            cs.push(c.convertToJSON())
+        }
+        return '['+cs.join(', ')+']'
+    }
 }

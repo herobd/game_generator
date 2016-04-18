@@ -80,6 +80,11 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
 		// --Postconditions--
 		for (int i = 0; i < rand_positive(); i++)
 			addPostCondition()
+		
+		//for (Action a : postconditions)
+		//{
+		//    if (a in MoveToSelected)
+		//}
 	}
 	
 	Move(List<List<Query>> preconditions, List<Action> postconditions)
@@ -309,15 +314,24 @@ class Move implements  FineTunable, Gene //HasDynCompClause, HasBaseClause, HasL
 
 	void addPreconditionSection()
 	{
-		int idx = RANDOM.nextInt(preconditions.size()) + 1
-
-		def section = []
-		for (int i = 0; i < rand_positive(); i++)
-		{
-			Query q = Queries.getRandomQuery(preconditions, idx)
-			section.add(q)
-		}
-		preconditions.add(idx, section)
+		int idx = RANDOM.nextInt(preconditions.size()+1)
+        
+        if (idx!=0)
+        {
+		    def section = []
+		    def numPre = Math.max(1,(int) (Math.round(RANDOM.nextGaussian() * 1) + 1))
+		    for (int i = 0; i < numPre; i++)
+		    {
+			    Query q = Queries.getRandomQuery(preconditions, idx)
+			    section.add(q)
+		    }
+		    preconditions.add(idx, section)
+	    }
+	    else
+	    {
+	        preconditions.add(idx, [new PieceOrigin()])
+	    }
+		
 	}
 
 	void addPostCondition()
