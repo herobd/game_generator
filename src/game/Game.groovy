@@ -178,7 +178,7 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		ret +='  "players": ["'+players.getPlayerNames().join('", "')+'"],\n'
 		ret +='  "board": '+board.convertToJSON()+',\n'
 		ret +='  "pieces": ['+ps.join(', ')+'],\n'
-		ret +='  "end": '+end.convertToJSON+'\n'
+		ret +='  "end": '+end.convertToJSON()+'\n'
 		ret +='}'
 		return ret
 	}

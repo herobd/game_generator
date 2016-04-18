@@ -29,7 +29,7 @@ interface Query extends FineTunable, PreCondition
     
     int complexityCount();
     
-    String convertToJSON()
+    //String convertToJSON() now defined in PreCOndition
     
     //static Query fromJSON(def parsed)
 }

@@ -56,6 +56,11 @@ class Conditional implements FineTunable
 		result += consequent.toString()
 		return result
 	}
+	
+	String convertToJSON()
+	{
+	    return '{"antecedent":'+antecedent.convertToJSON()+', "consequent":"end game['+consequent+']"}'
+	}
 
 	@Override
 	boolean equals(o)

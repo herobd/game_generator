@@ -318,5 +318,11 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
     String convertToJSON()
     {
         
+        def cs=[]
+        for (Conditional c : conditions)
+        {
+            cs.push(c.convertToJSON())
+        }
+        return '['+cs.join(', ')+']'
     }
 }
