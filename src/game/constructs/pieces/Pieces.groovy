@@ -19,6 +19,15 @@ class Pieces implements Iterable<Piece>, FineTunable, Gene
 	{
 		this.pieces = pieces
 	}
+	
+	Pieces(int numP)
+	{
+		this.pieces = []
+		for (int i=0; i<numP; i++)
+		{
+		    this.pieces.push(new Piece())
+		}
+	}
 
 	List<Piece> getPieces()
 	{

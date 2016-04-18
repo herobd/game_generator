@@ -10,6 +10,7 @@ import game.constructs.player.Player
 import game.constructs.player.Players
 import game.constructs.TurnOrder
 import game.constructs.board.Board
+import game.constructs.board.grid.SquareGrid
 import game.constructs.condition.TerminalConditional
 import game.constructs.end.EndGameConditions
 import game.constructs.pieces.NamedPieces
@@ -29,6 +30,7 @@ import game.constructs.board.grid.SquareGrid
 import game.constructs.condition.functions.GameFunction
 import game.constructs.condition.result.EndGameResult
 import game.constructs.condition.TerminalConditional
+import game.constructs.pieces.query.Queries
 
 /**
  * @author Lawrence Thatcher
@@ -38,6 +40,7 @@ import game.constructs.condition.TerminalConditional
 class Game implements Evolvable, GDLConvertable, FineTunable
 {
 	private static final double DEFAULT_CROSS_OVER_PROBABILITY = 0.1
+	private static final Random RANDOM = new Random()
 
 	private String name = "unnamed game"
 	private String id = "no_id"
@@ -89,6 +92,18 @@ class Game implements Evolvable, GDLConvertable, FineTunable
 		this.end = new EndGameConditions(end, board)
 		this.score=score
 		namePieces()
+	}
+	
+	Game()
+	{
+	    this.turnOrder = TurnOrder.Alternating
+	    this.players = new Players(Math.max(2,(int) (Math.round(RANDOM.nextGaussian() * 1) + 2)))
+	    this.board = new SquareGrid(Math.max(2,(int) (Math.round(RANDOM.nextGaussian() * 4) + 6)))
+	    this.end = new EndGameConditions([new TerminalConditional(new NegatedCondition(Queries.IsOpen.query), EndGameResult.Lose)],this.board)
+	    
+	    this.pieces = new Pieces(Math.max(1,(int) (Math.round(RANDOM.nextGaussian() * 3) + 1)))
+	    
+	    namePieces()
 	}
 	
 	static Game fromJSON(String json)

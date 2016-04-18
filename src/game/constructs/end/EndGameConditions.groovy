@@ -32,6 +32,7 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
 		this.conditions = conditions
 		this.board = board
 	}
+	
 
 	/**
 	 * Retrieves a list of all the Functions used within the conditionals,
