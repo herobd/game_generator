@@ -73,7 +73,7 @@ class InARow implements Query
 
 	String getName()
 	{
-		String result = Integer.toString(num) + "inARow"
+		String result = "inARow"+Integer.toString(num)
 		if (!nbors || !i_nbors)
 		{
 			result += "_"

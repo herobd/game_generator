@@ -2,6 +2,7 @@
 var express = require('express');
 var fs      = require('fs');
 var request = require('request');
+//var limit = require('limit');
 
 var bodyParser = require('body-parser');
 var multer = require('multer'); // v1.0.5
@@ -145,8 +146,9 @@ var EvaluatorServer = function(host,port) {
     self.initializeServer = function() {
         self.createRoutes();
         self.app = express();//.createServer();
-        self.app.use(bodyParser.json()); // for parsing application/json
-        self.app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+        self.app.use(bodyParser.json({limit: '50mb'})); // for parsing application/json
+        self.app.use(bodyParser.urlencoded({limit: '50mb', extended: true })); // for parsing application/x-www-form-urlencoded
+        //self.app.use(limit(100000000));
 
         //  Add handlers for the app (from the routes).
         for (var r in self.routes) {
@@ -692,6 +694,8 @@ var EvaluatorServer = function(host,port) {
             console.log('  killMoves: '+retScore.killMoves);
             console.log('Combined: '+retScore.evalScore);
             //TODO more
+
+	    self.matches[gameMeta.id]=null;
             callback(err,retScore);
         });
     }

@@ -2,6 +2,8 @@ package game.constructs.condition
 
 import game.constructs.condition.functions.Function
 import game.constructs.pieces.query.IsOpen
+import game.gdl.clauses.GDLClause
+import game.constructs.board.Board
 
 /**
  * @author Lawrence Thatcher
@@ -111,4 +113,10 @@ class NegatedCondition implements PreCondition
     {
         return new SimpleStatement("filler for funtion: "+getFunctionName());
     }*/
+    
+    @Override
+    void setGlobalRules(Map<String,GDLClause> globalRules, Board board)
+    {
+        condition.setGlobalRules(globalRules,board)
+    }
 }

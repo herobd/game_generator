@@ -3,6 +3,7 @@ package game.constructs.condition
 import game.constructs.condition.functions.Function
 import generator.FineTunable
 import game.gdl.clauses.GDLClause
+import game.constructs.board.Board
 
 /**
  * @author Lawrence Thatcher
@@ -37,4 +38,6 @@ interface PreCondition extends FineTunable
 	int complexityCount()
 	
 	//GDLClause getGDLClauses()
+	
+	void setGlobalRules(Map<String,GDLClause> globalRules, Board board)
 }

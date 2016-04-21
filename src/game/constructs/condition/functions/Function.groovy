@@ -3,7 +3,7 @@ package game.constructs.condition.functions
 import game.constructs.condition.PreCondition
 import game.gdl.clauses.GDLClause
 import game.gdl.statement.SimpleStatement
-
+import game.constructs.board.Board
 /**
  * @author Lawrence Thatcher
  */
@@ -35,6 +35,9 @@ trait Function implements PreCondition {
     {
         return '{"function":"'+getFunctionName()+'"}'
     }
+    
+    @Override
+    void setGlobalRules(Map<String,GDLClause> globalRules, Board board) {}
     
     /*@Override
     GDLClause getGDLClauses()

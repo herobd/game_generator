@@ -9,6 +9,8 @@ import generator.CrossOver
 import generator.FineTunable
 import generator.Gene
 import generator.Mutation
+import game.constructs.board.Board
+import game.gdl.clauses.GDLClause
 
 
 /**
@@ -176,6 +178,11 @@ class Conditional implements FineTunable, Gene
 			antecedent = antecedent.condition
 		else
 			antecedent = new NegatedCondition(antecedent)
+	}
+	
+	void setGlobalRules(Map<String,GDLClause> globalRules, Board board)
+	{
+	    antecedent.setGlobalRules(globalRules,board);
 	}
 
 }

@@ -101,11 +101,12 @@ class EndGameConditions implements HasClauses, HasGoalClause, HasTerminalClause,
 	{
 		for (Conditional c : supportedConditionals)
 		{
-			if (c.antecedent instanceof Query)
-			{
-				Query q = c.antecedent as Query
-				q.setGlobalRules(globalRules, board)
-			}
+			//if (c.antecedent instanceof Query)
+			//{
+			//	Query q = c.antecedent as Query
+			//	q.setGlobalRules(globalRules, board)
+			//}
+			c.setGlobalRules(globalRules, board)
 		}
 	}
 

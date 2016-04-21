@@ -38,7 +38,7 @@ class Pieces implements Iterable<Piece>, FineTunable, Gene
 	{
 		for (int i=0; i<pieces.size(); i++)
 		{
-			this.pieces[i].setName('p'+i+this.pieces[i].getName())
+			this.pieces[i].setName('p'+i)
 		}
 	}
 
@@ -76,6 +76,7 @@ class Pieces implements Iterable<Piece>, FineTunable, Gene
 		def result = []
 		for (Piece p : pieces)
 			result.addAll(p.possibleMutations)
+			
 		return result
 	}
 

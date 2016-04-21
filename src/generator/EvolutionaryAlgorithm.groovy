@@ -141,7 +141,7 @@ class EvolutionaryAlgorithm
 			        //Evaluation
 			        // TODO: cull inbreds
 			        //controller hook here
-			        //println "ieval this evoGame_"+(idGen++)
+			        println "ieval this evoGame_"+(idGen++)
 			        def intrinsicScore = instrinsicEvaluator.evaluate(p3 as Game)
 			        
 			        if (intrinsicScore>maxScore)
@@ -151,7 +151,7 @@ class EvolutionaryAlgorithm
 			        if (intrinsicScore>intrinsicScoreThresh)
 			        {
 			            debug_sub=true
-			            //println 'iscore '+intrinsicScore
+			            println 'iscore '+intrinsicScore
 			            fineTuneInit(p3 as Game,intrinsicScore);
 			            
 		            }
@@ -168,7 +168,7 @@ class EvolutionaryAlgorithm
 		        }
 		    }
 		    //client.doLongEval(topXFromPopulation())
-		    println 'iter '+(i*200)
+		    println 'iter '+((i+1)*200)
 		    sleep(120000);
 		}
 	}
@@ -278,7 +278,7 @@ class EvolutionaryAlgorithm
 	                ft.lastVersions=ft.currentVersion.clone()
 	                ft.lastScore=score
 	                
-	                if (ft.tried.length>0)
+	                if (ft.tried.length()>0)
 	                    ft.paramMap[ft.lastParam]=ft.tried[-1]
 	                
                     //select a param

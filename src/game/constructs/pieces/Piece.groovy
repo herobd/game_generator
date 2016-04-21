@@ -248,6 +248,16 @@ class Piece implements  FineTunable, Gene //HasClausesWithDep
 	def addMove()
 	{
 		moves.add(new Move())
+		nameMoves()
+	}
+	
+	def removeMove()
+	{
+	    if (moves.size()>1)
+	    {
+		    moves.pop()
+		    nameMoves()
+	    }
 	}
 
 	def removeRandomStartPosition()
@@ -273,6 +283,8 @@ class Piece implements  FineTunable, Gene //HasClausesWithDep
 			result.add(mutationMethod("removeRandomStartPosition"))
 		result.add(mutationMethod("addRandomStartPosition"))
 		result.add(mutationMethod("addMove"))
+		if (moves.size()>1)
+		    result.add(mutationMethod("removeMove"))
 		return result
 	}
 
